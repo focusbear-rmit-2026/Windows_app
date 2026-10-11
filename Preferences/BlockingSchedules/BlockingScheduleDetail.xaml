@@ -1,14 +1,16 @@
-﻿<UserControl x:Class="Focus_Bear.Preferences.BlockingScheduleDetail"
+<UserControl x:Class="Focus_Bear.Preferences.BlockingScheduleDetail"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:Focus_Bear.Preferences" xmlns:localView="clr-namespace:Focus_Bear.Utils"
+             xmlns:emoji="clr-namespace:Emoji.Wpf;assembly=Emoji.Wpf"
              mc:Ignorable="d"
+             UseLayoutRounding="True" SnapsToDevicePixels="True"
              d:DesignHeight="900" d:DesignWidth="900" AutomationProperties.AutomationId="BlockingScheduleDetail">
     <UserControl.Resources>
         <local:DaysOfWeekIndexConverter x:Key="DaysOfWeekIndexConverter" />
-        <local:EnumToIntConverter x:Key="EnumToIntConverter" />
+        <local:EnumBooleanConverter x:Key="EnumBooleanConverter" />
         <local:InverseBooleanConverter x:Key="InverseBooleanConverter" />
 
     </UserControl.Resources>
@@ -20,190 +22,178 @@
                 </ResourceDictionary.MergedDictionaries>
             </ResourceDictionary>
         </Grid.Resources>
-        <ScrollViewer VerticalScrollBarVisibility="Auto">
-            <Border Padding="20"
-                Background="{DynamicResource SoftCreamColor}"
-                CornerRadius="12"
-                BorderBrush="#FFF2E1C1"
-                BorderThickness="1">
-                <StackPanel>
+        <ScrollViewer x:Name="ContentScrollViewer" VerticalScrollBarVisibility="Auto">
+            <StackPanel MaxWidth="820">
 
-                    <!-- Block name -->
-                    <TextBlock x:Name="BlockName" Text="xBlock name" Margin="0,0,0,10" />
-                    <TextBox Grid.Row="0" TabIndex="0" x:Name="BlockingScheduleName"  AutomationProperties.AutomationId="txtBlockingScheduleName" TextWrapping="Wrap" MaxLength="45"  Padding="5,1,5,1"  BorderThickness="1" FontSize="13" TextAlignment="Left" MaxLines="1" MinHeight="25" Height="32"  VerticalContentAlignment="Center">
-                        <Binding Path="name"/>
-                    </TextBox>
-                    <Rectangle Height="1" Fill="#CCC" HorizontalAlignment="Stretch" Margin="0,10,0,10"/>
+                <!-- Card 1: Name + Schedule + Active time -->
+                <Border Padding="20"
+                    Background="{DynamicResource SoftCreamColor}"
+                    CornerRadius="12"
+                    BorderBrush="#FFF2E1C1"
+                    BorderThickness="1"
+                    SnapsToDevicePixels="True"
+                    UseLayoutRounding="True">
+                    <StackPanel>
 
-                    <!-- Weekday selector -->
-                    <TextBlock x:Name="Title" Text="xBlocking schedule"  Margin="0,10,0,6"/>
-                    <UniformGrid Rows="1" Columns="7" HorizontalAlignment="Stretch">
-                        <ToggleButton Style="{StaticResource DayToggleButtonStyle}" x:Name="Mon" AutomationProperties.AutomationId="Mon" Content="xMon" IsChecked="{Binding Monday}" Margin="4"  FontSize="12"/>
-                        <ToggleButton Style="{StaticResource DayToggleButtonStyle}" x:Name="Tue" AutomationProperties.AutomationId="Tue" Content="xTue" IsChecked="{Binding Tuesday}" Margin="4" FontSize="12"/>
-                        <ToggleButton Style="{StaticResource DayToggleButtonStyle}" x:Name="Wed" AutomationProperties.AutomationId="Wed" Content="xWed" IsChecked="{Binding Wednesday}" Margin="4" FontSize="12"/>
-                        <ToggleButton Style="{StaticResource DayToggleButtonStyle}" x:Name="Thu" AutomationProperties.AutomationId="Thu" Content="xThu" IsChecked="{Binding Thursday}" Margin="4" FontSize="12"/>
-                        <ToggleButton Style="{StaticResource DayToggleButtonStyle}" x:Name="Fri" AutomationProperties.AutomationId="Fri" Content="xFri" IsChecked="{Binding Friday}" Margin="4" FontSize="12"/>
-                        <ToggleButton Style="{StaticResource DayToggleButtonStyle}" x:Name="Sat" AutomationProperties.AutomationId="Sat" Content="xSat" IsChecked="{Binding Saturday}" Margin="4" FontSize="12"/>
-                        <ToggleButton Style="{StaticResource DayToggleButtonStyle}" x:Name="Sun" AutomationProperties.AutomationId="Sun" Content="xSun" IsChecked="{Binding Sunday}" Margin="4" FontSize="12"/> 
-                    </UniformGrid>
+                        <!-- Block name -->
+                        <TextBlock x:Name="BlockName" Text="xBlock name" FontWeight="SemiBold" Margin="0,0,0,10" />
+                        <Grid Background="Transparent">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox Grid.Column="0" TabIndex="0" x:Name="BlockingScheduleName" Style="{StaticResource RoundedTextBoxStyle}" AutomationProperties.AutomationId="txtBlockingScheduleName" TextWrapping="Wrap" MaxLength="45" FontSize="13" TextAlignment="Left" MaxLines="1" MinHeight="34" VerticalContentAlignment="Center">
+                                <Binding Path="name"/>
+                            </TextBox>
+                            <Button Grid.Column="1" x:Name="BtnEmojiPicker" AutomationProperties.AutomationId="btnEmojiPicker" Style="{StaticResource EmojiPickerButtonStyle}" Margin="10,0,0,0" ToolTip="Choose an emoji for this schedule" Click="BtnEmojiPicker_Click">
+                                <emoji:TextBlock x:Name="EmojiPickerText" FontSize="17"/>
+                                <Button.ContextMenu>
+                                    <ContextMenu x:Name="EmojiContextMenu" Placement="Bottom">
+                                        <MenuItem Header="None" AutomationProperties.AutomationId="miEmojiNone" Click="EmojiMenuItem_Click"/>
+                                        <Separator/>
+                                        <MenuItem Tag="🧠" Click="EmojiMenuItem_Click"><MenuItem.Header><emoji:TextBlock Text="🧠" FontSize="16"/></MenuItem.Header></MenuItem>
+                                        <MenuItem Tag="🌅" Click="EmojiMenuItem_Click"><MenuItem.Header><emoji:TextBlock Text="🌅" FontSize="16"/></MenuItem.Header></MenuItem>
+                                        <MenuItem Tag="🌙" Click="EmojiMenuItem_Click"><MenuItem.Header><emoji:TextBlock Text="🌙" FontSize="16"/></MenuItem.Header></MenuItem>
+                                        <MenuItem Tag="⚡️" Click="EmojiMenuItem_Click"><MenuItem.Header><emoji:TextBlock Text="⚡️" FontSize="16"/></MenuItem.Header></MenuItem>
+                                        <MenuItem Tag="🏕️" Click="EmojiMenuItem_Click"><MenuItem.Header><emoji:TextBlock Text="🏕️" FontSize="16"/></MenuItem.Header></MenuItem>
+                                        <MenuItem Tag="🛠️" Click="EmojiMenuItem_Click"><MenuItem.Header><emoji:TextBlock Text="🛠️" FontSize="16"/></MenuItem.Header></MenuItem>
+                                        <MenuItem Tag="🎯" Click="EmojiMenuItem_Click"><MenuItem.Header><emoji:TextBlock Text="🎯" FontSize="16"/></MenuItem.Header></MenuItem>
+                                        <MenuItem Tag="😎" Click="EmojiMenuItem_Click"><MenuItem.Header><emoji:TextBlock Text="😎" FontSize="16"/></MenuItem.Header></MenuItem>
+                                        <MenuItem Tag="💪" Click="EmojiMenuItem_Click"><MenuItem.Header><emoji:TextBlock Text="💪" FontSize="16"/></MenuItem.Header></MenuItem>
+                                        <MenuItem Tag="📵" Click="EmojiMenuItem_Click"><MenuItem.Header><emoji:TextBlock Text="📵" FontSize="16"/></MenuItem.Header></MenuItem>
+                                        <MenuItem Tag="💻" Click="EmojiMenuItem_Click"><MenuItem.Header><emoji:TextBlock Text="💻" FontSize="16"/></MenuItem.Header></MenuItem>
+                                        <MenuItem Tag="📚" Click="EmojiMenuItem_Click"><MenuItem.Header><emoji:TextBlock Text="📚" FontSize="16"/></MenuItem.Header></MenuItem>
+                                        <MenuItem Tag="🎨" Click="EmojiMenuItem_Click"><MenuItem.Header><emoji:TextBlock Text="🎨" FontSize="16"/></MenuItem.Header></MenuItem>
+                                        <MenuItem Tag="🏋️" Click="EmojiMenuItem_Click"><MenuItem.Header><emoji:TextBlock Text="🏋️" FontSize="16"/></MenuItem.Header></MenuItem>
+                                        <MenuItem Tag="🧘" Click="EmojiMenuItem_Click"><MenuItem.Header><emoji:TextBlock Text="🧘" FontSize="16"/></MenuItem.Header></MenuItem>
+                                    </ContextMenu>
+                                </Button.ContextMenu>
+                            </Button>
+                        </Grid>
 
-                    <!-- Time selectors -->
-                    <Grid Margin="0,20,0,0" VerticalAlignment="Center">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
+                        <!-- Weekday selector -->
+                        <TextBlock x:Name="Title" Text="xBlocking schedule" FontWeight="SemiBold" Margin="0,20,0,10"/>
 
-                        <!-- From -->
-                        <StackPanel Grid.Column="0" HorizontalAlignment="Stretch" Orientation="Vertical" Background="{DynamicResource SoftCreamColor}">
-                            <TextBlock x:Name="From" Text="xFrom"  Margin="0,0,0,4"/>
-                            <Border 
-                                Background="White"
-                                CornerRadius="6"
-                                BorderBrush="LightGray"
-                                BorderThickness="1"
-                                Margin="0,0,15,0"
-                                Padding="10"  HorizontalAlignment="Stretch">
-
-                                <localView:HourControl x:Name="StartTimePicker"
-                                   AutomationProperties.AutomationId="tpStartTimePicker"
-                                   Height="26"
-                                   Cursor="Hand"
-                                   HorizontalAlignment="Left"
-                                   VerticalAlignment="Top"
-                                   />
-
-                            </Border>
+                        <!-- Quick-select presets -->
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,0,0,4">
+                            <ToggleButton x:Name="BtnWeekdays" AutomationProperties.AutomationId="btnWeekdays" Style="{StaticResource DayPresetToggleButtonStyle}" Content="xWeekdays" Click="BtnWeekdays_Click"/>
+                            <ToggleButton x:Name="BtnWeekends" AutomationProperties.AutomationId="btnWeekends" Style="{StaticResource DayPresetToggleButtonStyle}" Content="xWeekends" Click="BtnWeekends_Click"/>
+                            <ToggleButton x:Name="BtnEveryday" AutomationProperties.AutomationId="btnEveryday" Style="{StaticResource DayPresetToggleButtonStyle}" Content="xEveryday" Click="BtnEveryday_Click"/>
                         </StackPanel>
-                        <!-- Till -->
-                        <StackPanel  Grid.Column="1" HorizontalAlignment="Stretch" Orientation="Vertical"  Background="{DynamicResource SoftCreamColor}">
-                            <TextBlock x:Name="Till" Text="xTill"   Margin="0,0,0,4"/>
-                            <Border
-                            Background="White"
-                            CornerRadius="6"
-                            BorderBrush="LightGray"
-                            BorderThickness="1"
-                            Margin="0,0,0,0"
-                            Padding="10">
 
-                                <localView:HourControl x:Name="EndTimePicker"
-                                   AutomationProperties.AutomationId="tpEndTimePicker"
-                                   Height="26"
-                                   Cursor="Hand"
-                                   HorizontalAlignment="Left"
-                                   VerticalAlignment="Top"
-                                   />
+                        <UniformGrid Rows="1" Columns="7" HorizontalAlignment="Left">
+                            <ToggleButton Style="{StaticResource DayCircleToggleButtonStyle}" x:Name="Mon" AutomationProperties.AutomationId="Mon" Content="xMon" IsChecked="{Binding Monday}" Checked="DayToggle_Changed" Unchecked="DayToggle_Changed"/>
+                            <ToggleButton Style="{StaticResource DayCircleToggleButtonStyle}" x:Name="Tue" AutomationProperties.AutomationId="Tue" Content="xTue" IsChecked="{Binding Tuesday}" Checked="DayToggle_Changed" Unchecked="DayToggle_Changed"/>
+                            <ToggleButton Style="{StaticResource DayCircleToggleButtonStyle}" x:Name="Wed" AutomationProperties.AutomationId="Wed" Content="xWed" IsChecked="{Binding Wednesday}" Checked="DayToggle_Changed" Unchecked="DayToggle_Changed"/>
+                            <ToggleButton Style="{StaticResource DayCircleToggleButtonStyle}" x:Name="Thu" AutomationProperties.AutomationId="Thu" Content="xThu" IsChecked="{Binding Thursday}" Checked="DayToggle_Changed" Unchecked="DayToggle_Changed"/>
+                            <ToggleButton Style="{StaticResource DayCircleToggleButtonStyle}" x:Name="Fri" AutomationProperties.AutomationId="Fri" Content="xFri" IsChecked="{Binding Friday}" Checked="DayToggle_Changed" Unchecked="DayToggle_Changed"/>
+                            <ToggleButton Style="{StaticResource DayCircleToggleButtonStyle}" x:Name="Sat" AutomationProperties.AutomationId="Sat" Content="xSat" IsChecked="{Binding Saturday}" Checked="DayToggle_Changed" Unchecked="DayToggle_Changed"/>
+                            <ToggleButton Style="{StaticResource DayCircleToggleButtonStyle}" x:Name="Sun" AutomationProperties.AutomationId="Sun" Content="xSun" IsChecked="{Binding Sunday}" Checked="DayToggle_Changed" Unchecked="DayToggle_Changed"/>
+                        </UniformGrid>
 
-                            </Border>
-                        </StackPanel>
-                    </Grid>
-                    <Rectangle Height="1" Fill="#CCC" HorizontalAlignment="Stretch" Margin="0,10,0,10"/>
+                        <!-- Active time -->
+                        <TextBlock x:Name="ActiveTimeTitle" Text="xActive time" FontWeight="SemiBold" Margin="0,24,0,10"/>
+                        <localView:TimeRangeSlider x:Name="ActiveTimeSlider" AutomationProperties.AutomationId="sldActiveTime" HorizontalAlignment="Stretch"/>
 
-                    <!-- Block list -->
-                    <TextBlock x:Name="BlockList" Text="xBlock list"  Margin="0,10,0,4"/>
-                    <Border Background="White"
-                         CornerRadius="6"
-                         BorderBrush="LightGray"
-                         BorderThickness="1"
-                         Margin="0,0,0,0"
-                         Padding="10"  HorizontalAlignment="Stretch">
-                        <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
-                            <ComboBox  Name="ComboBoxFocusModes" AutomationProperties.AutomationId="cmbFocusModes" DisplayMemberPath="name" SelectedValuePath="id" SelectedValue="{Binding SelectedFocusModeId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"  Width="250" Height="30" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,10,0,0"  SelectedIndex="0" FontSize="15"  >
+                    </StackPanel>
+                </Border>
+
+                <!-- Card 2: Block list + Strictness -->
+                <Border Padding="20"
+                    Margin="0,16,0,0"
+                    Background="{DynamicResource SoftCreamColor}"
+                    CornerRadius="12"
+                    BorderBrush="#FFF2E1C1"
+                    BorderThickness="1"
+                    SnapsToDevicePixels="True"
+                    UseLayoutRounding="True">
+                    <StackPanel>
+
+                        <!-- Block list -->
+                        <TextBlock x:Name="BlockList" Text="xBlock list" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                        <StackPanel Orientation="Horizontal" Background="Transparent" HorizontalAlignment="Left">
+                            <ComboBox  Name="ComboBoxFocusModes" Style="{StaticResource RoundedComboBoxStyle}" AutomationProperties.AutomationId="cmbFocusModes" DisplayMemberPath="name" SelectedValuePath="id" SelectedValue="{Binding SelectedFocusModeId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"  Width="250" Height="34" VerticalAlignment="Center" HorizontalAlignment="Left"  SelectedIndex="0" FontSize="14"  >
                             </ComboBox>
-                            <TextBlock x:Name="EditBlockList"  AutomationProperties.AutomationId="txtEditBlockList"  Grid.Row="4" Margin="0,10,0,0" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Left" TextDecorations="{x:Null}"    MinHeight="22" Cursor="Hand">
-                                <Hyperlink x:Name="btnEditBlockList" AutomationProperties.AutomationId="btnEditBlockList" Click="btnEditBlockList_Click" Foreground="Black"   TextDecorations="Underline" ><Run x:Name="EditBlockListText" Foreground="Black" Text="xEdit block list"/></Hyperlink>
+                            <TextBlock x:Name="EditBlockList"  AutomationProperties.AutomationId="txtEditBlockList" Margin="12,0,0,0" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Left" TextDecorations="{x:Null}"    MinHeight="22" Cursor="Hand">
+                                <Hyperlink x:Name="btnEditBlockList" AutomationProperties.AutomationId="btnEditBlockList" Click="btnEditBlockList_Click" Foreground="#e88800"   TextDecorations="Underline" ><Run x:Name="EditBlockListText" Foreground="#e88800" Text="xEdit block list"/></Hyperlink>
                             </TextBlock>
                         </StackPanel>
-                    </Border>
 
-                    <Rectangle Height="1" Fill="#CCC" HorizontalAlignment="Stretch" Margin="0,10,0,10"/>
-                    
-                    <!-- Strictness slider -->
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock x:Name="StrictnessLevel" Text="xStrictness level:" Margin="0,10,0,15"/>
-                        <Image x:Name="StrictnessLevelInfo"  Source="../images/info-dark.png" Margin="5,0,0,0" Width="20" HorizontalAlignment="Center" VerticalAlignment="Center" Cursor="Hand"/>
-                    </StackPanel>
-                    <Slider x:Name="SliderStrictnessLevel" AutomationProperties.AutomationId="SliderStrictnessLevel" Minimum="0" Maximum="100"  Value="{Binding BlockLevel, Converter={StaticResource EnumToIntConverter}, Mode=TwoWay}" IsSnapToTickEnabled="True"  TickPlacement="BottomRight" Ticks="0,50,100" TickFrequency="50" ValueChanged="SliderStrictnessLevel_ValueChanged" />
-
-                    <!-- Legend -->
-                    <Grid Margin="0,6,0,10" HorizontalAlignment="Stretch" Background="{DynamicResource SoftCreamColor}">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="8*" />
-                            <ColumnDefinition Width="83*"/>
-                            <ColumnDefinition Width="91*" />
-                            <ColumnDefinition Width="91*" />
-                        </Grid.ColumnDefinitions>
-
-                        <!-- 1st group -->
-                        <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left" Grid.ColumnSpan="2"  >
-                            <Ellipse Width="12" Height="12" Fill="Green" Margin="0,0,4,0"/>
-                            <TextBlock Name="Chill" Text="xChill Mode"   FontSize="13"  VerticalAlignment="Center"/>
+                        <!-- Strictness -->
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock x:Name="StrictnessLevel" Text="xStrictness level:" FontWeight="SemiBold" Margin="0,24,0,15"/>
+                            <Image x:Name="StrictnessLevelInfo"  Source="../images/info-dark.png" Margin="5,20,0,0" Width="20" HorizontalAlignment="Center" VerticalAlignment="Center" Cursor="Hand"/>
                         </StackPanel>
 
-                        <!-- 2nd group -->
-                        <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Center" >
-                            <Ellipse Width="12" Height="12" Fill="Gold" Margin="0,0,4,0"/>
-                            <TextBlock x:Name="WaitForIt" Text="xWait for it..."  FontSize="13"  VerticalAlignment="Center"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                            <RadioButton x:Name="RadioFlexible" AutomationProperties.AutomationId="radioFlexible" GroupName="StrictnessLevel" Style="{StaticResource StrictnessRadioButtonStyle}" Tag="CHILL_MODE" Content="xFlexible"
+                                         IsChecked="{Binding BlockLevel, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=CHILL_MODE, Mode=TwoWay}" Checked="StrictnessRadio_Checked"/>
+                            <RadioButton x:Name="RadioModerate" AutomationProperties.AutomationId="radioModerate" GroupName="StrictnessLevel" Style="{StaticResource StrictnessRadioButtonStyle}" Tag="STRICT" Content="xModerate"
+                                         IsChecked="{Binding BlockLevel, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=STRICT, Mode=TwoWay}" Checked="StrictnessRadio_Checked"/>
+                            <RadioButton x:Name="RadioStrict" AutomationProperties.AutomationId="radioStrict" GroupName="StrictnessLevel" Style="{StaticResource StrictnessRadioButtonStyle}" Tag="IRON_FOCUS" Content="xStrict"
+                                         IsChecked="{Binding BlockLevel, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=IRON_FOCUS, Mode=TwoWay}" Checked="StrictnessRadio_Checked"/>
                         </StackPanel>
 
-                        <!-- 3rd group -->
-                        <StackPanel Grid.Column="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,0" >
-                            <Ellipse Width="12" Height="12" Fill="Red" Margin="0,0,4,0"/>
-                            <TextBlock x:Name="IronFocus" Text="xIron Focus"   FontSize="13" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="StrictnessDescription" Margin="0,10,0,0" FontSize="13" Foreground="{DynamicResource ForegroundGrey}" TextWrapping="Wrap"/>
+
+                    </StackPanel>
+                </Border>
+
+                <!-- More Options -->
+                <Expander x:Name="MoreOptionsExpander" AutomationProperties.AutomationId="expMoreOptions" Padding="0" Margin="0,16,0,0" HorizontalAlignment="Stretch" Cursor="Hand" Style="{StaticResource CardExpanderStyle}" Expanded="MoreOptionsExpander_Expanded">
+                    <Expander.Header>
+                        <TextBlock x:Name="MoreOptionsHeaderText" FontSize="14" Padding="0,0,0,0" FontWeight="Normal" TextAlignment="Left"/>
+                    </Expander.Header>
+
+                    <StackPanel Margin="20,10,20,10">
+                        <StackPanel Margin="0,0,0,0" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                            <CheckBox  x:Name="SkipMicroBreaks"   AutomationProperties.AutomationId="chkSkipMicroBreaks" Cursor="Hand" HorizontalAlignment="Center" VerticalAlignment="Bottom" Padding="5,-3,0,0" IsChecked="{Binding bMicroBreaksEnabled, Converter={StaticResource InverseBooleanConverter}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">xxSkip microbreaks </CheckBox>
+                            <Image x:Name="MicroBreaksInfo"  Source="{DynamicResource InfoImage}" Margin="5,10,0,0" Width="20" HorizontalAlignment="Center" VerticalAlignment="Bottom" Cursor="Hand"/>
                         </StackPanel>
-                    </Grid>
 
-                    <Rectangle Height="1" Fill="#CCC" HorizontalAlignment="Stretch" Margin="0,10,0,10"/>
-                    
-                    <!-- Options -->
-                    <StackPanel Margin="0,0,0,0" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
-                        <CheckBox  x:Name="SkipMicroBreaks"   AutomationProperties.AutomationId="chkSkipMicroBreaks" Cursor="Hand" HorizontalAlignment="Center" VerticalAlignment="Bottom" Padding="5,-3,0,0" IsChecked="{Binding bMicroBreaksEnabled, Converter={StaticResource InverseBooleanConverter}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">xxSkip microbreaks </CheckBox>
-                        <Image x:Name="MicroBreaksInfo"  Source="{DynamicResource InfoImage}" Margin="5,10,0,0" Width="20" HorizontalAlignment="Center" VerticalAlignment="Bottom" Cursor="Hand"/>
+                        <StackPanel Margin="0,4,0,0" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                            <CheckBox  x:Name="UseAIToDecide"  AutomationProperties.AutomationId="chkUseAIToDecide" Cursor="Hand" HorizontalAlignment="Center" VerticalAlignment="Bottom" Padding="5,-3,0,0" IsChecked="{Binding bAIBlockingEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">xxUse AI to decide if websites should be allowed</CheckBox>
+                            <Image x:Name="UseAIToDecideInfo"  Source="{DynamicResource InfoImage}"  Margin="5,10,0,0" Width="20" HorizontalAlignment="Center" VerticalAlignment="Top" Cursor="Hand"/>
+                        </StackPanel>
                     </StackPanel>
-                    
-                    <StackPanel Margin="0,0,0,0" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
-                        <CheckBox  x:Name="UseAIToDecide"  AutomationProperties.AutomationId="chkUseAIToDecide" Cursor="Hand" HorizontalAlignment="Center" VerticalAlignment="Bottom" Padding="5,-3,0,0" IsChecked="{Binding bAIBlockingEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">xxUse AI to decide if websites should be allowed</CheckBox>
-                        <Image x:Name="UseAIToDecideInfo"  Source="{DynamicResource InfoImage}"  Margin="5,10,0,0" Width="20" HorizontalAlignment="Center" VerticalAlignment="Top" Cursor="Hand"/>
-                    </StackPanel>
+                </Expander>
 
-                    <!-- Action Buttons -->
-                    <Grid Margin="0,20,0,0"  Background="{DynamicResource SoftCreamColor}">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
+                <!-- Action Buttons -->
+                <Grid Margin="0,20,0,20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
 
-                        <!-- Left-aligned button -->
-                        <Button x:Name="btnCancel"  Grid.Column="0" AutomationProperties.AutomationId="btnCancel"  Style="{StaticResource  BtnStyleClearOrangeBordered}" IsEnabled="True" Height="35" Width="150" HorizontalAlignment="Left" HorizontalContentAlignment="Center" Padding="0" Margin="0,15,0,0" FontSize="15" Cursor="Hand" FontWeight="Semibold" Click="btnCancel_Click">
-                            <Button.Content>
-                                <StackPanel  Orientation="Horizontal">
-                                    <TextBlock Name="btnCancelText" Margin="8" Text="xCancel" Foreground="Black"/>
-                                </StackPanel>
-                            </Button.Content>
-                        </Button>
+                    <!-- Left-aligned button -->
+                    <Button x:Name="btnCancel"  Grid.Column="0" AutomationProperties.AutomationId="btnCancel"  Style="{StaticResource  BtnStyleClearOrangeBordered}" IsEnabled="True" Height="35" Width="150" HorizontalAlignment="Left" HorizontalContentAlignment="Center" Padding="0" Margin="0,15,0,0" FontSize="15" Cursor="Hand" FontWeight="Semibold" Click="btnCancel_Click">
+                        <Button.Content>
+                            <StackPanel  Orientation="Horizontal">
+                                <TextBlock Name="btnCancelText" Margin="8" Text="xCancel" Foreground="Black"/>
+                            </StackPanel>
+                        </Button.Content>
+                    </Button>
 
-                        <!-- Right-aligned buttons -->
-                        <Button x:Name="btnDelete"  Grid.Column="1" AutomationProperties.AutomationId="btnDelete"  Style="{StaticResource  BtnStyleLightOrangeBordered}" IsEnabled="True" Height="35" Width="150"  HorizontalContentAlignment="Center"  HorizontalAlignment="Right" Padding="0" Margin="0,15,0,0" FontSize="15" Cursor="Hand" FontWeight="Semibold" Click="btnDelete_Click">
-                            <Button.Content>
-                                <StackPanel  Orientation="Horizontal">
-                                    <TextBlock Name="btnDeleteText" Margin="8" Text="xDelete" Foreground="Black"/>
-                                </StackPanel>
-                            </Button.Content>
-                        </Button>
+                    <!-- Right-aligned buttons -->
+                    <Button x:Name="btnDelete"  Grid.Column="1" AutomationProperties.AutomationId="btnDelete"  Style="{StaticResource  BtnStyleLightOrangeBordered}" IsEnabled="True" Height="35" Width="150"  HorizontalContentAlignment="Center"  HorizontalAlignment="Right" Padding="0" Margin="0,15,0,0" FontSize="15" Cursor="Hand" FontWeight="Semibold" Click="btnDelete_Click">
+                        <Button.Content>
+                            <StackPanel  Orientation="Horizontal">
+                                <TextBlock Name="btnDeleteText" Margin="8" Text="xDelete" Foreground="Black"/>
+                            </StackPanel>
+                        </Button.Content>
+                    </Button>
 
-                        <Button x:Name="btnSaveChanges"  Grid.Column="2" AutomationProperties.AutomationId="btnSaveChanges"  Style="{StaticResource  BtnStyleLightOrangeBordered}" IsEnabled="True" Height="35" Width="150"  HorizontalContentAlignment="Center"  HorizontalAlignment="Right" Padding="0" Margin="15,15,0,0" FontSize="15" Cursor="Hand" FontWeight="Semibold" Click="btnSaveChanges_Click">
-                            <Button.Content>
-                                <StackPanel  Orientation="Horizontal">
-                                    <TextBlock Name="btnSaveChangesText" Margin="8" Text="xSave Changes" Foreground="Black"/>
-                                </StackPanel>
-                            </Button.Content>
-                        </Button>
-                    </Grid>
+                    <Button x:Name="btnSaveChanges"  Grid.Column="2" AutomationProperties.AutomationId="btnSaveChanges"  Style="{StaticResource  BtnStyleLightOrangeBordered}" IsEnabled="True" Height="35" Width="150"  HorizontalContentAlignment="Center"  HorizontalAlignment="Right" Padding="0" Margin="15,15,0,0" FontSize="15" Cursor="Hand" FontWeight="Semibold" Click="btnSaveChanges_Click">
+                        <Button.Content>
+                            <StackPanel  Orientation="Horizontal">
+                                <TextBlock Name="btnSaveChangesText" Margin="8" Text="xSave Changes" Foreground="Black"/>
+                            </StackPanel>
+                        </Button.Content>
+                    </Button>
+                </Grid>
 
-
-                </StackPanel>
-            </Border>
+            </StackPanel>
         </ScrollViewer>
     </Grid>
 </UserControl>

@@ -75,7 +75,8 @@ namespace Focus_Bear.Preferences
 
             try
             {
-                Heading.Text = appSettings.ConfigFileStrings["abortingCustomScheduleBlockingVcInfo"]["titlePauseText"].ToString().Replace("<SCHEDULE>", appSettings.ActiveSchedule.name);
+                var scheduleForTimer = appSettings.ActiveSchedule;   // capture once — may be nulled concurrently
+                Heading.Text = appSettings.ConfigFileStrings["abortingCustomScheduleBlockingVcInfo"]["titlePauseText"].ToString().Replace("<SCHEDULE>", scheduleForTimer?.name ?? "");
                 Description.Text = appSettings.ConfigFileStrings["focusInfo"]["abortingFocusModeInfo"]["strictModeText"].ToString();
                 btnPauseCustomScheduleText.Text = appSettings.ConfigFileStrings["abortingCustomScheduleBlockingVcInfo"]["buttonAbortFocus"].ToString();
                 btnCancelText.Text = appSettings.ConfigFileStrings["common"]["buttonCancelText"].ToString();

@@ -3,11 +3,18 @@
 
     <SolidColorBrush x:Key="BackgroundColor" Color="#282828"/>
     <SolidColorBrush x:Key="SoftCreamColor" Color="#3d3d3d"/>
+    <!-- Text on the orange selection / expanded-card fill: near-black in both themes (white was 2.4:1). -->
+    <SolidColorBrush x:Key="OnOrangeText" Color="#1C1C1E"/>
+    <SolidColorBrush x:Key="OnOrangeSubtitle" Color="#3D2A12"/>
+    <!-- Orange for headings and links on the dark page / card: #B35C00 was 2.3:1 on #3D3D3D; #F09A3E is 4.8:1. -->
+    <SolidColorBrush x:Key="OrangeTextColor" Color="#F09A3E"/>
+    <SolidColorBrush x:Key="CardSubtitleColor" Color="#B8B8BF"/>
     <!-- Text-input background: dark grey in dark mode (readable, matches native dark text boxes). -->
     <SolidColorBrush x:Key="TextBoxBackgroundColor" Color="#333333"/>
     <SolidColorBrush x:Key="FocusActivitySummaryBackgroundColor" Color="#282828"/>
-    <SolidColorBrush x:Key="ForegroundColor" Color="LightGray"/>
-    <SolidColorBrush x:Key="ForegroundGrey" Color="#808080"/>
+    <!-- Near-white body text and a lighter secondary: the old LightGray / #9A9AA0 read as grey on grey (~3.7:1 on the #3d3d3d panels). -->
+    <SolidColorBrush x:Key="ForegroundColor" Color="#F2F2F3"/>
+    <SolidColorBrush x:Key="ForegroundGrey" Color="#B8B8B8"/>
     <SolidColorBrush x:Key="TabChosenColor" Color="#6E6E6E"/>
     <SolidColorBrush x:Key="UpdateNowPageColor" Color="#282828"/>
 
@@ -16,7 +23,7 @@
     <SolidColorBrush x:Key="TrayCardBorder" Color="#3C3C3E"/>
     <SolidColorBrush x:Key="TrayCardHoverBg" Color="#38322B"/>
     <SolidColorBrush x:Key="TrayCardHoverBorder" Color="#5A4A36"/>
-    <SolidColorBrush x:Key="TraySubtitleColor" Color="#9A9AA0"/>
+    <SolidColorBrush x:Key="TraySubtitleColor" Color="#B8B8BF"/>
     <SolidColorBrush x:Key="TrayChevronColor" Color="#6E6E72"/>
     <SolidColorBrush x:Key="TrayIconSquareBg" Color="#4A3B28"/>
     <SolidColorBrush x:Key="TrayCircleBtnBg" Color="#3A3A3C"/>

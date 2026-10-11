@@ -65,7 +65,8 @@ namespace Focus_Bear.Onboarding
         private void btnSkip_Click(object sender, RoutedEventArgs e)
         {
             appSettings.CapturePostHog("add-new-block-skipped");
-            _parentWindow.PageOnboardingViewController.Navigate(OnboardingViewController.ONBOARDINGSTATE._ALL_SET_);
+            // Hold On now shows after distraction blocking, right before habit setup (flow reorder to match mac).
+            _parentWindow.PageOnboardingViewController.Navigate(OnboardingViewController.ONBOARDINGSTATE._HOLD_ON_);
         }
         private void Page_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {

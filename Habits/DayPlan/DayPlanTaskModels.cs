@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Collections.Generic;
 using System.Linq;
 using Focus_Bear.Models;
@@ -8,78 +9,6 @@ using Newtonsoft.Json.Linq;
 
 namespace Focus_Bear.Habits.DayPlan
 {
-    /// <summary>
-    /// Natural-language "move task to a day" parser — the Windows port of the macOS
-    /// <c>parseSnoozeDate</c>. Accepts <c>today/tod</c>, <c>tom/tmr/tomorrow</c>, a weekday prefix
-    /// (<c>mon</c>…<c>sun</c> → next occurrence), <c>&lt;n&gt;&lt;unit&gt;</c> (<c>d/w/mo/y</c>), or an
-    /// absolute date (<c>1 Jul</c>, <c>Jul 1</c>, <c>1/7</c>). Returns the target day (date-only) or null.
-    /// </summary>
-    public static class DayPlanSnooze
-    {
-        public static DateTime? Parse(string input, DateTime baseDate)
-        {
-            string s = (input ?? "").Trim().ToLowerInvariant();
-            if (string.IsNullOrEmpty(s)) return null;
-            DateTime today = baseDate.Date;
-
-            // Allow a leading "next " / "this " so "next tue", "next week", "this fri" all work (the
-            // help text advertises "next tue", so it must be accepted). "next <unit>" = one unit ahead.
-            if (s.StartsWith("next ")) s = s.Substring(5).Trim();
-            else if (s.StartsWith("this ")) s = s.Substring(5).Trim();
-
-            if (s == "today" || s == "tod") return today;
-            if (s == "tom" || s == "tmr" || s == "tomorrow") return today.AddDays(1);
-
-            // Bare unit words (e.g. from "next week"): treat as one unit ahead.
-            switch (s)
-            {
-                case "day": case "days": return today.AddDays(1);
-                case "week": case "wk": case "wks": case "weeks": return today.AddDays(7);
-                case "month": case "mo": case "months": return today.AddMonths(1);
-                case "year": case "yr": case "yrs": case "years": return today.AddYears(1);
-            }
-
-            var weekdays = new (string name, DayOfWeek wd)[]
-            {
-                ("sun", DayOfWeek.Sunday), ("mon", DayOfWeek.Monday), ("tue", DayOfWeek.Tuesday),
-                ("wed", DayOfWeek.Wednesday), ("thu", DayOfWeek.Thursday), ("fri", DayOfWeek.Friday),
-                ("sat", DayOfWeek.Saturday)
-            };
-            foreach (var (name, wd) in weekdays)
-            {
-                if (!s.StartsWith(name)) continue;
-                DateTime d = today.AddDays(1);
-                while (d.DayOfWeek != wd) d = d.AddDays(1);
-                return d;
-            }
-
-            // <number><unit>: d/w/mo/y
-            int digits = 0;
-            while (digits < s.Length && char.IsDigit(s[digits])) digits++;
-            if (digits > 0 && int.TryParse(s.Substring(0, digits), out int n) && n > 0)
-            {
-                string unit = s.Substring(digits);
-                switch (unit)
-                {
-                    case "d": case "day": case "days": return today.AddDays(n);
-                    case "w": case "wk": case "wks": case "week": case "weeks": return today.AddDays(n * 7);
-                    case "mo": case "month": case "months": return today.AddMonths(n);
-                    case "y": case "yr": case "yrs": case "year": case "years": return today.AddYears(n);
-                }
-            }
-
-            // Absolute calendar date; if it already passed this year (no year given), roll forward a year.
-            if (DateTime.TryParse(input, System.Globalization.CultureInfo.CurrentCulture,
-                    System.Globalization.DateTimeStyles.None, out DateTime abs))
-            {
-                DateTime day = abs.Date;
-                if (day < today) day = day.AddYears(1);
-                return day >= today ? day : (DateTime?)null;
-            }
-            return null;
-        }
-    }
-
     /// <summary>One checklist sub-task on a <see cref="DayPlanTask"/> (macOS <c>DayPlanSubtask</c>).</summary>
     public class DayPlanSubtask
     {
@@ -106,10 +35,21 @@ namespace Focus_Bear.Habits.DayPlan
         public bool Done { get; set; }
         /// <summary>Backend to-do id this task mirrors (null for from-scratch tasks).</summary>
         public string SourceTaskId { get; set; }
+        /// <summary>
+        /// The id chosen here for the to-do a local task is about to get (#1646). Saved before the create goes
+        /// out: a retry after a lost reply then updates that row instead of adding a second one, and a row that
+        /// comes back under this id in a day's payload or the catalogue is this task, not a new one. Cleared once
+        /// <see cref="SourceTaskId"/> is set.
+        /// </summary>
+        public string PendingTodoId { get; set; }
         /// <summary>Schedule-block association; null = loose in the panel.</summary>
         public string BlockKey { get; set; }
-        /// <summary>Project/tag name (from the to-do's first tag), shown as a grouping header.</summary>
+        /// <summary>Project name, shown as a grouping header: the to-do's <c>project_id</c> resolved
+        /// against /projects, else its first tag (FocusBear.Core TodoProjects), or typed here.</summary>
         public string Project { get; set; }
+        /// <summary>The backend project the backing to-do was last seen linked to (<c>project_id</c>);
+        /// null = none / unknown. Lets a rename or relink made elsewhere follow through (Mac projectID).</summary>
+        public string ProjectId { get; set; }
         /// <summary>Longer description, editable in the task detail modal.</summary>
         public string Notes { get; set; }
         /// <summary>Checklist sub-tasks (null/empty for tasks without any).</summary>
@@ -149,8 +89,9 @@ namespace Focus_Bear.Habits.DayPlan
     /// <summary>
     /// The day-keyed task store — the Windows port of macOS <c>DayPlanTaskStore</c>. A process-wide
     /// singleton holding tasks bucketed by <c>yyyy-MM-dd</c>, persisted locally (registry) so
-    /// associations survive a restart. Backend cross-device sync is a later phase; for now this is the
-    /// single source of truth for what's in the panel and what's nested under each block.
+    /// associations survive a restart. To-do-backed tasks sync through <see cref="DayPlanSync"/>; a task typed
+    /// here gets a to-do created for it once it has a name (<see cref="CreateTodoFor"/>), so it reaches the
+    /// user's other devices too.
     /// </summary>
     public sealed class DayPlanTaskStore
     {
@@ -163,9 +104,26 @@ namespace Focus_Bear.Habits.DayPlan
         // call (Tasks() runs once per habit row per render — the registry reads added up to real lag).
         private string _rolledOverDay;
 
+        // Where the store lives: the registry in the app, memory in tests.
+        private readonly Func<string> _loadJson = RegistryManager.LoadDayPlanTasks;
+        private readonly Action<string> _saveJson = RegistryManager.SaveDayPlanTasks;
+        private readonly Func<string> _loadRolloverDay = RegistryManager.LoadDayPlanLastRolloverDay;
+        private readonly Action<string> _saveRolloverDay = RegistryManager.SaveDayPlanLastRolloverDay;
+
         private DayPlanTaskStore() { Load(); }
 
-        private static string DayKey(DateTime date) => date.ToString("yyyy-MM-dd");
+        /// <summary>A store of its own over in-memory storage (tests); the app uses <see cref="Shared"/>.</summary>
+        internal DayPlanTaskStore(string json, Action<string> saved, string rolledOverDay = null)
+        {
+            string rolled = rolledOverDay;
+            _loadJson = () => json;
+            _saveJson = saved ?? (_ => { });
+            _loadRolloverDay = () => rolled;
+            _saveRolloverDay = day => rolled = day;
+            Load();
+        }
+
+        private static string DayKey(DateTime date) => FocusBear.Core.Schedule.DayPlanDayKey.For(date);
 
         // ---- persistence -------------------------------------------------------------------------
 
@@ -173,7 +131,7 @@ namespace Focus_Bear.Habits.DayPlan
         {
             try
             {
-                string json = RegistryManager.LoadDayPlanTasks();
+                string json = _loadJson();
                 if (!string.IsNullOrEmpty(json))
                 {
                     var loaded = JsonConvert.DeserializeObject<Dictionary<string, List<DayPlanTask>>>(json);
@@ -185,6 +143,7 @@ namespace Focus_Bear.Habits.DayPlan
                 LogWriter.LogWrite("DayPlanTaskStore.Load - " + ex.Message);
                 _byDay = new Dictionary<string, List<DayPlanTask>>();
             }
+            RememberSaved();
         }
 
         private void Save()
@@ -192,13 +151,227 @@ namespace Focus_Bear.Habits.DayPlan
             try
             {
                 string json = JsonConvert.SerializeObject(_byDay);
-                RegistryManager.SaveDayPlanTasks(json);
+                _saveJson(json);
             }
             catch (Exception ex)
             {
                 LogWriter.LogWrite("DayPlanTaskStore.Save - " + ex.Message);
             }
+            RememberSaved();
         }
+
+        // ---- write-sync bookkeeping --------------------------------------------------------------
+
+        // Each task as it was at the last save. The screens edit the store's own objects in place and then call
+        // Update, so comparing with the list entry saw no change: a rename, a new project, a length or a tick made
+        // that way never reached the server.
+        private Dictionary<string, DayPlanTaskFields> _saved = new Dictionary<string, DayPlanTaskFields>();
+        // Local tasks whose to-do create is in flight (one create per task).
+        private readonly HashSet<string> _creating = new HashSet<string>();
+        // To-dos this store just created, and when: the unfinished catalogue can be older than the create.
+        private readonly Dictionary<string, DateTime> _createdUtc = new Dictionary<string, DateTime>();
+        private const int FreshCreateGraceSeconds = 300;
+        // Failed creates per task: how many, and when the sweep may try again (an edit always may). The last delay repeats.
+        private readonly Dictionary<string, int> _createFailures = new Dictionary<string, int>();
+        private readonly Dictionary<string, DateTime> _createNotBeforeUtc = new Dictionary<string, DateTime>();
+        internal static readonly TimeSpan[] CreateRetryDelays = { TimeSpan.FromSeconds(30), TimeSpan.FromMinutes(2), TimeSpan.FromMinutes(10), TimeSpan.FromMinutes(30) };
+        internal Func<DateTime> UtcNow = () => DateTime.UtcNow;
+        // Project creates in flight by lower-cased name, so two tasks given the same new project share one.
+        private readonly Dictionary<string, System.Threading.Tasks.Task<string>> _projectCreates =
+            new Dictionary<string, System.Threading.Tasks.Task<string>>();
+        private bool _remoteProjectsLoaded;
+
+        private void RememberSaved()
+        {
+            var saved = new Dictionary<string, DayPlanTaskFields>();
+            foreach (List<DayPlanTask> list in _byDay.Values)
+                foreach (DayPlanTask t in list)
+                    if (t?.Id != null) saved[t.Id] = DayPlanTaskFields.Of(t);
+            _saved = saved;
+        }
+
+        private DayPlanTaskFields SavedFields(string id) =>
+            id != null && _saved.TryGetValue(id, out DayPlanTaskFields f) ? f : null;
+
+        /// <summary>Send an edit to the task's to-do, or create the to-do when the task has none yet.</summary>
+        private void SyncEdits(DayPlanTask task, DateTime date, DayPlanTaskFields before)
+        {
+            if (!DayPlanSync.CanSync(task))
+            {
+                if (DayPlanSync.NeedsCreate(task)) CreateTodoFor(task, date);
+                return;
+            }
+            if (before != null && !DayPlanTaskFields.Of(task).SameShared(before))
+                DayPlanSync.SendEdits(task, before, ProjectIdForAsync);
+        }
+
+        /// <summary>
+        /// Create a to-do for a task typed into the Day Plan (the Mac's mintTodoIfNeeded), planned and due on its day,
+        /// then back the task with it. Best-effort: when it fails (offline) the task stays local and the next edit,
+        /// or the next open's <see cref="SyncLocalOnlyTasks"/>, tries again.
+        /// </summary>
+        private void CreateTodoFor(DayPlanTask task, DateTime date)
+        {
+            if (!DayPlanSync.NeedsCreate(task) || _creating.Contains(task.Id)) return;
+            // A task in a project the app cannot yet name (the project list has not loaded) waits for the next sweep:
+            // creating it now would make a to-do with no project, which then lands in the wrong place everywhere.
+            if (!CanResolveProject(task.Project))
+            {
+                LogWriter.LogWrite("DayPlanSync: to-do create for \"" + task.Title + "\" waits for the project list");
+                return;
+            }
+            _creating.Add(task.Id);
+            // The to-do's id is ours, kept on the task before anything is sent (#1646): a retry after a lost reply
+            // updates the same row, and a row seen under this id elsewhere is recognised as this task.
+            if (string.IsNullOrEmpty(task.PendingTodoId)) { task.PendingTodoId = Guid.NewGuid().ToString(); Save(); }
+            string localId = task.Id, pendingId = task.PendingTodoId;
+            DayPlanTaskFields sent = DayPlanTaskFields.Of(task);
+            int quadrant = task.EisenhowerQuadrant ?? DayPlanSync.NeutralQuadrant;
+            DayPlanSync.Run(async () =>
+            {
+                string todoId = null, projectId = null;
+                try
+                {
+                    if (sent.Project.Length > 0) projectId = await ProjectIdForAsync(sent.Project);
+                    todoId = await DayPlanSync.ApiFactory().CreateTodo(DayPlanSync.CreateBody(task, date, quadrant, projectId, pendingId));
+                }
+                finally { _creating.Remove(localId); }
+                if (todoId == null)
+                {
+                    RecordCreateFailure(localId);
+                    return false;
+                }
+                _createFailures.Remove(localId);
+                _createNotBeforeUtc.Remove(localId);
+                await OnTodoCreated(localId, todoId, quadrant, projectId, sent, date);
+                return true;
+            }, "createTodo");
+        }
+
+        /// <summary>A task with no project can always be created; one with a project needs that project nameable.</summary>
+        private bool CanResolveProject(string project)
+        {
+            string n = (project ?? "").Trim();
+            if (n.Length == 0 || _remoteProjectsLoaded) return true;
+            return RemoteProjectsById.Values.Any(v => string.Equals((v ?? "").Trim(), n, StringComparison.OrdinalIgnoreCase));
+        }
+
+        private void RecordCreateFailure(string localId)
+        {
+            int failures = (_createFailures.TryGetValue(localId, out int f) ? f : 0) + 1;
+            _createFailures[localId] = failures;
+            TimeSpan delay = CreateRetryDelays[Math.Min(failures, CreateRetryDelays.Length) - 1];
+            _createNotBeforeUtc[localId] = UtcNow() + delay;
+            LogWriter.LogWrite("DayPlanSync: to-do create failed (attempt " + failures + ") - the task stays on this computer; the sweep retries in "
+                + (int)delay.TotalMinutes + " min, an edit or the network coming back retries at once");
+        }
+
+        /// <summary>Whether the periodic sweep should leave this task alone for now. An edit never waits.</summary>
+        private bool IsBackingOff(string localId) =>
+            _createNotBeforeUtc.TryGetValue(localId, out DateTime notBefore) && UtcNow() < notBefore;
+
+        /// <summary>Connectivity is back: waiting out the backoff would only delay tasks that can go now.</summary>
+        public void ClearCreateBackoff()
+        {
+            _createFailures.Clear();
+            _createNotBeforeUtc.Clear();
+        }
+
+        private async System.Threading.Tasks.Task OnTodoCreated(string localId, string todoId, int quadrant, string projectId,
+                                                                DayPlanTaskFields sent, DateTime date)
+        {
+            string dayKey = null;
+            DayPlanTask t = null;
+            foreach (var kv in _byDay)
+            {
+                t = kv.Value.FirstOrDefault(x => x.Id == localId);
+                if (t != null) { dayKey = kv.Key; break; }
+            }
+            if (t == null)
+            {
+                // Deleted while the create was in flight: take the new to-do back out rather than leave it on other devices.
+                LogWriter.LogWrite("DayPlanSync: task removed before its to-do was created - deleting " + todoId);
+                await DayPlanSync.ApiFactory().DeleteTodo(todoId);
+                return;
+            }
+            if (DayPlanSync.CanSync(t)) return;
+
+            t.SourceTaskId = todoId;
+            t.PendingTodoId = null;
+            if (!t.EisenhowerQuadrant.HasValue) t.EisenhowerQuadrant = quadrant;
+            if (projectId != null && string.Equals((t.Project ?? "").Trim(), sent.Project, StringComparison.OrdinalIgnoreCase)) t.ProjectId = projectId;
+            _createdUtc[todoId] = DateTime.UtcNow;
+            Save();
+            try { DayPlanSync.TodoCreated?.Invoke(); } catch { }
+            LogWriter.LogWrite("DayPlanSync: created to-do " + todoId + " for a task typed into the Day Plan");
+
+            // Catch up on what happened while the create was in flight.
+            DayPlanTaskFields now = DayPlanTaskFields.Of(t);
+            if (!now.SameShared(sent)) DayPlanSync.SendEdits(t, sent, ProjectIdForAsync);
+            if (now.Done != sent.Done) DayPlanSync.SetTodoStatus(t, now.Done);
+            if (dayKey != DayKey(date) || !string.Equals(now.BlockKey, sent.BlockKey, StringComparison.Ordinal))
+            {
+                DateTime day;
+                if (DateTime.TryParseExact(dayKey, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out day))
+                    DayPlanSync.SetTodoPlanned(t, day, t.BlockKey);
+            }
+        }
+
+        /// <summary>
+        /// The id of the user's project with this name (any case); a new project when there is none. Null when it
+        /// can't be known: the project list hasn't loaded (creating then could duplicate one of theirs) or the create failed.
+        /// </summary>
+        internal async System.Threading.Tasks.Task<string> ProjectIdForAsync(string name)
+        {
+            string n = (name ?? "").Trim();
+            if (n.Length == 0) return null;
+            foreach (var kv in RemoteProjectsById)
+                if (string.Equals((kv.Value ?? "").Trim(), n, StringComparison.OrdinalIgnoreCase)) return kv.Key;
+            if (!_remoteProjectsLoaded) return null;
+            string key = n.ToLowerInvariant();
+            if (!_projectCreates.TryGetValue(key, out System.Threading.Tasks.Task<string> pending))
+            {
+                pending = DayPlanSync.ApiFactory().CreateProject(n);
+                _projectCreates[key] = pending;
+            }
+            string id;
+            try { id = await pending; }
+            finally { _projectCreates.Remove(key); }
+            if (id != null && !RemoteProjectsById.ContainsKey(id))
+            {
+                RemoteProjectsById = new Dictionary<string, string>(RemoteProjectsById) { [id] = n };
+                if (!RemoteProjectNames.Contains(n, StringComparer.OrdinalIgnoreCase)) RemoteProjectNames = RemoteProjectNames.Concat(new[] { n }).ToList();
+            }
+            return id;
+        }
+
+        /// <summary>
+        /// Create to-dos for the unfinished tasks from today on that exist only on this computer — typed before this
+        /// sync existed, or while offline. Finished history is left alone. Returns how many creates were started.
+        /// </summary>
+        public int SyncLocalOnlyTasks(DateTime today)
+        {
+            string todayKey = DayKey(today);
+            int started = 0;
+            foreach (var kv in _byDay.ToList())
+            {
+                if (string.CompareOrdinal(kv.Key, todayKey) < 0) continue;
+                DateTime day;
+                if (!DateTime.TryParseExact(kv.Key, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out day)) continue;
+                foreach (DayPlanTask t in kv.Value.ToList())
+                {
+                    if (!DayPlanSync.NeedsCreate(t) || _creating.Contains(t.Id) || IsBackingOff(t.Id) || !CanResolveProject(t.Project)) continue;
+                    CreateTodoFor(t, day);
+                    started++;
+                }
+            }
+            if (started > 0) LogWriter.LogWrite("DayPlanSync: creating to-dos for " + started + " task(s) that were only on this computer");
+            return started;
+        }
+
+        /// <summary>A to-do this store created within the grace period — possibly newer than the catalogue in hand.</summary>
+        private bool CreatedRecently(string todoId) =>
+            todoId != null && _createdUtc.TryGetValue(todoId, out DateTime at) && (DateTime.UtcNow - at).TotalSeconds < FreshCreateGraceSeconds;
 
         // ---- rollover ----------------------------------------------------------------------------
 
@@ -212,7 +385,7 @@ namespace Focus_Bear.Habits.DayPlan
             if (_isRollingOver) return;
             string todayKey = DayKey(DateTime.Today);
             if (_rolledOverDay == todayKey) return;   // already handled this session-day (no registry read)
-            if (RegistryManager.LoadDayPlanLastRolloverDay() == todayKey) { _rolledOverDay = todayKey; return; }
+            if (_loadRolloverDay() == todayKey) { _rolledOverDay = todayKey; return; }
             _isRollingOver = true;
             try
             {
@@ -230,15 +403,16 @@ namespace Focus_Bear.Habits.DayPlan
                     foreach (DayPlanTask t in incomplete)
                     {
                         // Don't duplicate an imported to-do that's already on today.
-                        if (!string.IsNullOrEmpty(t.SourceTaskId) &&
-                            todayList.Any(x => x.SourceTaskId == t.SourceTaskId)) continue;
+                        string backing = t.SourceTaskId ?? t.PendingTodoId;
+                        if (!string.IsNullOrEmpty(backing) &&
+                            todayList.Any(x => (x.SourceTaskId ?? x.PendingTodoId) == backing)) continue;
                         t.BlockKey = null; // re-plan onto today, untimed
                         todayList.Add(t);
                     }
                     _byDay[dayK].RemoveAll(t => !t.Done);
                     changed = true;
                 }
-                RegistryManager.SaveDayPlanLastRolloverDay(todayKey);
+                _saveRolloverDay(todayKey);
                 _rolledOverDay = todayKey;
                 if (changed) Save();
             }
@@ -271,15 +445,56 @@ namespace Focus_Bear.Habits.DayPlan
         public DayPlanTask TaskWithId(string id, DateTime date) =>
             Tasks(date).FirstOrDefault(t => t.Id == id);
 
+        /// <summary>Every stored task with its day — what the reprioritise forecast prices (Mac forecastSnapshot).</summary>
+        public List<KeyValuePair<DateTime, DayPlanTask>> AllPlanned()
+        {
+            var result = new List<KeyValuePair<DateTime, DayPlanTask>>();
+            foreach (var kv in _byDay)
+            {
+                DateTime day;
+                if (!DateTime.TryParseExact(kv.Key, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out day)) continue;
+                foreach (DayPlanTask t in kv.Value) result.Add(new KeyValuePair<DateTime, DayPlanTask>(day, t));
+            }
+            return result;
+        }
+
+        /// <summary>The latest unfinished copy of a to-do on the plan, with its day (Mac plannedCopy(ofSourceTask:)).</summary>
+        public KeyValuePair<DateTime, DayPlanTask>? PlannedCopy(string sourceTaskId)
+        {
+            if (string.IsNullOrEmpty(sourceTaskId)) return null;
+            var copies = AllPlanned().Where(p => p.Value.SourceTaskId == sourceTaskId && !p.Value.Done).OrderByDescending(p => p.Key).ToList();
+            return copies.Count == 0 ? (KeyValuePair<DateTime, DayPlanTask>?)null : copies[0];
+        }
+
         public bool Contains(string sourceTaskId, DateTime date) =>
-            Tasks(date).Any(t => t.SourceTaskId == sourceTaskId);
+            Tasks(date).Any(t => t.SourceTaskId == sourceTaskId || (t.PendingTodoId != null && t.PendingTodoId == sourceTaskId));
+
+        /// <summary>
+        /// A local task whose create went out under <paramref name="todoId"/> but whose reply was lost: the to-do
+        /// exists, so the task is backed by it from now on (#1646). True when one was found.
+        /// </summary>
+        private bool AdoptPending(string todoId, IList<DayPlanTask> list)
+        {
+            if (string.IsNullOrEmpty(todoId)) return false;
+            DayPlanTask pending = list.FirstOrDefault(t => string.IsNullOrEmpty(t.SourceTaskId) && t.PendingTodoId == todoId);
+            if (pending == null) return false;
+            pending.SourceTaskId = todoId;
+            pending.PendingTodoId = null;
+            _createdUtc[todoId] = UtcNow();
+            LogWriter.LogWrite("DayPlanSync: to-do " + todoId + " came back for a task whose create reply was lost - adopted, not duplicated");
+            return true;
+        }
 
         // ---- mutations ---------------------------------------------------------------------------
 
         public void Add(DayPlanTask task, DateTime date)
         {
             // Never add the same imported to-do twice on a day.
-            if (!string.IsNullOrEmpty(task.SourceTaskId) && Contains(task.SourceTaskId, date)) return;
+            if (!string.IsNullOrEmpty(task.SourceTaskId) && Contains(task.SourceTaskId, date))
+            {
+                if (AdoptPending(task.SourceTaskId, Tasks(date))) Save();
+                return;
+            }
             string k = DayKey(date);
             if (!_byDay.TryGetValue(k, out List<DayPlanTask> list))
             {
@@ -290,19 +505,26 @@ namespace Focus_Bear.Habits.DayPlan
             Save();
             // Plan the backing to-do onto this day so it hydrates on other devices (write sync).
             DayPlanSync.SetTodoPlanned(task, date, task.BlockKey);
+            // A task added with a real name and no to-do behind it (the AI buddy's "save for later") gets one now.
+            if (DayPlanSync.NeedsCreate(task)) CreateTodoFor(task, date);
         }
 
-        public void Update(DayPlanTask task, DateTime date)
+        /// <param name="alreadyOnServer">The caller wrote this change to the to-do itself (the reprioritise sheet).</param>
+        public void Update(DayPlanTask task, DateTime date, bool alreadyOnServer = false)
         {
             string k = DayKey(date);
             if (!_byDay.TryGetValue(k, out List<DayPlanTask> list)) return;
             int i = list.FindIndex(t => t.Id == task.Id);
             if (i < 0) return;
-            bool wasDone = list[i].Done;
+            // Against the last save, not list[i]: callers usually edit the store's own object and pass it back.
+            DayPlanTaskFields before = SavedFields(task.Id);
+            bool wasDone = before?.Done ?? list[i].Done;
             list[i] = task;
             Save();
             // Reflect a completion flip onto the backend to-do (only on an actual change).
             if (task.Done != wasDone) { task.StatusTouchedUtc = DateTime.UtcNow; DayPlanSync.SetTodoStatus(task, task.Done); }
+            // A rename, project, length, importance or checklist change; or the first real name of a new task.
+            if (!alreadyOnServer) SyncEdits(task, date, before);
         }
 
         public void Delete(string id, DateTime date)
@@ -357,6 +579,7 @@ namespace Focus_Bear.Habits.DayPlan
 
             DayPlanTask dragged = list[di];
             DayPlanTask target = list[ti];
+            DayPlanTaskFields before = SavedFields(dragged.Id);
             // Dropping across groups moves the task into the target's project.
             bool projectChanged = !string.Equals(dragged.Project ?? "", target.Project ?? "", StringComparison.OrdinalIgnoreCase);
             dragged.Project = target.Project;
@@ -367,7 +590,11 @@ namespace Focus_Bear.Habits.DayPlan
             Save();
 
             // Best-effort backend reflect: keep it planned on the day (and, if it changed group, the new project).
-            if (projectChanged) DayPlanSync.SetTodoPlanned(dragged, date, dragged.BlockKey);
+            if (projectChanged)
+            {
+                DayPlanSync.SetTodoPlanned(dragged, date, dragged.BlockKey);
+                SyncEdits(dragged, date, before);
+            }
         }
 
         /// <summary>Add a from-scratch task pre-filled with a project (the project header "+" button).</summary>
@@ -435,7 +662,16 @@ namespace Focus_Bear.Habits.DayPlan
                 }
                 var indexBySource = new Dictionary<string, int>();
                 for (int i = 0; i < list.Count; i++)
-                    if (!string.IsNullOrEmpty(list[i].SourceTaskId)) indexBySource[list[i].SourceTaskId] = i;
+                {
+                    string backing = list[i].SourceTaskId ?? list[i].PendingTodoId;
+                    if (!string.IsNullOrEmpty(backing)) indexBySource[backing] = i;
+                }
+                // A to-do lives on one day (Mac hydrate(fromDay:) placedOnOtherDay): the backend's planned_date lags
+                // a snooze, a move or the rollover, so the day's payload can still list a task that is live on
+                // another day here. Re-adding it stranded a copy on both days. A finished copy is history, not a
+                // placement, so it doesn't count.
+                var placedOnOtherDay = new HashSet<string>(_byDay.Where(kv => kv.Key != k).SelectMany(kv => kv.Value)
+                    .Where(t => !t.Done && !string.IsNullOrEmpty(t.SourceTaskId ?? t.PendingTodoId)).Select(t => t.SourceTaskId ?? t.PendingTodoId));
 
                 bool changed = false;
                 foreach (JToken t in arr)
@@ -447,25 +683,31 @@ namespace Focus_Bear.Habits.DayPlan
 
                     if (indexBySource.TryGetValue(id, out int idx))
                     {
+                        // The create's reply was lost but the row is here: this is that task.
+                        if (string.IsNullOrEmpty(list[idx].SourceTaskId) && AdoptPending(id, list)) changed = true;
                         // Upgrade-only: never revert a local completion (the reflect can lag).
                         if (done && !list[idx].Done) { list[idx].Done = true; changed = true; }
+                        // The to-do's title is the truth (a rename elsewhere); last write wins, as on the Mac.
+                        string backendTitle = o.Value<string>("title");
+                        if (!string.IsNullOrEmpty(backendTitle) && backendTitle != list[idx].Title) { list[idx].Title = backendTitle; changed = true; }
+                        // Backfill a quadrant the task was imported without, so its writes carry the real one.
+                        if (!list[idx].EisenhowerQuadrant.HasValue && o["eisenhower_quadrant"] != null && o["eisenhower_quadrant"].Type == JTokenType.Integer)
+                        { list[idx].EisenhowerQuadrant = (int)o["eisenhower_quadrant"]; changed = true; }
+                        if (RefreshProject(list[idx], o)) changed = true;
                     }
-                    else
+                    else if (!placedOnOtherDay.Contains(id))
                     {
-                        int secs = 0;
-                        JToken durTok = o["duration"];
-                        if (durTok != null && durTok.Type != JTokenType.Null) int.TryParse(durTok.ToString(), out secs);
-                        int minutes = secs > 0 ? Math.Max(1, secs / 60) : 15;
+                        int minutes = DayPlanDurations.FromTodoDuration(o["duration"]);
                         string blockKey = o.Value<string>("planned_block_key");
-                        string project = null;
-                        if (o["tags"] is JArray tags && tags.Count > 0 && tags[0] is JObject tag0)
-                            project = tag0.Value<string>("text") ?? tag0.Value<string>("name");
+                        // project_id resolved against /projects, else the first tag (Mac projectName(for:)).
+                        string project = FocusBear.Core.Schedule.TodoProjects.ProjectName(o, RemoteProjectsById);
                         int? quadrant = null;
                         JToken q = o["eisenhower_quadrant"];
                         if (q != null && q.Type != JTokenType.Null && int.TryParse(q.ToString(), out int qv)) quadrant = qv;
 
                         list.Add(new DayPlanTask(o.Value<string>("title") ?? "Task", minutes, done,
-                            sourceTaskId: id, blockKey: blockKey, project: project, eisenhowerQuadrant: quadrant));
+                            sourceTaskId: id, blockKey: blockKey, project: project, eisenhowerQuadrant: quadrant)
+                        { ProjectId = FocusBear.Core.Schedule.TodoProjects.ProjectId(o) });
                         changed = true;
                     }
                 }
@@ -479,9 +721,177 @@ namespace Focus_Bear.Habits.DayPlan
             }
         }
 
+        /// <summary>
+        /// Re-files every synced, unfinished task by its DUE DATE (report 2026-09-25_19-54-42: "the day plan
+        /// scheduling is wrong. It should use task due date") — the Mac's <c>mergeDueTodos</c>. The complete
+        /// unfinished catalogue comes in; each to-do lands on its due day, or today once that day has
+        /// passed (<see cref="FocusBear.Core.Schedule.DayPlanDueProjection"/>). Local from-scratch tasks
+        /// and finished history stay exactly where they are; a task ticked off today is not resurfaced by
+        /// a row that hasn't caught up. A task that stays on its day keeps its block, duration and order.
+        /// Returns true if anything changed. Writes nothing to the server.
+        /// </summary>
+        public bool MergeDueTodos(IEnumerable<FocusBear.Core.ToDo.ToDoTask> todos, DateTime now, string meId, bool persist = true)
+        {
+            try
+            {
+                string todayKey = DayKey(now);
+                // The most recent placement of each synced task, searched newest day first (Mac `prior`).
+                var prior = _byDay.OrderByDescending(kv => kv.Key, StringComparer.Ordinal)
+                                  .SelectMany(kv => kv.Value.Select(t => new KeyValuePair<string, DayPlanTask>(kv.Key, t)))
+                                  .ToList();
+                var rows = new List<KeyValuePair<string, DayPlanTask>>();
+                foreach (var todo in todos ?? Enumerable.Empty<FocusBear.Core.ToDo.ToDoTask>())
+                {
+                    if (string.IsNullOrEmpty(todo.Id)) continue;
+                    string due = FocusBear.Core.Schedule.DayPlanDueProjection.CanonicalDay(todo.DueDate, todayKey);
+                    if (due == null) continue;
+                    string assignee = FocusBear.Core.ToDo.ToDoAssigneeChoices.AssigneeId(todo.AssigneeId, todo.Assignee?.Id);
+                    if (FocusBear.Core.ToDo.ToDoAssigneeChoices.IsAssignedToSomebodyElse(assignee, meId)) continue;
+                    var old = prior.FirstOrDefault(p => (p.Value.SourceTaskId ?? p.Value.PendingTodoId) == todo.Id && !p.Value.Done);
+                    if (old.Value != null && string.IsNullOrEmpty(old.Value.SourceTaskId)) AdoptPending(todo.Id, new[] { old.Value });
+                    DayPlanTask task = old.Value != null ? CloneForMerge(old.Value) : new DayPlanTask(todo.Title ?? "Task", sourceTaskId: todo.Id);
+                    task.Title = todo.Title ?? task.Title;
+                    if (old.Value == null) task.DurationMinutes = DayPlanDurations.FromTodoDuration(todo.Duration.HasValue ? (Newtonsoft.Json.Linq.JToken)todo.Duration.Value : null);
+                    task.Done = false;
+                    if (old.Key != due) task.BlockKey = null;   // yesterday's block is gone on the new day
+                    task.EisenhowerQuadrant = todo.EisenhowerQuadrant ?? task.EisenhowerQuadrant;
+                    task.Outcome = todo.Outcome ?? task.Outcome;
+                    if (todo.Subtasks != null && todo.Subtasks.Count > 0)
+                        task.Subtasks = todo.Subtasks.Select(st => new DayPlanSubtask(st.Name, st.IsCompleted) { Id = st.Id ?? Guid.NewGuid().ToString() }).ToList();
+                    var fields = new Newtonsoft.Json.Linq.JObject
+                    {
+                        ["project_id"] = todo.ProjectId,
+                        ["synced_project_id"] = todo.SyncedProjectId,
+                        ["tags"] = new Newtonsoft.Json.Linq.JArray((todo.Tags ?? new List<FocusBear.Core.ToDo.ToDoTag>())
+                            .Select(tg => new Newtonsoft.Json.Linq.JObject { ["id"] = tg.Id, ["text"] = tg.Text })),
+                    };
+                    task.Project = FocusBear.Core.Schedule.TodoProjects.ProjectName(fields, RemoteProjectsById) ?? (old.Value == null ? null : task.Project);
+                    task.ProjectId = FocusBear.Core.Schedule.TodoProjects.ProjectId(fields);
+                    rows.Add(new KeyValuePair<string, DayPlanTask>(due, task));
+                }
+                var stored = _byDay.ToDictionary(kv => kv.Key, kv => (IReadOnlyList<DayPlanTask>)kv.Value);
+                // A to-do created here moments ago can be missing from a catalogue downloaded (or cached) before it:
+                // keep it where it is, like a local task, rather than read its absence as "deleted elsewhere".
+                var incoming = new HashSet<string>(rows.Select(r => r.Value.SourceTaskId));
+                var reconciled = FocusBear.Core.Schedule.DayPlanDueProjection.Reconcile(stored, rows, todayKey,
+                    t => string.IsNullOrEmpty(t.SourceTaskId) || (CreatedRecently(t.SourceTaskId) && !incoming.Contains(t.SourceTaskId))
+                        ? null : t.SourceTaskId,
+                    t => t.Done, t => t.Id);
+                if (SameLayout(stored, reconciled)) return false;
+                _byDay = reconciled.ToDictionary(kv => kv.Key, kv => kv.Value.ToList());
+                if (persist) Save();
+                LogWriter.LogWrite("DayPlanTaskStore.MergeDueTodos: re-filed synced tasks by due date (" + rows.Count + " rows)");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("DayPlanTaskStore.MergeDueTodos - " + ex.Message);
+                return false;
+            }
+        }
+
+        private static DayPlanTask CloneForMerge(DayPlanTask t)
+        {
+            return new DayPlanTask
+            {
+                Id = t.Id, Title = t.Title, DurationMinutes = t.DurationMinutes, Done = t.Done, SourceTaskId = t.SourceTaskId, PendingTodoId = t.PendingTodoId,
+                BlockKey = t.BlockKey, Project = t.Project, ProjectId = t.ProjectId, Notes = t.Notes, Subtasks = t.Subtasks,
+                Outcome = t.Outcome, EisenhowerQuadrant = t.EisenhowerQuadrant, StatusTouchedUtc = t.StatusTouchedUtc,
+            };
+        }
+
+        /// <summary>Whether two layouts put the same tasks, with the same visible fields, on the same days in the same order.</summary>
+        private static bool SameLayout(IReadOnlyDictionary<string, IReadOnlyList<DayPlanTask>> a, IReadOnlyDictionary<string, IReadOnlyList<DayPlanTask>> b)
+        {
+            var ka = a.Where(kv => kv.Value.Count > 0).Select(kv => kv.Key).OrderBy(k => k, StringComparer.Ordinal).ToList();
+            var kb = b.Where(kv => kv.Value.Count > 0).Select(kv => kv.Key).OrderBy(k => k, StringComparer.Ordinal).ToList();
+            if (!ka.SequenceEqual(kb)) return false;
+            foreach (string k in ka)
+            {
+                var x = a[k]; var y = b[k];
+                if (x.Count != y.Count) return false;
+                for (int i = 0; i < x.Count; i++)
+                {
+                    if (x[i].Id != y[i].Id || x[i].Title != y[i].Title || x[i].BlockKey != y[i].BlockKey || x[i].Done != y[i].Done
+                        || x[i].Project != y[i].Project || x[i].DurationMinutes != y[i].DurationMinutes) return false;
+                }
+            }
+            return true;
+        }
+
         /// <summary>Project names fetched from the backend (<c>/projects</c>) — set by the host on load,
         /// merged into the suggestions so a project created on web/mobile shows even with no local task.</summary>
         public List<string> RemoteProjectNames { get; set; } = new List<string>();
+
+        /// <summary>The user's projects, id -> name (all pages of <c>/projects</c>) — resolves a to-do's
+        /// <c>project_id</c> to its name. Set by the host on load (<see cref="SetRemoteProjects"/>).</summary>
+        public Dictionary<string, string> RemoteProjectsById { get; private set; } = new Dictionary<string, string>();
+
+        // The last to-do payload reconciled, so projects arriving after it can still name its tasks.
+        private string _lastTodosJson;
+
+        /// <summary>Record the fetched projects and re-name the day's tasks from the last to-do payload
+        /// (the projects and the to-dos are fetched in parallel). Returns true if a task changed.</summary>
+        public bool SetRemoteProjects(Dictionary<string, string> byId)
+        {
+            if (byId == null) return false;
+            RemoteProjectsById = byId;
+            _remoteProjectsLoaded = true;
+            RemoteProjectNames = byId.Values.Distinct().ToList();
+            return !string.IsNullOrEmpty(_lastTodosJson) && BackfillProjectsFrom(_lastTodosJson);
+        }
+
+        /// <summary>A task already on the day, re-named from its backing to-do. True if it changed.</summary>
+        private bool RefreshProject(DayPlanTask task, JObject todo)
+        {
+            bool hasProjectFields = todo["project_id"] != null || todo["synced_project_id"] != null || todo["tags"] != null;
+            if (!hasProjectFields) return false;   // a slim payload says nothing about the project
+            string name = FocusBear.Core.Schedule.TodoProjects.RefreshedName(task.Project, task.ProjectId, todo, RemoteProjectsById);
+            string id = FocusBear.Core.Schedule.TodoProjects.ProjectId(todo);
+            bool changed = false;
+            if (!string.Equals(name ?? "", task.Project ?? "", StringComparison.Ordinal)) { task.Project = name; changed = true; }
+            if (!string.Equals(id ?? "", task.ProjectId ?? "", StringComparison.Ordinal)) { task.ProjectId = id; changed = true; }
+            return changed;
+        }
+
+        /// <summary>
+        /// Name every stored task from a to-do payload (a bare array or <c>{data/tasks/items:[…]}</c>) by its
+        /// <c>SourceTaskId</c> — the fix for "most of the tasks in the day plan don't have projects": tasks
+        /// imported before, or linked by <c>project_id</c> only, pick their project up. Returns true if any changed.
+        /// </summary>
+        public bool BackfillProjectsFrom(string todosJson)
+        {
+            if (string.IsNullOrWhiteSpace(todosJson)) return false;
+            try
+            {
+                JToken root = JToken.Parse(todosJson);
+                JArray arr = root as JArray;
+                if (arr == null && root is JObject o)
+                    arr = o["data"] as JArray ?? o["tasks"] as JArray ?? o["items"] as JArray;
+                if (arr == null) return false;
+                var byId = new Dictionary<string, JObject>();
+                foreach (JObject to in arr.OfType<JObject>())
+                {
+                    string id = to.Value<string>("id");
+                    if (!string.IsNullOrEmpty(id)) byId[id] = to;
+                }
+                bool changed = false;
+                foreach (List<DayPlanTask> list in _byDay.Values)
+                    foreach (DayPlanTask t in list)
+                    {
+                        if (string.IsNullOrEmpty(t.SourceTaskId)) continue;
+                        if (!byId.TryGetValue(t.SourceTaskId, out JObject todo)) continue;
+                        if (RefreshProject(t, todo)) changed = true;
+                    }
+                if (changed) Save();
+                return changed;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("DayPlanTaskStore.BackfillProjectsFrom - " + ex.Message);
+                return false;
+            }
+        }
 
         /// <summary>All distinct project names — local (from tasks) + remote (from /projects).</summary>
         public List<string> AllProjectNames()
@@ -508,6 +918,8 @@ namespace Focus_Bear.Habits.DayPlan
         public bool ReconcileStatusFrom(string todosJson)
         {
             if (string.IsNullOrWhiteSpace(todosJson)) return false;
+            _lastTodosJson = todosJson;
+            bool projectsChanged = BackfillProjectsFrom(todosJson);
             try
             {
                 JToken root = JToken.Parse(todosJson);
@@ -539,12 +951,12 @@ namespace Focus_Bear.Habits.DayPlan
                         changed = true;
                     }
                 if (changed) Save();
-                return changed;
+                return changed || projectsChanged;
             }
             catch (Exception ex)
             {
                 LogWriter.LogWrite("DayPlanTaskStore.ReconcileStatusFrom - " + ex.Message);
-                return false;
+                return projectsChanged;
             }
         }
     }

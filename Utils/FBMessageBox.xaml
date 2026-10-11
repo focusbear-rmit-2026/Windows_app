@@ -56,6 +56,9 @@
                         </StackPanel>
                     </Button.Content>
                 </Button>
+                <TextBlock x:Name="LinkCancel" AutomationProperties.AutomationId="linkCancel" HorizontalAlignment="Center" Margin="20,0,20,20" FontSize="14" Cursor="Hand" Visibility="Collapsed" TextDecorations="{x:Null}">
+                    <Hyperlink x:Name="HyperlinkCancel" Click="HyperlinkCancel_Click" TextDecorations="Underline"><Run x:Name="LinkCancelTxt" Text="xCancel"/></Hyperlink>
+                </TextBlock>
             </StackPanel>
             <CheckBox Grid.Row="4"  x:Name="DoNotShowAnymore" AutomationProperties.AutomationId="chkDoNotShowAnymore" Margin="10,0,0,10" Checked="DoNotShowAnymore_Checked" Unchecked="DoNotShowAnymore_Unchecked" Visibility="Collapsed">xDon't show this anymore</CheckBox>
         </Grid>

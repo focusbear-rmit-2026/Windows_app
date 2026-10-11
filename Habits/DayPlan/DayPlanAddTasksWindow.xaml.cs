@@ -30,6 +30,7 @@ namespace Focus_Bear.Habits.DayPlan
             public string Title;
             public int DurationMinutes;
             public string Project;
+            public string ProjectId;
             public int? Outcome;
             public int? EisenhowerQuadrant;
             public CheckBox Row;
@@ -110,16 +111,11 @@ namespace Focus_Bear.Habits.DayPlan
                     if (string.IsNullOrEmpty(id)) continue;
                     if (DayPlanTaskStore.Shared.Contains(id, _date)) continue;   // already on this day
 
-                    // duration is seconds; be tolerant of number/string/missing.
-                    int secs = 0;
-                    JToken durTok = o["duration"];
-                    if (durTok != null && durTok.Type != JTokenType.Null)
-                        int.TryParse(durTok.ToString(), out secs);
-                    int minutes = secs > 0 ? Math.Max(1, secs / 60) : 15;
+                    int minutes = DayPlanDurations.FromTodoDuration(o["duration"]);
 
-                    string project = null;
-                    if (o["tags"] is JArray tags && tags.Count > 0 && tags[0] is JObject tag0)
-                        project = tag0.Value<string>("text") ?? tag0.Value<string>("name");
+                    // project_id resolved against /projects, else the first tag (Mac projectName(for:)).
+                    string project = FocusBear.Core.Schedule.TodoProjects.ProjectName(o, DayPlanTaskStore.Shared.RemoteProjectsById);
+                    string projectId = FocusBear.Core.Schedule.TodoProjects.ProjectId(o);
 
                     _todos.Add(new PickerTodo
                     {
@@ -127,6 +123,7 @@ namespace Focus_Bear.Habits.DayPlan
                         Title = o.Value<string>("title") ?? "Task",
                         DurationMinutes = minutes,
                         Project = project,
+                        ProjectId = projectId,
                         Outcome = TryInt(o["outcome"]),
                         EisenhowerQuadrant = TryInt(o["eisenhower_quadrant"])
                     });
@@ -199,7 +196,7 @@ namespace Focus_Bear.Habits.DayPlan
                     DayPlanTaskStore.Shared.Add(new DayPlanTask(
                         todo.Title, todo.DurationMinutes, done: false,
                         sourceTaskId: todo.Id, project: todo.Project,
-                        outcome: todo.Outcome, eisenhowerQuadrant: todo.EisenhowerQuadrant), _date);
+                        outcome: todo.Outcome, eisenhowerQuadrant: todo.EisenhowerQuadrant) { ProjectId = todo.ProjectId }, _date);
                 }
             }
             catch (Exception ex) { LogWriter.LogWrite("DayPlanAddTasksWindow.btnAdd_Click - " + ex.Message); }

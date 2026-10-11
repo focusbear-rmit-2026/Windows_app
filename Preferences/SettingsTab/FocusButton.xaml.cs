@@ -217,7 +217,9 @@ namespace Focus_Bear.Preferences.SettingsTab
                     {
                         await Dispatcher.BeginInvoke((Action)(() =>
                         {
-                            string displayMsg = "You are already running the latest version of Focus Button Firmwre.";  
+                            string displayMsg = updater.NoFirmwareForBoard
+                                ? "There is no firmware update for this Focus Button's board yet."
+                                : "You are already running the latest version of Focus Button Firmware.";
                             FBMessageBox ff = new FBMessageBox(displayMsg, appSettings.ConfigFileStrings["WindowsSpecific"]["noNewUpdateAvailable"].ToString());
                             ff.Owner = ParentWindow;
                             ff.ShowDialog();
@@ -356,9 +358,18 @@ namespace Focus_Bear.Preferences.SettingsTab
                 status.Report($"Detected: {deviceConfig.ChipType}");
                 LogWriter.LogWrite($"FlashFirmwareAsync - Detected: {deviceConfig.ChipType}");
 
-                // This sample targets ESP32-C3 / ESP32-S3, but any chip with a bundled stub will work.
-                if (deviceConfig.ChipType != ChipTypes.ESP32c3 && deviceConfig.ChipType != ChipTypes.ESP32s3)
-                    LogWriter.LogWrite($"FlashFirmwareAsync -  Warning: this sample was written for ESP32-C3/S3, continuing anyway with {deviceConfig.ChipType}.");
+                //Never write an image built for another chip (M5Dial firmware onto the VIEWE C3, or the reverse):
+                //the image header names its chip. This screen always said it checked; now it does.
+                byte[] firmwareBytes = File.ReadAllBytes(firmwarePath);
+                if (!FocusBear.Core.FocusButton.FirmwareBoard.ImageFitsChip(firmwareBytes, deviceConfig.ChipType.ToString()))
+                {
+                    string imageChip = FocusBear.Core.FocusButton.FirmwareBoard.ImageChip(firmwareBytes) ?? "an unknown chip";
+                    LogWriter.LogWrite($"FlashFirmwareAsync - refused: the image is for {imageChip}, the device is {deviceConfig.ChipType}");
+                    status.Report($"Not flashed: this firmware is for {imageChip}, but the device is {deviceConfig.ChipType}.");
+                    var resetRefused = new ResetDeviceTool(communicator, config.ResetSequence);
+                    await resetRefused.ResetAsync(token).ConfigureAwait(true); //back to the firmware it has
+                    throw new InvalidOperationException("Firmware image does not match the device's chip");
+                }
 
                 status.Report("Uploading stub loader to RAM...");
                 LogWriter.LogWrite("FlashFirmwareAsync - Uploading stub loader to RAM...");
@@ -370,7 +381,6 @@ namespace Focus_Bear.Preferences.SettingsTab
                 status.Report($"Flashing {Path.GetFileName(firmwarePath)} at 0x{offset:X}...");
                 LogWriter.LogWrite($"FlashFirmwareAsync - Flashing {Path.GetFileName(firmwarePath)} at 0x{offset:X}...");
 
-                byte[] firmwareBytes = File.ReadAllBytes(firmwarePath);
                 var firmwareProvider = new FirmwareProvider(
                     entryPoint: 0,
                     segments: new List<IFirmwareSegmentProvider>

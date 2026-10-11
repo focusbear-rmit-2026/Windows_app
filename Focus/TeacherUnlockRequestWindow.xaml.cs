@@ -44,7 +44,7 @@ namespace Focus_Bear.Focus
                 TeacherSessionManager manager = TeacherSessionManager.Instance;
                 TitleText.Text = manager.GetLocalizedString("titleCreateUnlockRequest", "Ask your teacher to unlock an app or website");
                 AppOrUrlLabel.Text = manager.GetLocalizedString("appOrUrlTitle", "App name or website");
-                ReasonLabel.Text = manager.GetLocalizedString("reasonTitle", "Reason (optional)");
+                ReasonLabel.Text = manager.GetLocalizedString("reasonTitle", "Reason");
                 TextAppOrUrl.ToolTip = manager.GetLocalizedString("placeHolderAppOrUrl", "e.g. Desmos or desmos.com");
                 TextReason.ToolTip = manager.GetLocalizedString("placeHolderReason", "Explain why you need this unlock....");
                 btnSendRequestTxt.Text = manager.GetLocalizedString("buttonCreateRequest", "Send Request");
@@ -61,10 +61,17 @@ namespace Focus_Bear.Focus
             Close();
         }
 
+        // Reason is required - the teacher needs context to decide, so Send Request stays disabled
+        // until the student has actually typed something.
+        private void TextReason_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        {
+            btnSendRequest.IsEnabled = !string.IsNullOrWhiteSpace(TextReason.Text);
+        }
+
         private async void btnSendRequest_Click(object sender, RoutedEventArgs e)
         {
             string sAppOrUrl = TextAppOrUrl.Text.Trim();
-            if (sAppOrUrl.Length == 0)
+            if (sAppOrUrl.Length == 0 || TextReason.Text.Trim().Length == 0)
             {
                 return;
             }

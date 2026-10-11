@@ -1,4 +1,4 @@
-﻿using EspDotNet.Tools;
+using EspDotNet.Tools;
 using Focus_Bear.API;
 using Focus_Bear.Focus;
 using Focus_Bear.Models;
@@ -21,43 +21,53 @@ namespace Focus_Bear.Services
     {
         private static AppSettings appSettings = AppSettings.GetInstance;
         private static FocusBearAPIClient client = new FocusBearAPIClient();
+
+        // Raised (on the UI thread) after a server refresh actually changes the schedule collection.
+        // The open details screen listens so it can close itself when its schedule was deleted elsewhere. #1114
+        public static event Action SchedulesRefreshed;
+
+        // Raised (on the UI thread) after a server refresh actually changes the focus-mode collection.
+        // The open schedule editor listens so its block-list combo reflects modes added elsewhere. #1114
+        public static event Action FocusModesRefreshed;
+        /// <summary>
+        /// The <c>POST/PUT /blocking-schedule</c> body, built as JSON. The name, times and ids used to be pasted
+        /// between quotes as typed, so a schedule called <c>Kids' "homework"</c> produced a body the server could
+        /// not read and the schedule was silently never saved.
+        /// </summary>
+        internal static JObject RequestBody(CustomBlockingSchedule Instance)
+        {
+            int[] activeDays = (Instance.DaysOfWeek ?? new bool[0]).Select((isActive, index) => new { isActive, index })
+                                                            .Where(x => x.isActive)
+                                                            .Select(x => x.index)
+                                                            .ToArray();
+            string blockLevel = "gentle";
+            if (Instance.BlockLevel == FOCUSMODESTRICTNESS.STRICT) blockLevel = "strict";
+            else if (Instance.BlockLevel == FOCUSMODESTRICTNESS.IRON_FOCUS) blockLevel = "super-strict";
+
+            return new JObject
+            {
+                ["id"] = Instance.id ?? "",
+                ["name"] = Instance.name ?? "",
+                ["start_time"] = Instance.StartTimeValue ?? "",
+                ["end_time"] = Instance.EndTimeValue ?? "",
+                ["days_of_week"] = new JArray(activeDays.Cast<object>().ToArray()),
+                ["focus_mode_id"] = Instance.SelectedFocusModeId ?? "",
+                ["pause_friction"] = "none",
+                ["block_level"] = blockLevel,
+                ["is_ai_blocking_enabled"] = Instance.bAIBlockingEnabled,
+                // Top-level "emoji" (nullable, <=32 chars) - matches the mac app's
+                // customBlockingSchedule.emoji field (backend#2094), not nested in metadata.
+                ["emoji"] = Instance.Emoji == null ? JValue.CreateNull() : new JValue(Instance.Emoji),
+                ["metadata"] = new JObject { ["is_micro_breaks_enabled"] = Instance.bMicroBreaksEnabled },
+            };
+        }
+
         /// <summary>
         /// Adds a new blocking schedule from the provided Instance
         /// </summary>
         public static void AddBlockingSchedule(CustomBlockingSchedule Instance, bool bUpdating = false)
         {
-            //Convert to data and then call the API
-            int[] activeDays = Instance.DaysOfWeek.Select((isActive, index) => new { isActive, index })
-                                                            .Where(x => x.isActive)
-                                                            .Select(x => x.index)
-                                                            .ToArray();
-            string blockLevel = "gentle";
-
-            if (Instance.BlockLevel == FOCUSMODESTRICTNESS.CHILL_MODE )
-            {
-                blockLevel = "gentle";
-            }
-            else if (Instance.BlockLevel ==  FOCUSMODESTRICTNESS.STRICT)
-            {
-                blockLevel = "strict" ;
-            }
-            else if (Instance.BlockLevel == FOCUSMODESTRICTNESS.IRON_FOCUS)
-            {
-                blockLevel = "super-strict";
-            }
-
-            string metadata = $"{{\"is_micro_breaks_enabled\":{JsonConvert.SerializeObject(Instance.bMicroBreaksEnabled)}}}";
-
-            string addJsonString = $"{{\"id\":\"{Instance.id}\"," +
-                                    $"\"name\":\"{Instance.name}\"," +
-                                    $"\"start_time\":\"{Instance.StartTimeValue}\"," +
-                                    $"\"end_time\":\"{Instance.EndTimeValue}\"," +
-                                    $"\"days_of_week\":{JsonConvert.SerializeObject(activeDays)}," +
-                                    $"\"focus_mode_id\":\"{Instance.SelectedFocusModeId}\"," +
-                                    $"\"pause_friction\":\"none\"," +
-                                    $"\"block_level\":\"{blockLevel}\"," +
-                                    $"\"is_ai_blocking_enabled\":{JsonConvert.SerializeObject(Instance.bAIBlockingEnabled)}," +
-                                    $"\"metadata\":{metadata}}}";
+            string addJsonString = RequestBody(Instance).ToString(Formatting.None);
 
             if(bUpdating)
             {
@@ -173,7 +183,13 @@ namespace Focus_Bear.Services
                                         }
                                     }
 
-                                    appSettings.arrCustomBlockingSchedules.Add(new CustomBlockingSchedule(id, name, false, startTime, endTime, daysOfWeek, focusModeId, FMS, isAiBlockingEnabled, isMicroBreaksEnabled)); 
+                                    string emoji = item.ContainsKey("emoji") && item.GetValue("emoji").Type != JTokenType.Null
+                                        ? item.GetValue("emoji").ToString()
+                                        : null;
+
+                                    var newSchedule = new CustomBlockingSchedule(id, name, false, startTime, endTime, daysOfWeek, focusModeId, FMS, isAiBlockingEnabled, isMicroBreaksEnabled);
+                                    newSchedule.Emoji = emoji;
+                                    appSettings.arrCustomBlockingSchedules.Add(newSchedule);
                                 }
                                 catch (Exception ex)
                                 {
@@ -194,6 +210,104 @@ namespace Focus_Bear.Services
             catch (Exception ex)
             {
                 LogWriter.LogWrite("ReadAndParseBlockingSchedules() top ex -" + ex.Message);
+            }
+        }
+
+        // Re-fetches blocking schedules from the server and, when the data changed, clears and
+        // refills the live collection the same way startup does. Safe to call from any thread. #1114
+        public static async Task<bool> RefreshBlockingSchedulesFromServerAsync()
+        {
+            try
+            {
+                LogWriter.LogWrite("RefreshBlockingSchedulesFromServerAsync()");
+
+                // A schedule references a focus mode (block list), and those are otherwise only fetched
+                // at startup. Refresh them on the same trigger so a block list created on another device
+                // is selectable in the schedule editor without restarting the app. #1114
+                await RefreshFocusModesFromServerAsync();
+
+                string oldRaw = appSettings.sRawBlockingSchedules;
+
+                int result = await client.GetAllBlockingSchedules();
+                if (result != 1)
+                {
+                    LogWriter.LogWrite("RefreshBlockingSchedulesFromServerAsync - fetch failed");
+                    return false;
+                }
+
+                if (oldRaw == appSettings.sRawBlockingSchedules)
+                {
+                    return false;
+                }
+
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    try
+                    {
+                        appSettings.arrCustomBlockingSchedules.Clear();
+                        ReadAndParseBlockingSchedules();
+                        LogWriter.LogWrite("RefreshBlockingSchedulesFromServerAsync - schedules updated");
+                        SchedulesRefreshed?.Invoke();
+                    }
+                    catch (Exception ex)
+                    {
+                        LogWriter.LogWrite("RefreshBlockingSchedulesFromServerAsync Dispatcher - " + ex.Message);
+                    }
+                });
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("RefreshBlockingSchedulesFromServerAsync - " + ex.Message);
+                return false;
+            }
+        }
+
+        // Re-fetches focus modes (block lists) from the server and, when the data changed, clears and
+        // refills the live collection the same way startup does. ReadAndParseFocusModes appends, so the
+        // Clear() first is required to avoid duplicates. Safe to call from any thread. #1114
+        public static async Task<bool> RefreshFocusModesFromServerAsync()
+        {
+            try
+            {
+                LogWriter.LogWrite("RefreshFocusModesFromServerAsync()");
+
+                string oldRaw = appSettings.sFocusModes;
+
+                int result = await client.GetFocusModes();
+                if (result != 1)
+                {
+                    LogWriter.LogWrite("RefreshFocusModesFromServerAsync - fetch failed");
+                    return false;
+                }
+
+                if (oldRaw == appSettings.sFocusModes)
+                {
+                    return false;
+                }
+
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    try
+                    {
+                        appSettings.arrFocusModes.Clear();
+                        appSettings.ReadAndParseFocusModes();
+                        LogWriter.LogWrite("RefreshFocusModesFromServerAsync - focus modes updated");
+                        FocusModesRefreshed?.Invoke();
+                    }
+                    catch (Exception ex)
+                    {
+                        LogWriter.LogWrite("RefreshFocusModesFromServerAsync Dispatcher - " + ex.Message);
+                    }
+                });
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("RefreshFocusModesFromServerAsync - " + ex.Message);
+                return false;
             }
         }
 
@@ -311,42 +425,110 @@ namespace Focus_Bear.Services
                 return;
             }
 
-            appSettings.ActiveSchedule = GetActiveSchedule();
-            if(appSettings.ActiveSchedule != null)
+            bool wasAlreadyRunning = appSettings.isBlockingScheduleRunning;
+            string previousActiveId = appSettings.ActiveSchedule?.id;
+
+            var newSchedule = GetActiveSchedule();
+            appSettings.ActiveSchedule = newSchedule;
+            if(newSchedule != null)
             {
                 //Start it
-                appSettings.ActiveSchedule.isOn = true;
+                newSchedule.isOn = true;
                 appSettings.isBlockingScheduleRunning = true;
+
+                // #1420: this schedule just started (not a repeated poll tick while it was already
+                // running) - if it's an Allow-List block list with AI off, every new page on an
+                // already-allowed site will still trigger a permission prompt. Warn once, non-modally,
+                // since nobody may be watching when a schedule auto-starts. Skipped in grizzly mode (per
+                // Jeremy's feedback on #1420) - grizzly already blocks immediately, no back-and-forth.
+                if (!wasAlreadyRunning || previousActiveId != newSchedule.id)
+                {
+                    var modeForAiWarning = appSettings.arrFocusModes.FirstOrDefault(f => f.id == newSchedule.SelectedFocusModeId);
+                    if (modeForAiWarning != null && modeForAiWarning.isAllowedListApproach && !newSchedule.bAIBlockingEnabled && !appSettings.IsEffectivelyGrizzly())
+                    {
+                        ShowScheduleStartedWithoutAiWarning(newSchedule, modeForAiWarning.name);
+                    }
+                }
 
                 FocusAlignmentScoreManager.DictionaryScoreAiCheckUrlsInCuddlyModeCurrentFocus.Clear();
 
                 appSettings.sRunningFocusModeIntention = ""; //Reset
                 appSettings.sCurrentTaskPlayingInToDoPlayer = ""; //Reset
 
-                if (!appSettings.ActiveSchedule.isPaused) //check if it was running and paused
+                if (!newSchedule.isPaused) //check if it was running and paused
                     ((App)(Application.Current)).wndTrayMenu.btnPauseBlockingSchedule.IsChecked = true; //Active
                 else
                     ((App)(Application.Current)).wndTrayMenu.btnPauseBlockingSchedule.IsChecked = false; //Paused
             }
         }
 
+        // #1420: non-modal, self-dismissing heads-up shown when a schedule auto-starts with AI off on an
+        // Allow-List block list. Uses FBMessageBox's existing auto-close mechanism (Show() instead of
+        // ShowDialog() so it never blocks the schedule from actually running); an unattended 30s timeout
+        // leaves btnClicked at its constructed default (Cancel = "Continue anyway") so it can't silently
+        // change a setting the user never confirmed.
+        private static void ShowScheduleStartedWithoutAiWarning(CustomBlockingSchedule schedule, string sBlockListName)
+        {
+            try
+            {
+                string sMessage = appSettings.GetConfigStringSafe("'<SCHEDULE>' started with AI off. Its '<BLOCKLIST>' block list uses an Allow List without AI, which means you're going to get asked for approval a lot.\n\nWe suggest you either make the schedule stricter or enable AI.", "blockingScheduleEditorVcInfo", "warningScheduleStartedNoAiText")
+                    .Replace("<SCHEDULE>", schedule.name)
+                    .Replace("<BLOCKLIST>", sBlockListName);
+
+                FBMessageBox msg = new FBMessageBox(
+                    sMessage,
+                    appSettings.GetConfigStringSafe("This might be annoying", "focusInfo", "startingFocusModeInfo", "titleAllowListNoAiWarning"),
+                    MessageBoxButton.YesNoCancel,
+                    appSettings.GetConfigStringSafe("Make it stricter - block non-allowed sites immediately", "focusInfo", "startingFocusModeInfo", "buttonMakeStricterText"),
+                    appSettings.GetConfigStringSafe("Enable AI", "focusInfo", "startingFocusModeInfo", "buttonTurnOnAiText"),
+                    appSettings.GetConfigStringSafe("Continue anyway", "blockingScheduleEditorVcInfo", "buttonSaveWithoutAiText"),
+                    false, "",
+                    bAutoClose: true,
+                    btnClicked: MessageBoxResult.Cancel,
+                    nAutoCloseSeconds: 30,
+                    bCancelAsLink: true);
+                msg.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+                msg.Closed += (s, e) =>
+                {
+                    if (msg.btnClicked == MessageBoxResult.Yes) //Make it stricter
+                    {
+                        appSettings.nFocusBearMode = 0; //Grizzly bear mode
+                        LocalSettingsManager.PutLocalSettings();
+                    }
+                    else if (msg.btnClicked == MessageBoxResult.No) //Enable AI
+                    {
+                        schedule.bAIBlockingEnabled = true;
+                        AddBlockingSchedule(schedule, true);
+                    }
+                    //Cancel/timeout = Continue anyway - no state change
+                };
+                msg.Show(); //non-modal - a schedule can auto-start with nobody watching
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("ShowScheduleStartedWithoutAiWarning ex - " + ex.Message);
+            }
+        }
+
         public static void CheckCustomBlockingScheduleTimeToStop()
         {
-            if (appSettings.ActiveSchedule != null && appSettings.isBlockingScheduleRunning)
+            if (appSettings.TryGetActiveSchedule(out var currentSchedule))
             {
                 CustomBlockingSchedule TempSchedule = GetActiveSchedule();
                 if(TempSchedule == null || appSettings.ActiveSchedule != TempSchedule) //will be null if no time matches
                 {
-                    appSettings.ActiveSchedule.isOn = false;
+                    // Stop: update the captured reference, then clear the flag and null the field. Readers on
+                    // the background thread use the capture-once accessors so they never deref a nulled field.
+                    currentSchedule.isOn = false;
                     appSettings.isBlockingScheduleRunning = false;
-                    appSettings.ActiveSchedule = null; 
+                    appSettings.ActiveSchedule = null;
                 }
                 else
                 {
                     //if a focusmode is running then also we need to stop it
                     if(appSettings.isFocusModeRunning || ((appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS) && (!appSettings.bHabitsPostponedState && !appSettings.bFocusSummaryPostponedState)))
                     {
-                        appSettings.ActiveSchedule.isOn = false;
+                        currentSchedule.isOn = false;
                         appSettings.isBlockingScheduleRunning = false;
                         appSettings.ActiveSchedule = null;
                     }
@@ -358,13 +540,16 @@ namespace Focus_Bear.Services
         // Focus session views use this to lock controls and show the active-schedule banner.
         public static bool IsIronFocusScheduleActive()
         {
-            return appSettings.ActiveSchedule != null
-                && appSettings.isBlockingScheduleRunning
-                && !appSettings.ActiveSchedule.isPaused
-                && appSettings.ActiveSchedule.BlockLevel == FOCUSMODESTRICTNESS.IRON_FOCUS;
+            return appSettings.IsBlockingScheduleActiveAndNotPaused(out var schedule)
+                && schedule.BlockLevel == FOCUSMODESTRICTNESS.IRON_FOCUS;
         }
 
-        private static CustomBlockingSchedule GetActiveSchedule()
+        // Public so AppSettings.IsBlockingScheduleActiveAndNotPaused can re-verify against this authoritative,
+        // stateless time-window check instead of trusting only the cached isBlockingScheduleRunning/
+        // ActiveSchedule fields (#1314 - those are maintained by CheckCustomBlockingScheduleTime/ToStop calls
+        // scattered across dispatcherTimer_Background's many nCurrentActivityType branches, and a gap in any
+        // one of them leaves the cached "running" state stale past the schedule's actual end time).
+        public static CustomBlockingSchedule GetActiveSchedule()
         {
             var now = DateTime.Now;
             int todayIndex = (int)now.DayOfWeek - 1;

@@ -158,7 +158,7 @@
                 <!-- Subview fills remaining space -->
             </Grid.RowDefinitions>
             <StackPanel Grid.Row="0" Orientation="Horizontal" >
-                <Button x:Name="btnBack"  AutomationProperties.AutomationId="btnBack" Width="25" Height="25" Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"  HorizontalAlignment="Left" VerticalAlignment="Center" Padding="0" Margin="20,5,0,0" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnBack_Click"  >
+                <Button x:Name="btnBack"  AutomationProperties.AutomationId="btnBack" AutomationProperties.Name="Back" ToolTip="Back" Width="25" Height="25" Style="{StaticResource BtnStyleLightOrangeBorderedSmall}" IsEnabled="True"  HorizontalAlignment="Left" VerticalAlignment="Center" Padding="0" Margin="20,5,0,0" FontSize="13" Cursor="Hand" FontWeight="Semibold" Click="btnBack_Click"  >
                     <Button.Content>
                         <StackPanel  Orientation="Horizontal">
                             <TextBlock x:Name="btnbtnBackTXT" Text="❮" FontSize="13" Style="{DynamicResource ButtonTextBlockStyle}"/>

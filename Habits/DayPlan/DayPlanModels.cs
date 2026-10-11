@@ -32,6 +32,7 @@ namespace Focus_Bear.Habits.DayPlan
         public bool IsCurrent;          // the next habit up (highlighted)
         public string Subtitle;         // e.g. "meeting", or a duration label
         public bool DidOverflow;        // habit couldn't be placed before day end
+        public int? OverflowDurationSeconds;  // an overflow habit is zero-length; this is its real length
         public string EventID;          // calendar event identifier (for meetings, so they can be dismissed)
         public string RoutineName;      // for habits: which routine they belong to (used to group them)
         // Follow-up fields (Mac-App #2010/#2012/#2049) — used by the past-routine / completed /

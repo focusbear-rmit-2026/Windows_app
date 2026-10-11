@@ -96,6 +96,7 @@ namespace Focus_Bear.SetIntention
             ShowInTaskbar = false;
             Topmost = true;
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            IsVisibleChanged += (s, e) => { if (IsVisible) appSettings.NotifyBlockPopupShown(); };   // on the backdrop, never under it
 
             try
             {

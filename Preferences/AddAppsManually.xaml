@@ -1,11 +1,11 @@
-﻿<Window x:Class="Focus_Bear.Preferences.AddAppsManually"
+<Window x:Class="Focus_Bear.Preferences.AddAppsManually"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.Preferences"
         mc:Ignorable="d"
-         Title="Focus Bear" Height="210" Width="450" ResizeMode="NoResize" AutomationProperties.AutomationId="AddAppsManually">
+         Title="Focus Bear" Height="410" Width="470" ResizeMode="NoResize" AutomationProperties.AutomationId="AddAppsManually">
     <Grid Background="{DynamicResource SoftCreamColor}">
         <Grid.Resources>
             <ResourceDictionary>
@@ -15,31 +15,81 @@
             </ResourceDictionary>
         </Grid.Resources>
         <Grid.RowDefinitions>
-            <RowDefinition Height="25"/>
-            <RowDefinition Height="40"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="1"/>
-            <RowDefinition Height="35"/>
+            <RowDefinition Height="44"/>
         </Grid.RowDefinitions>
 
-        <TextBlock  Grid.Row="0" Name="Heading" Margin="20,0,20,0" TextWrapping="Wrap"  Text="xEnter apps manually:"   FontSize="13" FontWeight="Normal" VerticalAlignment="Bottom" TextAlignment="Left" HorizontalAlignment="Left"  />
+        <!-- ===== Option 1: type the exe name(s) — keeps the existing wording ===== -->
+        <TextBlock Grid.Row="0" Name="Heading" Margin="20,14,20,0" TextWrapping="Wrap" Text="xEnter apps manually:"
+                   FontSize="13" Foreground="{DynamicResource ForegroundColor}" TextAlignment="Left" HorizontalAlignment="Left"/>
 
+        <TextBox Grid.Row="1" TabIndex="0" x:Name="TxtApps" AutomationProperties.AutomationId="txtBoxApps"
+                 Margin="20,6,20,0" Background="White" Foreground="Black" BorderBrush="#999" Padding="5,1,5,1" BorderThickness="1"
+                 FontSize="13" TextAlignment="Left" MaxLines="1" Height="26" VerticalContentAlignment="Center"
+                 TextChanged="TxtApps_TextChanged"/>
 
-        <TextBox Grid.Row="1" TabIndex="0" x:Name="TxtApps" AutomationProperties.AutomationId="txtBoxApps" Margin="20,5,20,10" TextWrapping="Wrap"  BorderBrush="#000" Foreground="#000" Padding="5,1,5,1"  BorderThickness="1" FontSize="13" TextAlignment="Left" MaxLines="1" Height="25" TextChanged="TxtApps_TextChanged">
+        <TextBlock Grid.Row="2" Name="Instructions" Margin="20,5,20,0" TextWrapping="Wrap"
+                   Text="xIf you know the name of the EXE that you want to allow, you can add them here. You can enter multiple exe names seperated with comma. Example: chrome.exe, firefox.exe, notepad.exe"
+                   FontSize="12" Opacity="0.75" Foreground="{DynamicResource ForegroundColor}" TextAlignment="Left" HorizontalAlignment="Left"/>
 
-        </TextBox>
+        <!-- ===== divider ===== -->
+        <Border Grid.Row="3" Height="1" Background="{DynamicResource ForegroundColor}" Opacity="0.18" Margin="20,14,20,0"/>
 
-        <TextBlock  Grid.Row="2" Name="Instructions" Margin="20,0,20,0" TextWrapping="Wrap"  Text="xIf you know the name of the EXE that you want to allow, you can add them here. You can enter multiple exe names seperated with comma. Example: chrome.exe, firefox.exe, notepad.exe"   FontSize="13" FontWeight="Normal" VerticalAlignment="Top" TextAlignment="Left" HorizontalAlignment="Left"  />
-        <Grid Grid.Row="3" Background="LightGray" ></Grid>
-        <Grid Grid.Row="4">
+        <!-- ===== Option 2: browse to the app's .exe file(s) — added alongside anything typed above ===== -->
+        <TextBlock Grid.Row="4" Name="SelectFileLabel" Margin="20,12,20,0" TextWrapping="Wrap" Text="xOr select the app's file"
+                   FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource ForegroundColor}" TextAlignment="Left" HorizontalAlignment="Left"/>
+
+        <Button Grid.Row="5" x:Name="btnBrowse" AutomationProperties.AutomationId="btnBrowse" Content="xSelect File"
+                Height="28" MinWidth="150" Padding="18,0" Margin="20,8,20,0" HorizontalAlignment="Left" Cursor="Hand"
+                Click="btnBrowsePath_Click" Style="{StaticResource BtnStyleLightOrangeBorderedSmall}"/>
+
+        <TextBlock Grid.Row="6" Name="SelectFileHint" Margin="20,6,20,0" TextWrapping="Wrap"
+                   Text="xPick one or more .exe files on your PC. You can select several, and add typed names too."
+                   FontSize="12" Opacity="0.75" Foreground="{DynamicResource ForegroundColor}" TextAlignment="Left" HorizontalAlignment="Left"/>
+
+        <!-- Selected files shown as removable tags (chips) -->
+        <ScrollViewer Grid.Row="7" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="20,8,20,4">
+            <ItemsControl x:Name="SelectedAppsList">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border CornerRadius="13" BorderBrush="#e88800" BorderThickness="1" Background="Transparent"
+                                Margin="0,0,6,6" Padding="10,3,5,3">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding AppName}" FontSize="12" VerticalAlignment="Center"
+                                           Foreground="{DynamicResource ForegroundColor}"/>
+                                <Button Content="✕" Click="btnRemoveChip_Click" Width="18" Height="18" Margin="7,0,0,0" Padding="0"
+                                        FontSize="10" Cursor="Hand" Background="Transparent" BorderThickness="0"
+                                        Foreground="#e88800" ToolTip="Remove"/>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <!-- ===== footer ===== -->
+        <Border Grid.Row="8" Background="{DynamicResource ForegroundColor}" Opacity="0.18"/>
+        <Grid Grid.Row="9">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <Button x:Name="btnCancel" AutomationProperties.AutomationId="btnCancel" Grid.Column="0" Height="23" Width="100" Margin="20,0,0,0" HorizontalAlignment="Left" Click="btnCancel_Click" Style="{StaticResource BtnStyleLightOrangeBorderedSmall}">xCancel</Button>
-            <Button x:Name="btnAdd" AutomationProperties.AutomationId="btnAdd" Grid.Column="1" Height="23" Width="100" Margin="0,0,20,0" HorizontalAlignment="Right" Click="btnAdd_Click" Style="{StaticResource BtnStyleLightOrangeBorderedSmall}">xAdd</Button>
-
+            <Button x:Name="btnCancel" AutomationProperties.AutomationId="btnCancel" Grid.Column="0" Height="26" Width="110" Margin="20,0,0,0" HorizontalAlignment="Left" Cursor="Hand" Click="btnCancel_Click" Style="{StaticResource BtnStyleClearOrangeBordered}">xCancel</Button>
+            <Button x:Name="btnAdd" AutomationProperties.AutomationId="btnAdd" Grid.Column="2" Height="26" Width="110" Margin="0,0,20,0" HorizontalAlignment="Right" Cursor="Hand" Click="btnAdd_Click" Style="{StaticResource BtnStyleLightOrangeBorderedSmall}">xAdd</Button>
         </Grid>
 
     </Grid>

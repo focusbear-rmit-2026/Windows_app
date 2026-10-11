@@ -81,7 +81,12 @@ namespace Focus_Bear.Habits
         {
             try
             {
-                if (await DayPlanCalendarManager.Shared.RefreshAsync(force))
+                // The 45-day window is ~1.7 MB and a backend provider sync per call, and this runs every 90 s while the
+                // Day Plan is open: reload it every 15 minutes, and just the next week (plus the viewed day) otherwise.
+                var calendar = DayPlanCalendarManager.Shared;
+                bool wide = !calendar.IsWindowFresh(DayPlanCalendarManager.DefaultWindowDays, DayPlanCalendarManager.WideWindowMaxAgeSeconds);
+                if (await calendar.RefreshAsync(force || wide, viewedDay: _selectedDate,
+                        windowDays: wide ? DayPlanCalendarManager.DefaultWindowDays : DayPlanCalendarManager.NearWindowDays))
                     RenderDayPlan();
             }
             catch (Exception ex) { LogWriter.LogWrite("FetchCalendar - " + ex.Message); }
@@ -98,7 +103,9 @@ namespace Focus_Bear.Habits
             {
                 Interval = TimeSpan.FromSeconds(90)
             };
-            _calendarTimer.Tick += (s, e) => FetchCalendar();   // manager self-throttles; re-renders only on change
+            // Only while the Day Plan is on screen: the page is kept after it's left (and the window hides to the tray),
+            // and this read is a 7-45 day calendar download. Coming back through Refresh reads at once; otherwise the next tick does.
+            _calendarTimer.Tick += (s, e) => { if (IsVisible) FetchCalendar(); };   // manager self-throttles; re-renders only on change
             _calendarTimer.Start();
         }
 
@@ -108,14 +115,16 @@ namespace Focus_Bear.Habits
         {
             try
             {
-                List<string> names = await new FocusBearAPIClient().GetProjects();
-                if (names != null) DayPlanTaskStore.Shared.RemoteProjectNames = names;
+                // id -> name, so a to-do linked by project_id alone is named (report 2026-09-25_09-44-27).
+                Dictionary<string, string> byId = await new FocusBearAPIClient().GetProjectsById();
+                if (byId != null && DayPlanTaskStore.Shared.SetRemoteProjects(byId)) RefreshTasksAndAgenda();
             }
             catch (Exception ex) { LogWriter.LogWrite("FetchProjectNames - " + ex.Message); }
         }
 
         // The day we last hydrated from the backend, so we fetch at most once per viewed day per session.
         private string _lastTaskHydrateDay = "";
+        private DateTime _lastStatusSyncUtc = DateTime.MinValue;
 
         /// <summary>
         /// Pull the selected day's planned to-dos from the backend and reconcile them into the local
@@ -126,41 +135,65 @@ namespace Focus_Bear.Habits
         {
             try
             {
-                string dayKey = _selectedDate.ToString("yyyy-MM-dd");
-                if (_lastTaskHydrateDay == dayKey) return;
+                // The day asked about, kept across the awaits: the user can page to another day before the replies
+                // come back, and that day's tasks and hidden meetings must not be filed under the new one.
+                DateTime day = _selectedDate.Date;
+                string dayKey = FocusBear.Core.Schedule.DayPlanDayKey.For(day);
+                bool firstLoadOfDay = _lastTaskHydrateDay != dayKey;
+                // The done-sync below runs on every open; only a burst of opens is collapsed.
+                if (!firstLoadOfDay && (DateTime.UtcNow - _lastStatusSyncUtc).TotalSeconds < 10) return;
                 _lastTaskHydrateDay = dayKey;
+                _lastStatusSyncUtc = DateTime.UtcNow;
 
                 var client = new FocusBearAPIClient();
                 bool changed = false;
 
                 // 1) Pull the day-plan payload once per viewed day: tasks the backend planned onto this
                 //    day (when planned_date sticks) + the dismissed meeting ids for the day.
-                string raw = await client.GetDayPlanForDay(dayKey);
+                string raw = firstLoadOfDay ? await client.GetDayPlanForDay(dayKey) : null;
                 if (!string.IsNullOrEmpty(raw))
                 {
-                    if (DayPlanTaskStore.Shared.HydrateFromDay(raw, _selectedDate)) changed = true;
+                    // Only a past day takes its tasks from the payload (Mac loadAndHydrate): today and later are filed
+                    // by due date below, and the legacy planned_date pointers would bring stale copies onto them.
+                    if (day < DateTime.Today && DayPlanTaskStore.Shared.HydrateFromDay(raw, day)) changed = true;
                     try
                     {
                         if (Newtonsoft.Json.Linq.JObject.Parse(raw)["dismissed_event_ids"] is Newtonsoft.Json.Linq.JArray da)
                         {
-                            DayPlanCalendarManager.Shared.SetDismissed(_selectedDate, da.Select(x => x.ToString()));
+                            DayPlanCalendarManager.Shared.SetDismissed(day, da.Select(x => x.ToString()));
                             changed = true;
                         }
                     }
                     catch (Exception ex) { LogWriter.LogWrite("dismissed_event_ids parse - " + ex.Message); }
                 }
 
+                // 1b) File every synced, unfinished to-do by its due date (overdue → today), the Mac's
+                //     loadAndMergeDueTodos (report 2026-09-25_19-54-42). Needs the COMPLETE unfinished
+                //     catalogue; a failed or partial read changes nothing.
+                var catalogue = await ToDoCatalogue.GetAsync();
+                if (catalogue != null && DayPlanTaskStore.Shared.MergeDueTodos(catalogue.Tasks, DateTime.Now, catalogue.Account))
+                    changed = true;
+                // 1c) Tasks typed here that never got a to-do (made before creates were synced, or while offline) get one
+                //     now, so they reach the user's other devices (report 2026-09-28_21-59-10).
+                if (catalogue != null) DayPlanTaskStore.Shared.SyncLocalOnlyTasks(DateTime.Today);
+
                 // 2) Reconcile done-state from the actual to-do list (/to-do/recent includes completed).
                 //    Run EVERY time the Day Plan is shown/changed — NOT throttled per day — so a task
                 //    done or re-opened on web/mobile reflects here on the next open. GetAllTasks itself
                 //    self-throttles (≤15s), so this is cheap. The /day-plan/day read above is empty when
                 //    the backend doesn't persist planned_date, so this is the reliable done sync.
+                //    /to-do/recent leaves completed to-dos out, so it can never tick a task finished
+                //    elsewhere; ask for this day's to-dos by id instead (completed ones included), and
+                //    fall back to /recent only if that call fails.
                 await client.GetAllTasks();   // refreshes appSettings.sAllTasks (debounced ≤15s)
-                if (DayPlanTaskStore.Shared.ReconcileStatusFrom(appSettings.sAllTasks))
+                var sourceIds = DayPlanTaskStore.Shared.Tasks(day)
+                    .Select(t => t.SourceTaskId).Where(id => !string.IsNullOrEmpty(id));
+                string planned = await client.GetToDosByIds(sourceIds);
+                if (DayPlanTaskStore.Shared.ReconcileStatusFrom(planned ?? appSettings.sAllTasks))
                     changed = true;
 
                 // Only re-render if the day we reconciled is still the one on screen.
-                if (changed && _selectedDate.ToString("yyyy-MM-dd") == dayKey)
+                if (changed && _selectedDate.Date == day)
                     RefreshTasksAndAgenda();
             }
             catch (Exception ex) { LogWriter.LogWrite("HydrateTasksFromBackend - " + ex.Message); }
@@ -202,9 +235,8 @@ namespace Focus_Bear.Habits
                 _selectedTaskIds.IntersectWith(stored.Select(t => t.Id));
 
                 int remainingMins = all.Where(t => !t.Done).Sum(t => t.DurationMinutes);
-                TasksTotal.Text = remainingMins > 0
-                    ? DayPlanText.Fmt(DayPlanText.TasksTotalToDo, Hm(remainingMins))
-                    : "";
+                // "≈ Xh of tasks planned · Ym buffer" + the red over-capacity warning and its Fix (Mac).
+                RenderBufferAndBanner(remainingMins);
 
                 if (all.Count == 0)
                 {
@@ -341,25 +373,7 @@ namespace Focus_Bear.Habits
             };
             showCompleted.Click += (s, ev) => { _showCompleted = !_showCompleted; RenderTasksPanel(); };
             menu.Items.Add(showCompleted);
-
-            // "Show hidden meetings" — only when the day actually has one hidden with ✕.
-            int hiddenMeetings = DayPlanCalendarManager.Shared.MeetingsFor(_selectedDate, true).Count(m => m.IsDismissed);
-            if (hiddenMeetings > 0)
-            {
-                var showDismissed = new MenuItem
-                {
-                    Header = DayPlanText.Fmt(DayPlanText.MeetingsShowDismissedCount, hiddenMeetings),
-                    IsCheckable = true,
-                    IsChecked = _showDismissedMeetings
-                };
-                showDismissed.Click += (s, ev) =>
-                {
-                    _showDismissedMeetings = !_showDismissedMeetings;
-                    RegistryManager.SaveDayPlanShowHiddenMeetings(_showDismissedMeetings);
-                    RenderDayPlan();
-                };
-                menu.Items.Add(showDismissed);
-            }
+            // "Show dismissed events" lives in the Day Plan's top-left schedule cog, as on the Mac.
 
             menu.PlacementTarget = sender as UIElement;
             menu.IsOpen = true;
@@ -436,6 +450,8 @@ namespace Focus_Bear.Habits
                 VerticalAlignment = VerticalAlignment.Center,
                 Margin = new Thickness(0, 0, 6, 0)
             };
+            // Read as "Done: <task>", not an unnamed checkbox.
+            System.Windows.Automation.AutomationProperties.SetName(check, "Done: " + (task.Title ?? ""));
             check.Checked += (s, e) => { DayPlanTaskStore.Shared.SetDone(task.Id, true, _selectedDate); RenderTasksPanel(); };
             check.Unchecked += (s, e) => { DayPlanTaskStore.Shared.SetDone(task.Id, false, _selectedDate); RenderTasksPanel(); };
             Grid.SetColumn(check, 1);
@@ -484,12 +500,7 @@ namespace Focus_Bear.Habits
                 {
                     name.Background = Brushes.Transparent;
                     name.BorderBrush = Brushes.Transparent;
-                    CommitTaskName(task, name.Text);
-                };
-                name.KeyDown += (s, e) =>
-                {
-                    if (e.Key == Key.Enter) { CommitTaskName(task, name.Text); Keyboard.ClearFocus(); e.Handled = true; }
-                    else if (e.Key == Key.Escape) { name.Text = task.Title; Keyboard.ClearFocus(); e.Handled = true; }
+                    // Commit / Enter / Tab / Esc and the #project suggestions: WireTaskNameComposer (below).
                 };
                 name.PreviewMouseLeftButtonDown += (s, e) =>
                 {
@@ -558,19 +569,32 @@ namespace Focus_Bear.Habits
                 grid.Children.Add(clock);
             }
 
-            // Duration (edit via the detail modal).
-            var dur = new TextBlock
+            // Duration. An active task's is an inline field, as on the Mac (DayPlanTasks "dur:" field): click it or Tab
+            // from the name, type "30" / "45m" / "1h", and Enter or leaving it saves. It used to be a plain label that
+            // only the ⋯ modal could change (report 2026-09-28_20-58-44).
+            Brush durBrush = fgColor.HasValue ? new SolidColorBrush(WithAlpha(fgColor.Value, 0.85)) : SecBrush();
+            FrameworkElement durElement;
+            TextBox dur = null;
+            if (task.Done)
             {
-                Text = task.DurationMinutes + "m",
-                FontSize = 12,
-                Foreground = fgColor.HasValue ? new SolidColorBrush(WithAlpha(fgColor.Value, 0.85)) : SecBrush(),
-                MinWidth = 34,
-                TextAlignment = TextAlignment.Right,
-                VerticalAlignment = VerticalAlignment.Center,
-                Margin = new Thickness(6, 0, 0, 0)
-            };
-            Grid.SetColumn(dur, 4);
-            grid.Children.Add(dur);
+                durElement = new TextBlock
+                {
+                    Text = DayPlanDurations.RowLabel(task.DurationMinutes),
+                    FontSize = 12,
+                    Foreground = durBrush,
+                    MinWidth = 34,
+                    TextAlignment = TextAlignment.Right,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Margin = new Thickness(6, 0, 0, 0)
+                };
+            }
+            else
+            {
+                dur = BuildTaskDurationField(task, durBrush, fgColor.HasValue ? new SolidColorBrush(fgColor.Value) : FgBrush());
+                durElement = dur;
+            }
+            Grid.SetColumn(durElement, 4);
+            grid.Children.Add(durElement);
 
             // Details button (⋯) — opens the task detail modal (notes, sub-tasks, importance, move,
             // remove). A larger, clearer "more options" glyph than the old tiny ⓘ.
@@ -626,6 +650,8 @@ namespace Focus_Bear.Habits
             };
             row.DragLeave += (s, e) => { row.BorderThickness = new Thickness(0); };
             row.Drop += (s, e) => OnTaskReorderDrop(task.Id, row, e);
+            // #project / !priority / *minutes in the name, suggestions, shortcut card (HabitsDayPlan.Composer.cs).
+            if (nameField is TextBox composerField) WireTaskNameComposer(task, composerField, nameColumn, row, dur);
             return row;
         }
 
@@ -661,14 +687,6 @@ namespace Focus_Bear.Habits
                 if (changed == true) RefreshTasksAndAgenda();
             }
             catch (Exception ex) { LogWriter.LogWrite("OpenTaskModal - " + ex.Message); }
-        }
-
-        private void CommitTaskName(DayPlanTask task, string newTitle)
-        {
-            newTitle = (newTitle ?? "").Trim();
-            if (string.IsNullOrEmpty(newTitle) || newTitle == task.Title) return;
-            task.Title = newTitle;
-            DayPlanTaskStore.Shared.Update(task, _selectedDate);
         }
 
         private void ToggleTaskSelection(string id)
@@ -835,41 +853,22 @@ namespace Focus_Bear.Habits
         {
             string key = MeetingKey(block);
             bool dismissed = block.IsDismissed;
-            UIElement card = BuildNonHabitCard(block);
+            // The "🙈 Hide" / "👀 Show" control sits in the card's own last column, so the title trims before it
+            // instead of running underneath (report 2026-09-25_14-31-18). A bare ✕ read as "delete this
+            // event"; it only hides the row from the Day Plan, so the button says so (Mac hideEventButton).
+            // The colour swatch moved off the card into the meeting's settings, opened by clicking the card.
+            Button toggle = BuildMeetingHideButton(block);
+            UIElement card = BuildNonHabitCard(block, toggle);
             if (dismissed) card.Opacity = 0.45;   // shown only via "Show hidden meetings"; fade it
-
-            // Overlay a colour swatch + a hide (✕) / restore (↺) button at the card's top-right corner.
-            var overlay = new Grid();
+            var overlay = new Grid { Cursor = Cursors.Hand, ToolTip = DayPlanText.MeetingSettingsHint };
             overlay.Children.Add(card);
-            var actions = new StackPanel
+            overlay.MouseLeftButtonUp += (s, e) =>
             {
-                Orientation = Orientation.Horizontal,
-                HorizontalAlignment = HorizontalAlignment.Right,
-                VerticalAlignment = VerticalAlignment.Top,
-                Margin = new Thickness(0, 4, 6, 0)
+                if (e.Handled) return;
+                e.Handled = true;
+                // After the click has finished routing, so the modal doesn't open inside the mouse-up.
+                Dispatcher.BeginInvoke(new Action(() => ShowMeetingSettings(block)));
             };
-            if (!dismissed) actions.Children.Add(BuildColourSwatch(block));   // recolour a visible meeting
-            var toggle = new Button
-            {
-                Content = dismissed ? "↺" : "✕",
-                FontSize = 12,
-                Background = Brushes.Transparent,
-                BorderThickness = new Thickness(0),
-                Foreground = SecBrush(),
-                Cursor = Cursors.Hand,
-                Padding = new Thickness(4, 0, 4, 0),
-                Template = BorderlessButtonTemplate(),
-                ToolTip = dismissed ? DayPlanText.MeetingRestore : DayPlanText.MeetingDismiss,
-                VerticalAlignment = VerticalAlignment.Center
-            };
-            toggle.Click += (s, e) =>
-            {
-                DayPlanCalendarManager.Shared.SetDismissed(block.EventID, _selectedDate, !dismissed);
-                RenderDayPlan();
-            };
-            actions.Children.Add(toggle);
-            overlay.Children.Add(actions);
-
             var host = new Border { Background = Brushes.Transparent, AllowDrop = true, Child = overlay };
             host.DragEnter += (s, e) => OnHabitDragOver(host, e);
             host.DragOver += (s, e) => OnHabitDragOver(host, e);
@@ -884,6 +883,73 @@ namespace Focus_Bear.Habits
                     DayPlanStack.Children.Add(BuildNestedTaskRow(t));
                 DayPlanStack.Children.Add(new Border { Height = 8 });
             }
+        }
+
+        /// <summary>The meeting's "🙈 Hide" / "👀 Show" pill (Mac hideEventButton / showEventButton).</summary>
+        private Button BuildMeetingHideButton(ScheduleBlock block)
+        {
+            bool dismissed = block.IsDismissed;
+            // Emoji.Wpf renders the monkey in colour (Segoe UI Emoji); explicit black text on the light pill so
+            // it reads on both themes.
+            var toggleLabel = new Emoji.Wpf.TextBlock
+            {
+                Text = dismissed ? DayPlanText.ShowEventButton : DayPlanText.HideEventButton,
+                FontSize = 11.5,
+                FontFamily = new FontFamily("Segoe UI Emoji, Segoe UI"),
+                Foreground = Brushes.Black,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            var togglePill = new Border
+            {
+                Background = new SolidColorBrush(Color.FromRgb(0xF4, 0xF4, 0xF5)),
+                BorderBrush = new SolidColorBrush(Color.FromRgb(0xD4, 0xD4, 0xD8)),
+                BorderThickness = new Thickness(1),
+                CornerRadius = new CornerRadius(5),
+                Padding = new Thickness(7, 2, 7, 2),
+                Child = toggleLabel
+            };
+            var toggle = new Button
+            {
+                Content = togglePill,
+                Background = Brushes.Transparent,
+                BorderThickness = new Thickness(0),
+                Cursor = Cursors.Hand,
+                Padding = new Thickness(0),
+                Margin = new Thickness(10, 0, 4, 0),
+                Template = BorderlessButtonTemplate(),
+                ToolTip = dismissed ? DayPlanText.MeetingRestore : DayPlanText.MeetingDismiss,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            System.Windows.Automation.AutomationProperties.SetAutomationId(toggle, dismissed ? "DayPlanShowMeeting" : "DayPlanHideMeeting");
+            System.Windows.Automation.AutomationProperties.SetName(toggle, dismissed ? DayPlanText.MeetingRestore : DayPlanText.MeetingDismiss);
+            toggle.Click += (s, e) =>
+            {
+                DayPlanCalendarManager.Shared.SetDismissed(block.EventID, _selectedDate, !dismissed);
+                RenderDayPlan();
+            };
+            return toggle;
+        }
+
+        /// <summary>
+        /// The meeting's settings, opened by clicking its card (Mac: clicking a meeting opens its edit form,
+        /// where its colour lives). Windows reads meetings from the calendar sync and cannot edit the event
+        /// itself, so this holds what the Day Plan owns about it: its colour and whether it is hidden today.
+        /// </summary>
+        private void ShowMeetingSettings(ScheduleBlock block)
+        {
+            try
+            {
+                var dlg = new DayPlanMeetingSettingsDialog(block.Title,
+                    string.Format("{0}, {1}–{2}", _selectedDate.ToString("ddd d MMM", CultureInfo.CurrentCulture),
+                                  TimeString(block.Start), TimeString(block.End)),
+                    MeetingColours, block.Colour, block.IsDismissed, Window.GetWindow(this));
+                appSettings.CapturePostHog("day-plan-event-settings-opened");
+                if (dlg.ShowDialog() != true) return;
+                if (dlg.ColourChanged) DayPlanCalendarManager.Shared.SetColour(block.EventID, dlg.Colour);   // null = default
+                if (dlg.HiddenChanged) DayPlanCalendarManager.Shared.SetDismissed(block.EventID, _selectedDate, dlg.Hidden);
+                RenderDayPlan();
+            }
+            catch (Exception ex) { LogWriter.LogWrite("HabitsDayPlan ShowMeetingSettings ex - " + ex.Message); }
         }
 
         // The colour swatches offered for a meeting (the first is the default blue). Hex so they persist
@@ -902,91 +968,6 @@ namespace Focus_Bear.Habits
         };
 
         /// <summary>A small colour dot on a meeting card; clicking it opens the palette popup.</summary>
-        private UIElement BuildColourSwatch(ScheduleBlock block)
-        {
-            var dot = new Border
-            {
-                Width = 14,
-                Height = 14,
-                CornerRadius = new CornerRadius(7),
-                Background = new SolidColorBrush(ColorFromHex(block.Colour, CBlue)),
-                BorderBrush = SecBrush(),
-                BorderThickness = new Thickness(1),
-                Margin = new Thickness(0, 0, 8, 0),
-                Cursor = Cursors.Hand,
-                VerticalAlignment = VerticalAlignment.Center,
-                ToolTip = DayPlanText.MeetingColour
-            };
-            dot.MouseLeftButtonUp += (s, e) => ShowColourPicker(block, dot);
-            return dot;
-        }
-
-        /// <summary>Palette popup: pick a swatch to recolour the meeting, or "Default" to reset it.</summary>
-        private void ShowColourPicker(ScheduleBlock block, UIElement anchor)
-        {
-            var popup = new System.Windows.Controls.Primitives.Popup
-            {
-                PlacementTarget = anchor,
-                Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom,
-                StaysOpen = false,
-                AllowsTransparency = true
-            };
-
-            var swatches = new WrapPanel { Width = 152 };
-            foreach (string hex in MeetingColours)
-            {
-                bool selected = string.Equals(hex, block.Colour, StringComparison.OrdinalIgnoreCase);
-                var sw = new Border
-                {
-                    Width = 26,
-                    Height = 26,
-                    CornerRadius = new CornerRadius(13),
-                    Background = new SolidColorBrush(ColorFromHex(hex, CBlue)),
-                    BorderBrush = FgBrush(),
-                    BorderThickness = new Thickness(selected ? 2 : 0),
-                    Margin = new Thickness(4),
-                    Cursor = Cursors.Hand
-                };
-                string chosen = hex;
-                sw.MouseLeftButtonUp += (s, e) => PickColour(block, chosen, popup);
-                swatches.Children.Add(sw);
-            }
-
-            var reset = new Button
-            {
-                Content = new TextBlock { Text = DayPlanText.MeetingColourDefault, Margin = new Thickness(2, 3, 2, 3) },
-                Background = Brushes.Transparent,
-                BorderThickness = new Thickness(0),
-                Foreground = SecBrush(),
-                Cursor = Cursors.Hand,
-                Template = BorderlessButtonTemplate(),
-                HorizontalAlignment = HorizontalAlignment.Left,
-                Margin = new Thickness(4, 2, 0, 0)
-            };
-            reset.Click += (s, e) => PickColour(block, null, popup);
-
-            var stack = new StackPanel { Margin = new Thickness(8) };
-            stack.Children.Add(swatches);
-            stack.Children.Add(reset);
-
-            popup.Child = new Border
-            {
-                Background = (Application.Current.TryFindResource("BackgroundColor") as Brush) ?? Brushes.White,
-                BorderBrush = SecBrush(),
-                BorderThickness = new Thickness(1),
-                CornerRadius = new CornerRadius(8),
-                Child = stack
-            };
-            popup.IsOpen = true;
-        }
-
-        private void PickColour(ScheduleBlock block, string hex, System.Windows.Controls.Primitives.Popup popup)
-        {
-            DayPlanCalendarManager.Shared.SetColour(block.EventID, hex);   // null hex = reset to default
-            if (popup != null) popup.IsOpen = false;
-            RenderDayPlan();
-        }
-
         /// <summary>A task nested under a habit: indented, checkbox · name · Nm · ↩ (send back to panel).</summary>
         private UIElement BuildNestedTaskRow(DayPlanTask task)
         {
@@ -1002,6 +983,8 @@ namespace Focus_Bear.Habits
                 VerticalAlignment = VerticalAlignment.Center,
                 Margin = new Thickness(0, 0, 6, 0)
             };
+            // Read as "Done: <task>", not an unnamed checkbox.
+            System.Windows.Automation.AutomationProperties.SetName(check, "Done: " + (task.Title ?? ""));
             check.Checked += (s, e) => { DayPlanTaskStore.Shared.SetDone(task.Id, true, _selectedDate); RefreshTasksAndAgenda(); };
             check.Unchecked += (s, e) => { DayPlanTaskStore.Shared.SetDone(task.Id, false, _selectedDate); RefreshTasksAndAgenda(); };
             Grid.SetColumn(check, 0);
@@ -1079,6 +1062,137 @@ namespace Focus_Bear.Habits
                 if (ok == true) RenderTasksPanel();
             }
             catch (Exception ex) { LogWriter.LogWrite("BtnAddFromList_Click - " + ex.Message); }
+        }
+
+        // MARK: - inline duration field --------------------------------------------------------------
+
+        /// <summary>Marks a task row's duration field (and whose it is) — not a string, so the name composer's refocus ignores it.</summary>
+        private sealed class TaskDurationTag
+        {
+            public TaskDurationTag(string taskId) { TaskId = taskId; }
+            public string TaskId { get; }
+        }
+
+        /// <summary>The task whose duration field had focus when the panel rebuilt; it gets focus back.</summary>
+        private string _durationRestoreId;
+
+        /// <summary>
+        /// A panel row's editable duration: looks like the old "15m" label until it has focus, then shows the name
+        /// field's focus border with the text selected so typing replaces it. Enter or leaving saves; Esc reverts.
+        /// </summary>
+        private TextBox BuildTaskDurationField(DayPlanTask task, Brush textBrush, Brush caretBrush)
+        {
+            var box = new TextBox
+            {
+                Text = DayPlanDurations.RowLabel(task.DurationMinutes),
+                Tag = new TaskDurationTag(task.Id),
+                FontSize = 12,
+                Foreground = textBrush,
+                CaretBrush = caretBrush,
+                Background = Brushes.Transparent,
+                BorderBrush = Brushes.Transparent,
+                BorderThickness = new Thickness(1),
+                Padding = new Thickness(2, 1, 2, 1),
+                MinWidth = 40,
+                TextAlignment = TextAlignment.Right,
+                VerticalAlignment = VerticalAlignment.Center,
+                VerticalContentAlignment = VerticalAlignment.Center,
+                Margin = new Thickness(4, 0, 0, 0),
+                AllowDrop = false,   // a reorder drop falls through to the row
+                Cursor = Cursors.IBeam,
+                ToolTip = DayPlanText.TasksDurationHint
+            };
+            System.Windows.Automation.AutomationProperties.SetAutomationId(box, "DayPlanTaskDuration");
+            System.Windows.Automation.AutomationProperties.SetName(box, "Duration: " + (task.Title ?? ""));
+
+            bool finished = false;
+            box.GotKeyboardFocus += (s, e) =>
+            {
+                finished = false;
+                box.Background = new SolidColorBrush(Color.FromArgb(0x26, 0x80, 0x80, 0x80));
+                box.BorderBrush = new SolidColorBrush(COrange);
+                box.SelectAll();
+            };
+            // A click focuses the field and selects its text (a plain click would drop the caret mid-text instead).
+            box.PreviewMouseLeftButtonDown += (s, e) =>
+            {
+                if (box.IsKeyboardFocusWithin) return;
+                box.Focus();
+                e.Handled = true;
+            };
+            box.LostKeyboardFocus += (s, e) =>
+            {
+                box.Background = Brushes.Transparent;
+                box.BorderBrush = Brushes.Transparent;
+                if (finished) return;
+                finished = true;
+                CommitTaskDuration(task.Id, box);
+            };
+            box.PreviewKeyDown += (s, e) =>
+            {
+                if (e.Key == Key.Enter)
+                {
+                    e.Handled = true;
+                    finished = true;
+                    CommitTaskDuration(task.Id, box);
+                    Keyboard.ClearFocus();
+                }
+                else if (e.Key == Key.Escape)
+                {
+                    e.Handled = true;
+                    finished = true;
+                    DayPlanTask t = DayPlanTaskStore.Shared.TaskWithId(task.Id, _selectedDate);
+                    box.Text = DayPlanDurations.RowLabel(t?.DurationMinutes ?? task.DurationMinutes);
+                    Keyboard.ClearFocus();
+                }
+            };
+            if (task.Id == _durationRestoreId)
+            {
+                _durationRestoreId = null;
+                box.Loaded += (s, e) => { box.Focus(); box.SelectAll(); };
+            }
+            return box;
+        }
+
+        /// <summary>
+        /// Save a row's typed duration (Mac <c>commitDuration</c>). Unreadable text keeps the old length. A change
+        /// moves the plan's totals and the agenda, so both rebuild — after focus has moved, keeping it where it went.
+        /// </summary>
+        private void CommitTaskDuration(string taskId, TextBox box)
+        {
+            try
+            {
+                DayPlanTask t = DayPlanTaskStore.Shared.TaskWithId(taskId, _selectedDate);
+                if (t == null) return;
+                int minutes = DayPlanDurations.CommitRowField(box.Text, t.DurationMinutes);
+                box.Text = DayPlanDurations.RowLabel(minutes);
+                if (minutes == t.DurationMinutes) return;
+                LogWriter.LogWrite("[user-action] Day Plan task duration " + t.DurationMinutes + "m -> " + minutes + "m");
+                t.DurationMinutes = minutes;
+                DayPlanTaskStore.Shared.Update(t, _selectedDate);
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    RememberPanelFocusForRebuild();
+                    RefreshTasksAndAgenda();
+                }), System.Windows.Threading.DispatcherPriority.Input);
+            }
+            catch (Exception ex) { LogWriter.LogWrite("HabitsDayPlan CommitTaskDuration - " + ex.Message); }
+        }
+
+        /// <summary>Before the panel rebuilds under the user: note the name or duration field they are in, to refocus it.</summary>
+        private void RememberPanelFocusForRebuild()
+        {
+            var focused = Keyboard.FocusedElement as TextBox;
+            if (focused == null || !TasksListStack.IsAncestorOf(focused)) return;
+            if (focused.Tag is string nameTaskId)
+            {
+                _composerRestoreId = nameTaskId;
+                _composerRestoreText = focused.Text;
+            }
+            else if (focused.Tag is TaskDurationTag durationTag)
+            {
+                _durationRestoreId = durationTag.TaskId;
+            }
         }
 
         // MARK: - helpers -----------------------------------------------------------------------------

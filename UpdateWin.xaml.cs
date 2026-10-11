@@ -143,9 +143,11 @@ namespace Focus_Bear
 
         private void _appUpdater_AsyncCompletedEventArgsHandler(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
         {
+            // Never in the E2E test build: the installer would install over the real app.
+            if (!E2EBuild.MachineIntegrationAllowed) return;
             try
             {
-                //Check if Download is correct  
+                //Check if Download is correct
                 string updateFilePath = System.IO.Path.Combine(AppSettings.AppDataDirPath, "FocusBearSetup.exe");
                 {
                     Application.Current.Shutdown(0);

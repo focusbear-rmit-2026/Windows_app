@@ -1,0 +1,24 @@
+<Window x:Class="Focus_Bear.Habits.DeactivateBreaksWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Focus Bear" Width="390" SizeToContent="Height" ResizeMode="NoResize" ShowInTaskbar="False" Topmost="True"
+        AutomationProperties.AutomationId="DeactivateBreaksWindow">
+    <StackPanel Margin="20,16,20,16">
+        <TextBlock x:Name="TitleText" Text="Do you want to turn breaks off completely?" TextWrapping="Wrap" FontSize="15" FontWeight="SemiBold"
+                   TextAlignment="Center" HorizontalAlignment="Center" Margin="0,0,0,14"/>
+        <Button x:Name="btnKeepThemOn" AutomationProperties.AutomationId="btnKeepThemOn" Style="{StaticResource BtnStyleLightOrangeBordered}"
+                MinHeight="30" Margin="0,0,0,8" FontSize="13" Cursor="Hand" FontWeight="SemiBold" Click="btnKeepThemOn_Click">
+            <TextBlock x:Name="btnKeepThemOnTXT" Text="Keep them on" Style="{DynamicResource ButtonTextBlockStyle}"/>
+        </Button>
+        <Button x:Name="btnTurnOffForToday" AutomationProperties.AutomationId="btnTurnOffForToday" Style="{StaticResource BtnStyleLightOrangeBordered}"
+                MinHeight="30" Margin="0,0,0,10" FontSize="13" Cursor="Hand" FontWeight="SemiBold" Click="btnTurnOffForToday_Click">
+            <TextBlock x:Name="btnTurnOffForTodayTXT" Text="Turn them off for today" Style="{DynamicResource ButtonTextBlockStyle}"/>
+        </Button>
+        <TextBlock HorizontalAlignment="Center">
+            <!-- The theme's text colour, underlined: the default link blue is 2.6:1 on the dark background. -->
+            <Hyperlink x:Name="lnkTurnBreaksOff" AutomationProperties.AutomationId="lnkTurnBreaksOff" Foreground="{DynamicResource ForegroundColor}" Click="lnkTurnBreaksOff_Click">
+                <Run x:Name="lnkTurnBreaksOffTXT" Text="Turn breaks off completely"/>
+            </Hyperlink>
+        </TextBlock>
+    </StackPanel>
+</Window>

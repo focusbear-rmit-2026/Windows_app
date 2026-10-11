@@ -104,11 +104,15 @@ namespace Focus_Bear.Focus
                 int nCountFocusBlocks = 0;
                 int nTotalFocusTime = 0;
 
-                //Reinitialize
-                FocusSummaryItems.Clear();
-                ActivityQuantityItems.Clear();
-                ActivityAverageItems.Clear();
-                ActivityDurationItems.Clear();
+                // Fresh lists, never Clear(): these are plain List<T>s already bound as the ListViews'
+                // ItemsSource. Mutating a bound list sends WPF no change notification, and re-assigning
+                // the same instance is a no-op, so the ListView's generator kept the old item count and
+                // threw "An ItemsControl is inconsistent with its items source" on its next layout
+                // pass (Sentry FOCUS-BEAR-WINDOWS-57/58, #1051). A new instance makes ItemsSource reset.
+                FocusSummaryItems = new List<FocusSummary>();
+                ActivityQuantityItems = new List<ActivitySummary>();
+                ActivityAverageItems = new List<ActivitySummary>();
+                ActivityDurationItems = new List<ActivitySummary>();
 
                 //Parse the Activity data got from API
                 if (appSettings.sActivityAllDaySummaryData.Length > 0)
@@ -297,35 +301,33 @@ namespace Focus_Bear.Focus
         }
         private void btnNeedOneMinute_Click(object sender, RoutedEventArgs e)
         {
-            if (appSettings.DidCutOffTimePassed())
+            //Both branches below postpone the evening routine (a one-minute hide, or the postpone dialog), so
+            //this is the postpone rule, not the skip one.
+            if (appSettings.PostponeRequiresPassword(CurrentActivityType.EVENING_HABITS))
             {
-                if (appSettings.isPasswordSet)
+                LogWriter.LogWrite("Focus summary postpone - password required");
+                AskPassword pwdWnd = new AskPassword();
+                pwdWnd.Owner = ParentWindow;
+                ParentWindow.GridShade.Visibility = Visibility.Visible;
+
+                bool? bResult = pwdWnd.ShowDialog();
+
+                ParentWindow.GridShade.Visibility = Visibility.Collapsed;
+
+                if (bResult != true)
                 {
-                    if (appSettings.bPasswordRequireToSkipEveningAfterCutOff)
-                    {
-                        AskPassword pwdWnd = new AskPassword();
-                        pwdWnd.Owner = ParentWindow;
-                        ParentWindow.GridShade.Visibility = Visibility.Visible;
-
-                        bool? bResult = pwdWnd.ShowDialog();
-
-                        ParentWindow.GridShade.Visibility = Visibility.Collapsed;
-
-                        if (bResult.Value)
-                        {
-                            //Password is correct
-                        }
-                        else
-                        {
-                            return;
-                        }
-                    }
+                    return;
                 }
             }
 
             bNeed1MinuteClicked = true;
 
-            if (bNeedMoreTime)
+            if (bNeedMoreTime && ((App)Application.Current).ShouldUseAccountabilityBuddyForFocusSummary())
+            {
+                LogWriter.LogWrite("bNeedMoreTime - accountability buddy");
+                ((App)Application.Current).ShowAccountabilityBuddy(PostponeFocusSummary, null, ParentWindow);
+            }
+            else if (bNeedMoreTime)
             {
                 LogWriter.LogWrite("bNeedMoreTime - show postpone dialog");
 

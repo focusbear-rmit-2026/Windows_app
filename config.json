@@ -168,6 +168,7 @@
         "buttonUninstallText": "Uninstall Focus Bear",
         "shutdownNotificationTitle": "It's time to wrap up for the day. Your shutdown time is in 5 minutes.",
         "appBlockNotificationTitle": "<APP_NAME> isn't allowed in the <FOCUS_NAME> focus mode.",
+        "appBlockNotificationAllowButton": "Oops I actually need it",
         "superDistractingAppBlockedText": "<APP_NAME> is a Super distracting app.",
         "focusBreakNotificationTitle": "Your break ends in",
         "tabGeneralText": "General",
@@ -228,6 +229,7 @@
         "otherReasonText": "Other",
         "loadingText": "Loading...",
         "cutOffTimePassedText": "Running low on time - let's just focus on the high priority habits for the rest of the evening.",
+        "cutOffTimePassedSubText": "Your high priority habits will start in 5 seconds.",
         "noHighPriorityActivityText": "No activities with high Priority found.",
         "focusEndsText": "Focus mode ends in",
         "postponeEndsText": "Habit resumes in",
@@ -851,7 +853,12 @@
             "titleStrictnessLevel": "Strictness level:",
             "strictnessSuperStrictClickedText": "I understand I cannot stop this focus session until it ends. I am committed to avoiding distractions and getting a ton of work done.",
             "warningDefaultFocusMode": "Heads up: this will not use AI blocking. Focus Bear will only block the sites in your super distracting sites list",
-            "strictnessSuperStrictClickedNewText": "I understand I cannot stop this focus session. I am committed to avoiding distractions and getting a ton of work done."
+            "strictnessSuperStrictClickedNewText": "I understand I cannot stop this focus session. I am committed to avoiding distractions and getting a ton of work done.",
+            "titleAllowListNoAiWarning": "This might be annoying",
+            "bodyAllowListNoAiWarningText": "You've started an allow list session without AI which means you're going to get asked for approval a lot.\n\nWe suggest you either make the session stricter or enable AI.",
+            "buttonTurnOnAiText": "Enable AI",
+            "buttonStartWithoutAiText": "Continue anyway",
+            "buttonMakeStricterText": "Make it stricter - block non-allowed sites immediately"
         },
         "abortingFocusModeInfo": {
             "title": "Deactivating Focus Block - <FOCUSTYPE>",
@@ -1239,7 +1246,8 @@
         "buttonCreateAccount": "Create Your Account",
         "orText": "OR",
         "continueInBrowser": "Continue in your browser",
-        "bubbleText": "One account, all your devices - let's get you set up!"
+        "bubbleText": "One account, all your devices - let's get you set up!",
+        "subTitleText": "We use Auth0, our secure login partner, to sign you in."
     },
     "upgradeNowVcInfo": {
         "pointFirstText": "Personalized habit routines",
@@ -1361,6 +1369,7 @@
         "buttonPrivacyText": "Click here to view Privacy Policy"
     },
     "breakWarningVcInfo": {
+        "holdToPostponeProgress": "Keep holding... {seconds}s",
         "title": "Your <DURATION> second micro break starts in",
         "titleWIN": "Your micro break starts in",
         "buttonPostponeText": "Postpone for 5 minutes",
@@ -1581,7 +1590,10 @@
         "titleSelectMinutes": "Select minutes to postpone:",
         "buttonPostponeText": "Postpone",
         "buttonDeactivateText": "Deactivate Focus Bear for 4 hours",
-        "infoText": "If you want more of a nudge to stick to your habits, open preferences and change the friction level from the general settings tab."
+        "infoText": "If you want more of a nudge to stick to your habits, open preferences and change the friction level from the general settings tab.",
+        "customTimeError": "Enter a valid positive number for minutes",
+        "toolTipMinimumMinutes": "Pick a preset or type your own - minimum 1 minute",
+        "customTimeMaxInfo": "You can postpone for up to 24 hours (1440 minutes)."
     },
     "popUpOfflineVcInfo": {
         "titleOffline": "It seems like you're offline. Please go online to continue with your habits.",
@@ -2822,6 +2834,8 @@
         "buttonEnableBreaks": "Enable Breaks",
         "buttonStartBreak": "Start Break",
         "titleEnableBreaks": "Breaks are currently disabled. Enable taking breaks at regular intervals to boost your productivity, energy levels, and focus.",
+        "titleSkipMicroBreaksOn": "A focus session is running with micro-breaks turned off.",
+        "txtEnableMicroBreaksForFocusSession": "Resume automatic breaks for this session",
         "pausedBreaksText": "You’ve paused breaks for today. They’ll be back tomorrow to help you recharge and focus.",
         "shutoffTimeText": "App is in shutoff state",
         "noBreakScheduledText": "No upcoming break has been scheduled yet.",
@@ -3014,6 +3028,15 @@
         "voicePermTitle": "Microphone access needed",
         "voicePermBody": "Focus Bear needs microphone access to hear your voice commands. Turn it on in System Settings → Privacy & Security → Microphone.",
         "voiceOpenSettings": "Open System Settings",
+        "voiceErrorSignIn": "Sign in to Focus Bear to use voice commands.",
+        "voiceErrorOffline": "Couldn't reach Focus Bear. Check your internet connection and try again.",
+        "voiceErrorRateLimited": "That's a lot of voice commands in a row. Wait a minute, then try again.",
+        "voiceErrorTooLong": "That recording is too long. Keep voice commands short and try again.",
+        "voiceErrorTimedOut": "Your voice command is taking too long. Please try again.",
+        "voiceErrorFailed": "Couldn't process your voice command. Please try again.",
+        "voiceErrorMicrophone": "Couldn't access the microphone.",
+        "voiceErrorNotCaught": "Sorry, I didn't catch that. Please try again.",
+        "voiceErrorNotUnderstood": "Sorry, I didn't understand that. Please try again.",
         "menuLastBreak": "Last break",
         "menuAgo": "ago",
         "dayPlanStartsAt": "starts at",
@@ -3109,6 +3132,13 @@
         "titleBlockingSchedule": "Blocking schedule",
         "titleFromTime": "From",
         "titleTillTime": "Till",
+        "titleActiveTime": "Active time",
+        "titleWeekdays": "Weekdays",
+        "titleWeekends": "Weekends",
+        "titleEveryday": "Everyday",
+        "titleStrictnessFlexible": "Flexible",
+        "titleStrictnessModerate": "Moderate",
+        "titleStrictnessStrict": "Strict",
         "titleFocusMode": "Block list",
         "buttonEditBlockList": "Edit block list",
         "buttonSkipMicrobreaks": "Skip microbreaks",
@@ -3137,7 +3167,10 @@
         "permissionsInformativeText": "You will need to allow permissions to block distracting websites and distracting apps.",
         "permissionsButtonGrantPermissions": "Grant permissions",
         "permissionsButtonNo": "No thanks",
-        "titleMissingBlockList": "Missing block list"
+        "titleMissingBlockList": "Missing block list",
+        "buttonSaveWithoutAiText": "Continue anyway",
+        "bodyAllowListNoAiWarningText": "The '<BLOCKLIST>' block list uses an Allow List without AI, which means you're going to get asked for approval a lot.\n\nWe suggest you either make the schedule stricter or enable AI.",
+        "warningScheduleStartedNoAiText": "'<SCHEDULE>' started with AI off. Its '<BLOCKLIST>' block list uses an Allow List without AI, which means you're going to get asked for approval a lot.\n\nWe suggest you either make the schedule stricter or enable AI."
     },
     "abortingCustomScheduleBlockingVcInfo":{
         "titlePauseText": "Pausing Custom schedule - <SCHEDULE>",
@@ -3162,6 +3195,23 @@
         "requestFailedText": "Request Unlock Failed -  Please try again later"
     },
     "teacherSessionInfo":{
+        "pactInviteTitle": "Your teacher invited you to join a PACT session",
+        "pactYouCanUseHeader": "YOU CAN USE",
+        "pactEndsLine": "Ends <TIME>",
+        "pactEndFallback": "the session ends",
+        "pactInviteBody": "Everything else is paused until <TIME>. If you need another site, you can ask your teacher to add it. You cannot end the session early.",
+        "pactActivateButton": "Activate the PACT",
+        "pactDeclineLink": "Decline",
+        "pactBeforeDeclineTitle": "Before you decline",
+        "pactBeforeDeclineBody": "Declining is allowed but it will be reported to your teacher. Once in a while is genuinely fine, nobody is going to chase you over one lesson.",
+        "pactDeclineReportNote": "If you decline most lessons, it shows up in your teacher's report and they will want a conversation about how the laptop is going for you.",
+        "pactWhyDecliningLabel": "WHY ARE YOU DECLINING?",
+        "pactReasonHelper": "Your teacher will see this alongside your name.",
+        "pactReasonPlaceholder": "Type your reason here...",
+        "pactHoldToDecline": "Hold for 15 seconds to decline",
+        "pactKeepHolding": "Keep holding, <N>s",
+        "pactMindfulNote": "Please be mindful with how you use your laptop. Research shows that students who play games, watch videos and so on distract their classmates as well.",
+        "pactBackToJoinLink": "Actually, I'll join",
         "invitePromptTitle": "Your teacher started a class focus session",
         "invitePromptBody": "Join to start the focus session on this computer. Only the apps and websites your teacher allowed will be usable, and you won't be able to stop the session early.",
         "buttonJoin": "Join session",
@@ -3179,7 +3229,7 @@
         "unlockDeclinedBody": "Your teacher declined your unlock request.",
         "titleCreateUnlockRequest": "Ask your teacher to unlock an app or website",
         "appOrUrlTitle": "App name or website",
-        "reasonTitle": "Reason (optional)",
+        "reasonTitle": "Reason",
         "placeHolderAppOrUrl": "e.g. Desmos or desmos.com",
         "placeHolderReason": "Explain why you need this unlock....",
         "buttonCreateRequest": "Send Request",
@@ -3191,7 +3241,9 @@
         "breakBlockedTitle": "Class focus session in progress",
         "breakBlockedBody": "You can't start a break during a class focus session. It resumes automatically when your teacher ends the session.",
         "resumeHabitsBlockedTitle": "Class focus session in progress",
-        "resumeHabitsBlockedBody": "You can't resume your habits during a class focus session. They'll resume automatically when your teacher ends the session."
+        "resumeHabitsBlockedBody": "You can't resume your habits during a class focus session. They'll resume automatically when your teacher ends the session.",
+        "personalSessionOnlyTitle": "This starts a personal focus session",
+        "classSessionFromDashboardText": "To start a class session for your students, use the Focus Bear dashboard in your browser."
     },
     "focusStateVcInfo":{
         "titleIntention": "Focus Goal:",
@@ -3279,7 +3331,8 @@
         "buttonContinue": "That’s all",
         "buttonSkip": "Skip",
         "textFieldPlaceholder": "Add a URL or keyword",
-        "bubbleText": "when you go to one of these sites, i'll start a focus session for you"
+        "bubbleText": "when you go to one of these sites, i'll start a focus session for you",
+        "textChangeLaterText": "You can change this later"
     },
     "createFirstBlockingScheduleVcInfo": {
         "title": "Set Block Details",
@@ -3368,6 +3421,11 @@
         "noItemsSelected": "No items selected to Add.",
         "enterAppsManually": "Enter apps manually:",
         "idYouKnowTheNames": "If you know the name of the EXEs that you want to allow, you can add them here. You can enter multiple exe names separated with comma. (Example: chrome.exe, firefox.exe, notepad.exe)",
+        "btnSelectExecutable": "Select File",
+        "executableFiles": "Executables",
+        "selectExecutableTitle": "Select the executable",
+        "selectAppFileLabel": "Or select the app's file",
+        "selectAppFileHint": "Pick one or more .exe files on your PC. You can select several, and add typed names too.",
         "allProcessesWillStop": "All the app related processes will stop and the app will close itself and run the Focus Bear Uninstaller.",
         "withPomodoroMode": "With Pomodoro mode, you automatically cycle between focus sessions and breaks (e.g. 25 minutes on, 5 minutes off)",
         "weHaventBuiltPomodoro": "We haven't built Pomodoro mode yet on Windows. How badly do you want this feature?",
@@ -3387,5 +3445,11 @@
         "iconsUpToDate": "up to date",
         "checkingHabitIcons": "Checking habit icons…",
         "checkingFocusIcons": "Checking focus icons…"
+    },
+    "toDoListViewInfo": {
+        "attachmentPendingText": "Ready to upload when you save the task.",
+        "attachmentRetryText": "The task was saved. Save again to retry the remaining files.",
+        "attachmentUnconfirmedText": "The upload result is not confirmed. Save again to check its status."
     }
+
 }

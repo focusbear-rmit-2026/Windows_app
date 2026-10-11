@@ -136,16 +136,16 @@ namespace Focus_Bear.Preferences
                     {
                         LogWriter.LogWrite("attempt to LoadSettings()");
 
-                        string sFlags = string.Format("[\"{0}\", \"save-settings-migrate-to-web\"]", appSettings.bIsGeekModeEnabled ? "geek-mode" : "simple-mode");
-
-                        string sTheme = string.Format("\"{0}\"", appSettings.sTheme == "Light" ? "LIGHT" : "DARK");
-
-                        // Path B - echo the requestId back on a REQUEST_ACCESS_TOKEN reply (omitted on initial load).
-                        string sRequestId = string.IsNullOrEmpty(requestId) ? "" : string.Format(",\"requestId\":\"{0}\"", requestId);
-
-                        string Settings = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",\"font\":\"{1}\",\"lang\":\"{2}\",\"flags\":{3},\"theme\":{4}{5} }}", appSettings.userAccount.accessToken, appSettings.GetFontEquivalentForWeb(appSettings.sSelectedAppFont), appSettings.sLangCode, sFlags, sTheme, sRequestId);
-
-                        string settingsFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadSettingsData) {{ loadSettingsData({0}); clearInterval(waitForAppLoaded); }} }}, 100);", Settings);
+                        //Built as JSON (WebviewPayload), including the requestId the page echoes back (Path B).
+                        string settingsFunc = new FocusBear.Core.Ui.WebviewPayload()
+                            .Add("access_token", appSettings.userAccount.accessToken)
+                            .Add("platform", "win")
+                            .Add("font", appSettings.GetFontEquivalentForWeb(appSettings.sSelectedAppFont))
+                            .Add("lang", appSettings.sLangCode)
+                            .Add("theme", appSettings.sTheme == "Light" ? "LIGHT" : "DARK")
+                            .Add("flags", new Newtonsoft.Json.Linq.JArray(appSettings.bIsGeekModeEnabled ? "geek-mode" : "simple-mode", "save-settings-migrate-to-web"))
+                            .WithRequestId(requestId)
+                            .WaitAndCall("loadSettingsData");
                         var ss1 = webView.ExecuteScriptAsync(settingsFunc);
                         LogWriter.LogWrite("attempt to LoadSettings() done res:" + ss1.ToString());
                     }
@@ -157,18 +157,8 @@ namespace Focus_Bear.Preferences
 
                 if (appSettings.arrFocusModes.Count > 0)
                 {
-                    string arrAllFocusModesArray = $"{{\"focusNames\":[";
-
-                    foreach (FocusMode FF in appSettings.arrFocusModes)
-                    {
-                        string addFocusJsonString = $"{{\"id\":\"{FF.id}\"," +
-                            $"\"name\":\"{FF.name}\"}},";
-                        arrAllFocusModesArray = arrAllFocusModesArray + addFocusJsonString;
-                    }
-
-                    //Remove last comma -  we have 100% added above
-                    arrAllFocusModesArray = arrAllFocusModesArray.Remove(arrAllFocusModesArray.Length - 1, 1);
-                    arrAllFocusModesArray = arrAllFocusModesArray + "]}";
+                    // Built as JSON: a name spliced into script text broke the call, or ran as script.
+                    string arrAllFocusModesArray = FocusModeMetadata.FocusNamesScriptArgument(appSettings.arrFocusModes.ToList());
 
                     LogWriter.LogWrite("Attempt to Load arrAllFocusModesArray ");
 

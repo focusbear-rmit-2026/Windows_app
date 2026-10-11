@@ -13,10 +13,12 @@ using Focus_Bear.Utils;
 
 namespace Focus_Bear.Models
 {
+    /// <summary>Every method is a no-op in the E2E test build (see E2EBuild): it must not create, repair, repoint or delete the real app's logon, watchdog or schedule tasks.</summary>
     public class AppTaskScheduler
     {
         internal bool CreateTask(string appName)
         {
+            if (!E2EBuild.MachineIntegrationAllowed) return false; // the E2E test build never touches Task Scheduler
             try
             {
                 ITaskService taskService = new TaskScheduler.TaskScheduler();
@@ -53,6 +55,7 @@ namespace Focus_Bear.Models
 
         internal bool SetTaskStatus(string TaskName, bool status)
         {
+            if (!E2EBuild.MachineIntegrationAllowed) return false; // the E2E test build never touches Task Scheduler
             ITaskService taskService = new TaskScheduler.TaskScheduler();
             taskService.Connect();
 
@@ -81,6 +84,7 @@ namespace Focus_Bear.Models
 
         internal bool CheckTaskExists(string TaskToCheck)
         {
+            if (!E2EBuild.MachineIntegrationAllowed) return false; // the E2E test build never touches Task Scheduler
             ITaskService taskService = new TaskScheduler.TaskScheduler();
             taskService.Connect();
 
@@ -114,6 +118,7 @@ namespace Focus_Bear.Models
 
         internal bool DeleteTask(string TaskToDelete)
         {
+            if (!E2EBuild.MachineIntegrationAllowed) return false; // the E2E test build never touches Task Scheduler
             ITaskService taskService = new TaskScheduler.TaskScheduler();
             taskService.Connect();
 
@@ -146,6 +151,7 @@ namespace Focus_Bear.Models
         
         internal int DeleteTaskStartup(string TaskToDelete)
         {
+            if (!E2EBuild.MachineIntegrationAllowed) return 0; // the E2E test build never touches Task Scheduler
             ITaskService taskService = new TaskScheduler.TaskScheduler();
             taskService.Connect();
 
@@ -172,6 +178,159 @@ namespace Focus_Bear.Models
                 LogWriter.LogWrite(ex.Message);
                 return 0;
             }
+        }
+
+        /// <summary>
+        /// Task Scheduler's defaults end a task after 72 hours and stop it when a laptop goes onto battery, and
+        /// Focus Bear runs for as long as the task does: the app was being killed after three days, and every time
+        /// someone unplugged. Tasks registered before these settings existed never get re-registered (startup only
+        /// creates the task when it is missing), so they are repaired in place.
+        /// </summary>
+        internal static void ApplyLongRunningSettings(ITaskSettings settings)
+        {
+            settings.DisallowStartIfOnBatteries = false;
+            settings.StopIfGoingOnBatteries = false;
+            settings.ExecutionTimeLimit = "PT0S";
+            settings.MultipleInstances = _TASK_INSTANCES_POLICY.TASK_INSTANCES_IGNORE_NEW;
+        }
+
+        internal static bool HasLongRunningSettings(ITaskSettings settings)
+        {
+            return !settings.DisallowStartIfOnBatteries && !settings.StopIfGoingOnBatteries
+                && settings.ExecutionTimeLimit == "PT0S";
+        }
+
+        /// <summary>
+        /// Take the start-up delay off every logon trigger of a task. Returns true if any trigger had one. Tasks
+        /// registered by older builds wait four minutes after sign-in (report 2026-09-28_21-45-38).
+        /// </summary>
+        internal static bool RemoveLogonDelays(ITaskDefinition definition)
+        {
+            bool changed = false;
+            foreach (ITrigger trigger in definition.Triggers)
+            {
+                if (trigger is ILogonTrigger logon && FocusBear.Core.Startup.StartupTaskPolicy.DelaysStart(logon.Delay))
+                {
+                    logon.Delay = FocusBear.Core.Startup.StartupTaskPolicy.LogonDelay;
+                    changed = true;
+                }
+            }
+            return changed;
+        }
+
+        /// <summary>
+        /// Fix an existing startup task's settings, keeping its action and account as they are: the long-running
+        /// settings above, and no delay after sign-in.
+        /// </summary>
+        internal bool RepairLongRunningSettings(string taskName)
+        {
+            if (!E2EBuild.MachineIntegrationAllowed) return false; // the E2E test build never touches Task Scheduler
+            try
+            {
+                ITaskService taskService = new TaskScheduler.TaskScheduler();
+                taskService.Connect();
+                ITaskFolder rootFolder = taskService.GetFolder(@"\");
+                IRegisteredTask registered = rootFolder.GetTask(taskName);
+                ITaskDefinition definition = registered.Definition;
+                bool settingsOk = HasLongRunningSettings(definition.Settings);
+                bool delayRemoved = RemoveLogonDelays(definition);
+                if (settingsOk && !delayRemoved) return true;
+
+                ApplyLongRunningSettings(definition.Settings);
+                rootFolder.RegisterTaskDefinition(taskName, definition, (int)_TASK_CREATION.TASK_UPDATE, null, null, definition.Principal.LogonType, null);
+                LogWriter.LogWrite("RepairLongRunningSettings - repaired task " + taskName
+                    + (settingsOk ? "" : " (battery / time-limit settings)") + (delayRemoved ? " (removed the delay after sign-in)" : ""));
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("RepairLongRunningSettings(" + taskName + ") ex - " + ex.Message);
+                return false;
+            }
+        }
+
+        private static bool IsElevatedTask(string taskName)
+        {
+            try
+            {
+                ITaskService taskService = new TaskScheduler.TaskScheduler();
+                taskService.Connect();
+                IRegisteredTask registered = taskService.GetFolder(@"\").GetTask(taskName);
+                return registered.Definition.Principal.RunLevel == _TASK_RUNLEVEL.TASK_RUNLEVEL_HIGHEST;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Create or refresh the watchdog task (see <see cref="AppWatchdog"/>): every
+        /// <see cref="AppWatchdog.ProbeInterval"/>, launch this exe with <see cref="AppWatchdog.LaunchArgument"/>.
+        /// A relaunched app runs as that task's instance, so the task needs the same long-running settings as the
+        /// startup task, and a probe while it runs is simply skipped (IgnoreNew).
+        /// </summary>
+        /// <param name="elevated">
+        /// Whether this process runs as an administrator. An elevated app registers an elevated watchdog, as the
+        /// startup task is; otherwise the task runs as the user, which needs no rights — and a non-elevated run
+        /// never replaces an elevated watchdog that is already there, which would downgrade it.
+        /// </param>
+        /// <remarks>
+        /// Who ends up with a watchdog, and the known gaps (standard users under a policy that blocks task creation,
+        /// one task per machine on a shared PC, rolling back to a build without it): docs/crash-watchdog.md.
+        /// </remarks>
+        internal bool EnsureWatchdogTask(string exePath, bool elevated)
+        {
+            if (!E2EBuild.MachineIntegrationAllowed) return false; // the E2E test build never touches Task Scheduler
+#if DEBUG
+            // A Debug build never registers the watchdog: it would point the task (one per machine, shared with an
+            // installed Focus Bear) at bin\Debug, and relaunch the app each time the debugger is stopped.
+            return false;
+#else
+            if (AppWatchdog.IsDisabled())
+            {
+                // Support's off switch. A probe exits at once anyway; removing the task stops the launches too.
+                if (CheckTaskExists(AppWatchdog.TaskName) && DeleteTask(AppWatchdog.TaskName))
+                    LogWriter.LogWrite("EnsureWatchdogTask - switched off (" + AppWatchdog.DisabledValue + "), task removed");
+                return false;
+            }
+            try
+            {
+                if (!elevated && IsElevatedTask(AppWatchdog.TaskName)) return true;
+
+                ITaskService taskService = new TaskScheduler.TaskScheduler();
+                taskService.Connect();
+                ITaskFolder rootFolder = taskService.GetFolder(@"\");
+
+                ITaskDefinition taskDef = taskService.NewTask(0);
+                taskDef.RegistrationInfo.Author = Environment.UserDomainName + "\\" + Environment.UserName;
+                taskDef.RegistrationInfo.Description = "Restarts Focus Bear if it was closed without quitting (for example ended from Task Manager). A deliberate quit is left alone.";
+                taskDef.Settings.Enabled = true;
+                taskDef.Settings.Compatibility = _TASK_COMPATIBILITY.TASK_COMPATIBILITY_V2_1;
+                taskDef.Principal.RunLevel = elevated ? _TASK_RUNLEVEL.TASK_RUNLEVEL_HIGHEST : _TASK_RUNLEVEL.TASK_RUNLEVEL_LUA;
+                taskDef.Principal.LogonType = _TASK_LOGON_TYPE.TASK_LOGON_INTERACTIVE_TOKEN;
+                ApplyLongRunningSettings(taskDef.Settings);
+
+                ITimeTrigger trigger = (ITimeTrigger)taskDef.Triggers.Create(_TASK_TRIGGER_TYPE2.TASK_TRIGGER_TIME);
+                trigger.Enabled = true;
+                trigger.StartBoundary = DateTime.Now.AddMinutes(1).ToString("yyyy-MM-ddTHH:mm:ss");
+                trigger.Repetition.Interval = FocusBear.Core.Startup.StartupTaskPolicy.WatchdogRepetitionInterval;
+                trigger.Repetition.Duration = "";
+                trigger.Repetition.StopAtDurationEnd = false;
+
+                IExecAction execAction = (IExecAction)taskDef.Actions.Create(_TASK_ACTION_TYPE.TASK_ACTION_EXEC);
+                execAction.Path = exePath;
+                execAction.Arguments = AppWatchdog.LaunchArgument;
+
+                rootFolder.RegisterTaskDefinition(AppWatchdog.TaskName, taskDef, (int)_TASK_CREATION.TASK_CREATE_OR_UPDATE, null, null, _TASK_LOGON_TYPE.TASK_LOGON_INTERACTIVE_TOKEN, null);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("EnsureWatchdogTask ex - " + ex.Message);
+                return false;
+            }
+#endif
         }
 
         private string GetAppPath(string xml)
@@ -208,6 +367,7 @@ namespace Focus_Bear.Models
 
         internal bool CreateTask(string AppName, string args)
         {
+            if (!E2EBuild.MachineIntegrationAllowed) return false; // the E2E test build never touches Task Scheduler
             LogWriter.LogWrite("CreateTask(string AppName, string args) - Add to Startup");
             try
             {
@@ -223,7 +383,9 @@ namespace Focus_Bear.Models
                 ITriggerCollection iTriggerCollection = taskDef.Triggers;
                 ILogonTrigger trigger = (ILogonTrigger)iTriggerCollection.Create(_TASK_TRIGGER_TYPE2.TASK_TRIGGER_LOGON);
                 trigger.Enabled = true;
-                trigger.Delay = "PT4M";
+                // Start at sign-in, not four minutes later: until it runs, nothing blocks and nothing stops the app
+                // being uninstalled (report 2026-09-28_21-45-38).
+                trigger.Delay = FocusBear.Core.Startup.StartupTaskPolicy.LogonDelay;
 
                 IActionCollection actions = taskDef.Actions;
                 _TASK_ACTION_TYPE actionType = _TASK_ACTION_TYPE.TASK_ACTION_EXEC;
@@ -238,9 +400,7 @@ namespace Focus_Bear.Models
                 execAction.Path = appPath;
                 ITaskFolder rootFolder = taskService.GetFolder(@"\");
 
-                ITaskSettings set = taskDef.Settings;
-                set.DisallowStartIfOnBatteries = false;
-                set.StopIfGoingOnBatteries = false;
+                ApplyLongRunningSettings(taskDef.Settings);
                 rootFolder.RegisterTaskDefinition(appName, taskDef, 6, null, null, _TASK_LOGON_TYPE.TASK_LOGON_NONE, null);
             }
             catch (UnauthorizedAccessException ex)
@@ -262,6 +422,7 @@ namespace Focus_Bear.Models
 
         internal bool ScheduleRunOnceTask(string TriggerName, DateTime startTime, DateTime endTime)
         {
+            if (!E2EBuild.MachineIntegrationAllowed) return false; // the E2E test build never touches Task Scheduler
             try
             {
                 ITaskService taskService = new TaskScheduler.TaskScheduler();
@@ -307,6 +468,7 @@ namespace Focus_Bear.Models
 
         internal bool ScheduleDailyTask(string TriggerName, DateTime dateTime)
         {
+            if (!E2EBuild.MachineIntegrationAllowed) return false; // the E2E test build never touches Task Scheduler
             try
             {
                 ITaskService taskService = new TaskScheduler.TaskScheduler();
@@ -349,6 +511,7 @@ namespace Focus_Bear.Models
 
         internal bool ScheduleEveryWeekTask(string TriggerName, DateTime dateTime, int days)
         {
+            if (!E2EBuild.MachineIntegrationAllowed) return false; // the E2E test build never touches Task Scheduler
             try
             {
                 ITaskService taskService = new TaskScheduler.TaskScheduler();

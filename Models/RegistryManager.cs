@@ -205,17 +205,20 @@ namespace Focus_Bear.Models
             return keyName;
         }
 
+        // "Software\Focus Bear", or "Software\Focus Bear E2E" in the isolated E2E test build (see E2EBuild).
         public static string GetRegistryGlobalPath()
         {
-            return "Software\\Focus Bear";
+            return E2EBuild.RegistryRoot;
         }
         public static string GetRegistryPath()
         {
-            return "Software\\Focus Bear\\" + appSettings.userAccount.userID ;
+            return E2EBuild.RegistryRoot + "\\" + appSettings.userAccount.userID ;
         }
 
         public static string GetRegistryPathBackup()
         {
+            // The E2E build keeps its backup under its own root rather than the shared GUID key.
+            if (E2EBuild.IsActive || FocusBear.Core.AppInstance.IsTestHost) return E2EBuild.RegistryRoot + "\\Backup";
             return "Software\\{922474DA-ED9F-4602-878A-7C599D6F5284}"; //mj created fb
         }
 
@@ -1447,7 +1450,7 @@ namespace Focus_Bear.Models
                 if (regData == null)
                     return null;
 
-                return Global.ConvertFromUnixTimeToDT(Convert.ToInt64(regData));
+                return Global.ConvertFromUnixTimeToDT(Convert.ToInt64(regData)); //a real UTC instant (written from DateTime.UtcNow), unlike the local wall-clock "till" dates
             }
             catch (Exception ex)
             {
@@ -1465,7 +1468,7 @@ namespace Focus_Bear.Models
                 if (regData == null)
                     return false;
 
-                appSettings.FirstAppInstallDT = Global.ConvertFromUnixTimeToDT(Convert.ToInt64(regData));
+                appSettings.FirstAppInstallDT = FocusBear.Core.Schedule.StoredWallClock.FromStored(Convert.ToInt64(regData));
 
                 return true;
             }
@@ -1480,7 +1483,7 @@ namespace Focus_Bear.Models
         {
             try
             {
-                Write("APPINSTALLDT", Global.ConvertToUnixTime(appSettings.FirstAppInstallDT).ToString());
+                Write("APPINSTALLDT", FocusBear.Core.Schedule.StoredWallClock.ToStored(appSettings.FirstAppInstallDT).ToString());
             }
             catch (Exception ex)
             {
@@ -1497,7 +1500,7 @@ namespace Focus_Bear.Models
                 if (regData == null)
                     return false;
 
-                appSettings.MorningHabitsShownTillDate = Global.ConvertFromUnixTimeToDT(Convert.ToInt64(regData));
+                appSettings.MorningHabitsShownTillDate = FocusBear.Core.Schedule.StoredWallClock.FromStored(Convert.ToInt64(regData));
 
                 return true;
             }
@@ -1574,7 +1577,7 @@ namespace Focus_Bear.Models
 
             try
             {
-                Write("MORNINGHABITSSHOWNDT", Global.ConvertToUnixTime(appSettings.MorningHabitsShownTillDate).ToString());
+                Write("MORNINGHABITSSHOWNDT", FocusBear.Core.Schedule.StoredWallClock.ToStored(appSettings.MorningHabitsShownTillDate).ToString());
             }
             catch (Exception ex)
             {
@@ -1591,7 +1594,7 @@ namespace Focus_Bear.Models
                 if (regData == null)
                     return false;
 
-                appSettings.FocusSummaryShownTillDate = Global.ConvertFromUnixTimeToDT(Convert.ToInt64(regData));
+                appSettings.FocusSummaryShownTillDate = FocusBear.Core.Schedule.StoredWallClock.FromStored(Convert.ToInt64(regData));
 
                 return true;
             }
@@ -1606,7 +1609,7 @@ namespace Focus_Bear.Models
         {
             try
             {
-                Write("FOCUSSUMMARYSHOWNDT", Global.ConvertToUnixTime(appSettings.FocusSummaryShownTillDate).ToString());
+                Write("FOCUSSUMMARYSHOWNDT", FocusBear.Core.Schedule.StoredWallClock.ToStored(appSettings.FocusSummaryShownTillDate).ToString());
             }
             catch (Exception ex)
             {
@@ -1624,7 +1627,7 @@ namespace Focus_Bear.Models
                 if (regData == null)
                     return false;
 
-                appSettings.EveningHabitsShownTillDate = Global.ConvertFromUnixTimeToDT(Convert.ToInt64(regData));
+                appSettings.EveningHabitsShownTillDate = FocusBear.Core.Schedule.StoredWallClock.FromStored(Convert.ToInt64(regData));
 
                 return true;
             }
@@ -1641,7 +1644,7 @@ namespace Focus_Bear.Models
 
             try
             {
-                Write("EVENINGHABITSSHOWNDT", Global.ConvertToUnixTime(appSettings.EveningHabitsShownTillDate).ToString());
+                Write("EVENINGHABITSSHOWNDT", FocusBear.Core.Schedule.StoredWallClock.ToStored(appSettings.EveningHabitsShownTillDate).ToString());
             }
             catch (Exception ex)
             {
@@ -1660,7 +1663,7 @@ namespace Focus_Bear.Models
                 if (regData == null)
                     return false;
 
-                appSettings.ShutOFFAbortedTillDate = Global.ConvertFromUnixTimeToDT(Convert.ToInt64(regData));
+                appSettings.ShutOFFAbortedTillDate = FocusBear.Core.Schedule.StoredWallClock.FromStored(Convert.ToInt64(regData));
 
                 return true;
             }
@@ -1675,7 +1678,7 @@ namespace Focus_Bear.Models
         {
             try
             {
-                Write("SHUTOFFABORTEDTILLDATE", Global.ConvertToUnixTime(appSettings.ShutOFFAbortedTillDate).ToString());
+                Write("SHUTOFFABORTEDTILLDATE", FocusBear.Core.Schedule.StoredWallClock.ToStored(appSettings.ShutOFFAbortedTillDate).ToString());
             }
             catch (Exception ex)
             {
@@ -1707,7 +1710,7 @@ namespace Focus_Bear.Models
                 if (regData == null)
                     return false;
 
-                appSettings.HabitsPostponeEndTime = Global.ConvertFromUnixTimeToDT(Convert.ToInt64(regData));
+                appSettings.HabitsPostponeEndTime = FocusBear.Core.Schedule.StoredWallClock.FromStored(Convert.ToInt64(regData));
                 int.TryParse(ReadStr("HABITSPOSTPONEACTIVITYTYPE"), out int actType);
                 appSettings.HabitsPostponeActivityType = (CurrentActivityType)actType;
                 appSettings.bEveningHabitsPostponedAfterCutoffTime = ReadStr("HABITSPOSTPONEAFTERCUTOFF") == "1";
@@ -1729,7 +1732,7 @@ namespace Focus_Bear.Models
         {
             try
             {
-                Write("HABITSPOSTPONEENDTIME", Global.ConvertToUnixTime(appSettings.HabitsPostponeEndTime).ToString());
+                Write("HABITSPOSTPONEENDTIME", FocusBear.Core.Schedule.StoredWallClock.ToStored(appSettings.HabitsPostponeEndTime).ToString());
                 Write("HABITSPOSTPONEACTIVITYTYPE", ((int)appSettings.HabitsPostponeActivityType).ToString());
                 Write("HABITSPOSTPONEAFTERCUTOFF", appSettings.bEveningHabitsPostponedAfterCutoffTime ? "1" : "0");
                 Write("HABITSPOSTPONEISFOCUSSUMMARY", appSettings.bHabitsPostponeWasFocusSummary ? "1" : "0");
@@ -1759,7 +1762,7 @@ namespace Focus_Bear.Models
         {
             try
             {
-                Write("SHUTOFFABORTED_FOR30MINS_TILLDATE", Global.ConvertToUnixTime(appSettings.ShutOFFAbortedFor30MinsTillDate).ToString());
+                Write("SHUTOFFABORTED_FOR30MINS_TILLDATE", FocusBear.Core.Schedule.StoredWallClock.ToStored(appSettings.ShutOFFAbortedFor30MinsTillDate).ToString());
             }
             catch (Exception ex)
             {
@@ -1775,7 +1778,7 @@ namespace Focus_Bear.Models
                 if (regData == null)
                     return false;
 
-                appSettings.ShutOFFAbortedFor30MinsTillDate = Global.ConvertFromUnixTimeToDT(Convert.ToInt64(regData));
+                appSettings.ShutOFFAbortedFor30MinsTillDate = FocusBear.Core.Schedule.StoredWallClock.FromStored(Convert.ToInt64(regData));
 
                 return true;
             }
@@ -2112,7 +2115,7 @@ namespace Focus_Bear.Models
                 if (regData == null)
                     return false;
 
-                appSettings.AppDeactivatedTillDate = Global.ConvertFromUnixTimeToDT(Convert.ToInt64(regData));
+                appSettings.AppDeactivatedTillDate = FocusBear.Core.Schedule.StoredWallClock.FromStored(Convert.ToInt64(regData));
 
                 return true;
             }
@@ -2129,7 +2132,7 @@ namespace Focus_Bear.Models
 
             try
             {
-                Write("APPDEACTIVATEDTILLDT", Global.ConvertToUnixTime(appSettings.AppDeactivatedTillDate).ToString());
+                Write("APPDEACTIVATEDTILLDT", FocusBear.Core.Schedule.StoredWallClock.ToStored(appSettings.AppDeactivatedTillDate).ToString());
             }
             catch (Exception ex)
             {
@@ -2190,6 +2193,142 @@ namespace Focus_Bear.Models
             {
                 LogWriter.LogWrite("GetBrainDump - " + ex.Message);
                 return false;
+            }
+        }
+
+        // One-time flag: has this user's local Brain Dump text already been pushed to the backend note
+        // store (Notes webview migration)? Only set after a confirmed successful upsert - see
+        // AppSettings.MigrateBrainDumpToBackendIfNeeded.
+        internal static bool GetExistingBrainDumpMigratedToWeb()
+        {
+            try
+            {
+                var regData = ReadStr("EXISTINGBRAINDUMPMIGRATEDTOWEB");
+                return regData != null;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetExistingBrainDumpMigratedToWeb ex - " + ex.Message);
+                return false;
+            }
+        }
+
+        internal static void SetExistingBrainDumpMigratedToWeb()
+        {
+            LogWriter.LogWrite("SetExistingBrainDumpMigratedToWeb()");
+            try
+            {
+                Write("EXISTINGBRAINDUMPMIGRATEDTOWEB", "1");
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SetExistingBrainDumpMigratedToWeb ex - " + ex.Message);
+            }
+        }
+
+        // Native Notes screen: whether the Brain Dump card is shown (the web keeps the same flag in
+        // localStorage; the Mac in kUserdefaultsNotesBrainDumpVisible). Absent means shown.
+        internal static bool GetNotesBrainDumpVisible()
+        {
+            try
+            {
+                var regData = ReadStr("NOTESBRAINDUMPVISIBLE");
+                return regData == null || regData == "1";
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetNotesBrainDumpVisible ex - " + ex.Message);
+                return true;
+            }
+        }
+
+        internal static void SetNotesBrainDumpVisible(bool visible)
+        {
+            try
+            {
+                Write("NOTESBRAINDUMPVISIBLE", visible ? "1" : "0");
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SetNotesBrainDumpVisible ex - " + ex.Message);
+            }
+        }
+
+        // Native Notes screen: the scope last looked at, as the Mac's raw value ("all", "personal", "project").
+        internal static string GetNotesScope()
+        {
+            try
+            {
+                return ReadStr("NOTESSCOPE");
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetNotesScope ex - " + ex.Message);
+                return null;
+            }
+        }
+
+        internal static void SetNotesScope(string scope)
+        {
+            try
+            {
+                Write("NOTESSCOPE", scope ?? "all");
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SetNotesScope ex - " + ex.Message);
+            }
+        }
+
+        // Native Stats screen: the last tab looked at, as the Mac's raw value ("streak", "pepTalk", ...).
+        internal static string GetStatsSelectedTab()
+        {
+            try
+            {
+                return ReadStr("STATSSELECTEDTAB");
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetStatsSelectedTab ex - " + ex.Message);
+                return null;
+            }
+        }
+
+        internal static void SetStatsSelectedTab(string tab)
+        {
+            try
+            {
+                Write("STATSSELECTEDTAB", tab ?? "streak");
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SetStatsSelectedTab ex - " + ex.Message);
+            }
+        }
+
+        // Native To-Do screen: the sort the list was last shown in, as the wire value ("SMART", ...).
+        internal static string GetToDoSortMode()
+        {
+            try
+            {
+                return ReadStr("TODOSORTMODE");
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetToDoSortMode ex - " + ex.Message);
+                return null;
+            }
+        }
+
+        internal static void SetToDoSortMode(string mode)
+        {
+            try
+            {
+                Write("TODOSORTMODE", mode ?? "SMART");
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SetToDoSortMode ex - " + ex.Message);
             }
         }
 
@@ -2401,7 +2540,7 @@ namespace Focus_Bear.Models
                 if (regData == null)
                     return false;
 
-                appSettings.Date_TotalTimeForDistractingSitesToday = Global.ConvertFromUnixTimeToDT(Convert.ToInt64(regData));
+                appSettings.Date_TotalTimeForDistractingSitesToday = FocusBear.Core.Schedule.StoredWallClock.FromStored(Convert.ToInt64(regData));
 
                 return true;
             }
@@ -2416,7 +2555,7 @@ namespace Focus_Bear.Models
         {
             try
             {
-                Write("TOTALTIMEFORDISTRACTINGSITES_DATE", Global.ConvertToUnixTime(appSettings.Date_TotalTimeForDistractingSitesToday).ToString());
+                Write("TOTALTIMEFORDISTRACTINGSITES_DATE", FocusBear.Core.Schedule.StoredWallClock.ToStored(appSettings.Date_TotalTimeForDistractingSitesToday).ToString());
             }
             catch (Exception ex)
             {
@@ -2613,7 +2752,7 @@ namespace Focus_Bear.Models
                 if (regData == null)
                     return false;
 
-                appSettings.SelectedMorningHabitsDate = Global.ConvertFromUnixTimeToDT(Convert.ToInt64(regData));
+                appSettings.SelectedMorningHabitsDate = FocusBear.Core.Schedule.StoredWallClock.FromStored(Convert.ToInt64(regData));
 
                 return true;
             }
@@ -2628,6 +2767,66 @@ namespace Focus_Bear.Models
         // The tasks panel's local store persists here as a JSON blob keyed by day, plus a stamp of the
         // last day incomplete tasks were rolled forward, mirroring the macOS UserDefaults keys
         // "dayPlanTasksByDay" / "dayPlanLastRolloverDay".
+
+        // Day Plan "Shorten" (a habit trimmed for one day, on this computer only) — day -> habit id -> seconds,
+        // mirroring the macOS UserDefaults key "dayPlanHabitDurationOverrides".
+        // Reprioritise (Mac: UserDefaults "kUserdefaultsForecastLocksPlannedDays" and
+        // "reprioritiseSuggestionDismissedAt.v1.<account>"): the sheet's "Don't change tasks scheduled for
+        // today or tomorrow" answer (absent = on), and when the To-do list's prompt was last dismissed.
+        public static bool LoadReprioritiseLocksPlannedDays()
+        {
+            try { return ReadStr("ReprioritiseLocksPlannedDays") != "0"; }
+            catch (Exception ex) { LogWriter.LogWrite("LoadReprioritiseLocksPlannedDays - " + ex.Message); return true; }
+        }
+
+        public static void SaveReprioritiseLocksPlannedDays(bool on)
+        {
+            try { Write("ReprioritiseLocksPlannedDays", on ? "1" : "0"); }
+            catch (Exception ex) { LogWriter.LogWrite("SaveReprioritiseLocksPlannedDays - " + ex.Message); }
+        }
+
+        public static DateTime? LoadReprioritiseDismissedAt(string account)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(account)) return null;
+                string s = ReadStr("ReprioritiseDismissedAt." + account);
+                DateTime d;
+                return DateTime.TryParse(s, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.RoundtripKind, out d) ? d : (DateTime?)null;
+            }
+            catch (Exception ex) { LogWriter.LogWrite("LoadReprioritiseDismissedAt - " + ex.Message); return null; }
+        }
+
+        public static void SaveReprioritiseDismissedAt(string account, DateTime when)
+        {
+            try { if (!string.IsNullOrEmpty(account)) Write("ReprioritiseDismissedAt." + account, when.ToString("o", System.Globalization.CultureInfo.InvariantCulture)); }
+            catch (Exception ex) { LogWriter.LogWrite("SaveReprioritiseDismissedAt - " + ex.Message); }
+        }
+
+        // Day Plan Fix → Shorten on a meeting: day -> event id -> seconds (Mac "dayPlanMeetingDurationOverrides").
+        public static void SaveDayPlanMeetingDurations(string json)
+        {
+            try { Write("DayPlanMeetingDurationsByDay", json ?? ""); }
+            catch (Exception ex) { LogWriter.LogWrite("SaveDayPlanMeetingDurations - " + ex.Message); }
+        }
+
+        public static string LoadDayPlanMeetingDurations()
+        {
+            try { return ReadStr("DayPlanMeetingDurationsByDay"); }
+            catch (Exception ex) { LogWriter.LogWrite("LoadDayPlanMeetingDurations - " + ex.Message); return null; }
+        }
+
+        public static void SaveDayPlanHabitDurations(string json)
+        {
+            try { Write("DayPlanHabitDurationsByDay", json ?? ""); }
+            catch (Exception ex) { LogWriter.LogWrite("SaveDayPlanHabitDurations - " + ex.Message); }
+        }
+
+        public static string LoadDayPlanHabitDurations()
+        {
+            try { return ReadStr("DayPlanHabitDurationsByDay"); }
+            catch (Exception ex) { LogWriter.LogWrite("LoadDayPlanHabitDurations - " + ex.Message); return null; }
+        }
 
         public static void SaveDayPlanTasks(string json)
         {
@@ -2677,6 +2876,41 @@ namespace Focus_Bear.Models
             catch (Exception ex) { LogWriter.LogWrite("LoadDayPlanShowHiddenMeetings - " + ex.Message); return false; }
         }
 
+        // Day Plan schedule-settings cog (Mac kUserdefaultsHideDeepWorkInDayPlan / kUserdefaultsHideHabitsInDayPlan)
+        // and the task-name shortcut card's "don't show again" (Mac dayPlanShortcutCardDismissed.<user>). Per user.
+        public static void SaveDayPlanHideDeepWork(bool on) => WriteDayPlanFlag("DayPlanHideDeepWork", on);
+        public static bool LoadDayPlanHideDeepWork() => ReadDayPlanFlag("DayPlanHideDeepWork");
+        public static void SaveDayPlanHideHabits(bool on) => WriteDayPlanFlag("DayPlanHideHabits", on);
+        public static bool LoadDayPlanHideHabits() => ReadDayPlanFlag("DayPlanHideHabits");
+        public static void SaveDayPlanShortcutCardDismissed(bool on) => WriteDayPlanFlag("DayPlanShortcutCardDismissed", on);
+        public static bool LoadDayPlanShortcutCardDismissed() => ReadDayPlanFlag("DayPlanShortcutCardDismissed");
+
+        private static void WriteDayPlanFlag(string name, bool on)
+        {
+            try { Write(name, on ? "1" : "0"); }
+            catch (Exception ex) { LogWriter.LogWrite("Save" + name + " - " + ex.Message); }
+        }
+
+        private static bool ReadDayPlanFlag(string name)
+        {
+            try { return ReadStr(name) == "1"; }
+            catch (Exception ex) { LogWriter.LogWrite("Load" + name + " - " + ex.Message); return false; }
+        }
+
+        // TOOLS rows the user hid from the left menu (hover X, restored from the TOOLS cog). Per user, on
+        // this device only - the Mac keeps the same list unsynced in UserDefaults (kUserdefaultsHiddenToolIds).
+        public static void SaveHiddenToolIds(string csv)
+        {
+            try { Write("HiddenToolIds", csv ?? ""); }
+            catch (Exception ex) { LogWriter.LogWrite("SaveHiddenToolIds - " + ex.Message); }
+        }
+
+        public static string LoadHiddenToolIds()
+        {
+            try { return ReadStr("HiddenToolIds") ?? ""; }
+            catch (Exception ex) { LogWriter.LogWrite("LoadHiddenToolIds - " + ex.Message); return ""; }
+        }
+
         // Global keyboard shortcuts (issue #383/#1150): persisted as a JSON action-id -> shortcut map.
         public static void SaveKeyboardShortcuts()
         {
@@ -2708,7 +2942,7 @@ namespace Focus_Bear.Models
             appSettings.SelectedMorningHabitsDate = DateTime.Now;
             try
             {
-                Write("SELECTEDMORNINGHABITSDATE", Global.ConvertToUnixTime(appSettings.SelectedMorningHabitsDate).ToString());
+                Write("SELECTEDMORNINGHABITSDATE", FocusBear.Core.Schedule.StoredWallClock.ToStored(appSettings.SelectedMorningHabitsDate).ToString());
             }
             catch (Exception ex)
             {
@@ -2777,7 +3011,7 @@ namespace Focus_Bear.Models
                 if (regData == null)
                     return false;
 
-                appSettings.SelectedEveningHabitsDate = Global.ConvertFromUnixTimeToDT(Convert.ToInt64(regData));
+                appSettings.SelectedEveningHabitsDate = FocusBear.Core.Schedule.StoredWallClock.FromStored(Convert.ToInt64(regData));
 
                 return true;
             }
@@ -2795,7 +3029,7 @@ namespace Focus_Bear.Models
             appSettings.SelectedEveningHabitsDate = DateTime.Now;
             try
             {
-                Write("SELECTEDEVENINGHABITSDATE", Global.ConvertToUnixTime(appSettings.SelectedEveningHabitsDate).ToString());
+                Write("SELECTEDEVENINGHABITSDATE", FocusBear.Core.Schedule.StoredWallClock.ToStored(appSettings.SelectedEveningHabitsDate).ToString());
             }
             catch (Exception ex)
             {
@@ -2808,6 +3042,8 @@ namespace Focus_Bear.Models
         //Focus bear Time Tracker Related
         public static string GetRegistryGlobalPathFBTT()
         {
+            // The E2E build must not switch the real Time Tracker on or off.
+            if (E2EBuild.IsActive || FocusBear.Core.AppInstance.IsTestHost) return E2EBuild.RegistryRoot + "\\Time Tracker";
             return "Software\\Focus Bear Time Tracker";
         }
         private static object ReadGlobalFBTT(string value)
@@ -2934,6 +3170,8 @@ namespace Focus_Bear.Models
 
         public static void AddToStartup()
         {
+            // The E2E build never starts with Windows (and must not replace the real app's Run entry).
+            if (!E2EBuild.MachineIntegrationAllowed) return;
             using (RegistryKey key = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true))
             {
                 key.SetValue("Focus Bear", "\"" + System.Reflection.Assembly.GetEntryAssembly().Location + "\""); ;
@@ -3145,6 +3383,34 @@ namespace Focus_Bear.Models
                 LogWriter.LogWrite("GetSavedBuddyList - " + ex.Message);
                 return false;
             }
+        }
+
+        /// <summary>"Turn breaks off for today" from the deactivate-breaks prompt: when it was chosen.</summary>
+        internal static void SaveBreaksOffToday(DateTime when)
+        {
+            try
+            {
+                Write("BreaksOffToday", when.Ticks.ToString());
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("SaveBreaksOffToday - " + ex.Message);
+            }
+        }
+
+        internal static DateTime? GetBreaksOffToday()
+        {
+            try
+            {
+                var val = ReadStr("BreaksOffToday");
+                if (val != null && long.TryParse(val, out long ticks) && ticks > 0 && ticks <= DateTime.MaxValue.Ticks)
+                    return new DateTime(ticks);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetBreaksOffToday - " + ex.Message);
+            }
+            return null;
         }
 
         internal static void SaveDisableNotificationSounds(bool bDisable)

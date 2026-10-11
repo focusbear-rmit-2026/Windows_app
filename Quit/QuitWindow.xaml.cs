@@ -29,6 +29,15 @@ namespace Focus_Bear.Quit
     /// </summary>
     public partial class QuitWindow : Window
     {
+        /// <summary>The app-quit event's fields, escaped: typed feedback with a quote or line break used to break the fragment.</summary>
+        internal static string QuitMetadata(string reason, DateTime installed, string feedback)
+        {
+            return FocusBear.Core.Analytics.EventPayload.Members(
+                new System.Collections.Generic.KeyValuePair<string, object>("quitReason", reason ?? ""),
+                new System.Collections.Generic.KeyValuePair<string, object>("usageStartDate", installed.ToString("o")),
+                new System.Collections.Generic.KeyValuePair<string, object>("feedback", feedback ?? ""));
+        }
+
         AppSettings appSettings = AppSettings.GetInstance;
         App app = (App)Application.Current;
         int nTimer = 2;  
@@ -52,6 +61,17 @@ namespace Focus_Bear.Quit
                 this.FontFamily = new FontFamily(appSettings.sSelectedAppFont);
             }
             App.ThemeChanged += TitleBarThemeChange;
+
+            // Attach the countdown Tick handler here, synchronously, instead of inside the delayed
+            // TurnOffCompletely() (reached via InitializeAsync's 1-second await). btnQuit_Click starts
+            // this same dispatcherTimer independently via StartShutdownCountdown() - if the user clicks
+            // "Nope, just quit" before that delayed continuation has run, the timer was starting with no
+            // Tick handler attached at all, so it ticked forever doing nothing: nTimer never decremented,
+            // Application.Current.Shutdown() was never reached, and the popup looked completely frozen
+            // (#1190 - confirmed from a real user's logs: TurnOffCompletely() never logged for that
+            // click). Subscribing before the window can even be shown/clicked removes the race entirely.
+            dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
+            dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
 
             this.Topmost = true;
            
@@ -124,8 +144,6 @@ namespace Focus_Bear.Quit
             TxtFinalTimer.Text = "00:02";
             //start the timer for 10 seconds
             nTimer = 2;
-            dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
-            dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
             CommandManager.InvalidateRequerySuggested();
         }
 
@@ -227,7 +245,7 @@ namespace Focus_Bear.Quit
 
                 bEmergencyTimer = true;
                 nTimer = 2;
-                string sMetadata = string.Format("\"quitReason\":\"{0}\",\"usageStartDate\":\"{1}\",\"feedback\":\"{2}\"", ComboBoxReason.SelectedValue.ToString(), appSettings.FirstAppInstallDT.ToString("o"), TxtExplanation.Text);
+                string sMetadata = QuitMetadata(ComboBoxReason.SelectedValue.ToString(), appSettings.FirstAppInstallDT, TxtExplanation.Text);
                 appSettings.CapturePostHog("app-quit", sMetadata);
 
                 StartShutdownCountdown();
@@ -250,7 +268,7 @@ namespace Focus_Bear.Quit
                 bEmergencyTimer = true;
                 nTimer = 2;
 
-                string sMetadata = string.Format("\"quitReason\":\"{0}\",\"usageStartDate\":\"{1}\",\"feedback\":\"{2}\"", ComboBoxReason.SelectedValue.ToString(), appSettings.FirstAppInstallDT.ToString("o"), TxtExplanation.Text);
+                string sMetadata = QuitMetadata(ComboBoxReason.SelectedValue.ToString(), appSettings.FirstAppInstallDT, TxtExplanation.Text);
                 appSettings.CapturePostHog("app-quit", sMetadata);
 
                 StartShutdownCountdown();
@@ -266,7 +284,7 @@ namespace Focus_Bear.Quit
                 bEmergencyTimer = true;
                 nTimer = 2;
 
-                string sMetadata = string.Format("\"quitReason\":\"{0}\",\"usageStartDate\":\"{1}\",\"feedback\":\"{2}\"", ComboBoxReason.SelectedValue.ToString(), appSettings.FirstAppInstallDT.ToString("o"), TxtExplanation.Text);
+                string sMetadata = QuitMetadata(ComboBoxReason.SelectedValue.ToString(), appSettings.FirstAppInstallDT, TxtExplanation.Text);
                 appSettings.CapturePostHog("app-quit", sMetadata);
 
                 StartShutdownCountdown();
@@ -289,7 +307,7 @@ namespace Focus_Bear.Quit
                 bEmergencyTimer = true;
                 nTimer = 2;
 
-                string sMetadata = string.Format("\"quitReason\":\"{0}\",\"usageStartDate\":\"{1}\",\"feedback\":\"{2}\"", ComboBoxReason.SelectedValue.ToString(), appSettings.FirstAppInstallDT.ToString("o"), TxtExplanation.Text);
+                string sMetadata = QuitMetadata(ComboBoxReason.SelectedValue.ToString(), appSettings.FirstAppInstallDT, TxtExplanation.Text);
                 appSettings.CapturePostHog("app-quit", sMetadata);
 
                 StartShutdownCountdown();
@@ -308,7 +326,7 @@ namespace Focus_Bear.Quit
             LogWriter.LogWrite("QuitWindow - btnQuit_Click");
             btnQuit.IsEnabled = false;
 
-            string sMetadata = string.Format("\"quitReason\":\"{0}\",\"usageStartDate\":\"{1}\",\"feedback\":\"{2}\"", ComboBoxReason.SelectedValue.ToString(), appSettings.FirstAppInstallDT.ToString("o"), TxtExplanation.Text);
+            string sMetadata = QuitMetadata(ComboBoxReason.SelectedValue.ToString(), appSettings.FirstAppInstallDT, TxtExplanation.Text);
             appSettings.CapturePostHog("app-quit", sMetadata);
 
             ReasonTitle.Text = "";

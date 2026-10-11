@@ -117,7 +117,9 @@ namespace Focus_Bear.Onboarding
         private void btnContinue_Click(object sender, RoutedEventArgs e)
         {
             webView.Dispose();
-            _parentWindow.PageOnboardingViewController.Navigate(OnboardingViewController.ONBOARDINGSTATE._SET_DISTRACTION_BLOCKING_);
+            // Habit setup is now the last section (flow reorder to match mac) - finishing it goes
+            // straight to the finish screen instead of into distraction blocking.
+            _parentWindow.PageOnboardingViewController.Navigate(OnboardingViewController.ONBOARDINGSTATE._ALL_SET_);
         }
  
 
@@ -220,14 +222,20 @@ namespace Focus_Bear.Onboarding
             string sStayFocus = appSettings.bGoalStayFocused == true ? "Stay focused at work" : "";
             LogWriter.LogWrite("appSettings.sCustomGoalSelected: " + appSettings.sCustomGoalSelected);
 
-            // Path B - echo the requestId back on a REQUEST_ACCESS_TOKEN reply (omitted on initial load).
-            string sRequestId = string.IsNullOrEmpty(requestId) ? "" : string.Format(",\"requestId\":\"{0}\"", requestId);
+            //Built as JSON: a custom goal with a quote or a newline broke the call. The requestId (Path B) is
+            //echoed back on a REQUEST_ACCESS_TOKEN reply and omitted on the initial load.
+            var payload = new FocusBear.Core.Ui.WebviewPayload()
+                .Add("access_token", appSettings.userAccount.accessToken)
+                .Add("platform", "win")
+                .Add("lang", appSettings.sLangCode)
+                .Add("font", appSettings.sSelectedAppFont)
+                .Add("theme", sTheme)
+                .Add("long_term_goals", new Newtonsoft.Json.Linq.JArray(appSettings.sCustomGoalSelected ?? ""))
+                .WithRequestId(requestId);
 
-            string LoadToken = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",lang:\"{1}\",\"font\":\"{2}\",\"theme\":\"{4}\",\"long_term_goals\":[\"{3}\"]{5}}}", appSettings.userAccount.accessToken, appSettings.sLangCode, appSettings.sSelectedAppFont, appSettings.sCustomGoalSelected, sTheme, sRequestId);
+            LogWriter.LogWrite("LoadToken: " + FocusBear.Core.Reports.LogSafe.Keys(payload.Json)); //never the access token itself
 
-            LogWriter.LogWrite("LoadToken: " + LoadToken);
-
-            string LoadTokenFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadMetaDataForRoutineSuggestion) {{ loadMetaDataForRoutineSuggestion({0}); clearInterval(waitForAppLoaded); }} }}, 100);", LoadToken);
+            string LoadTokenFunc = payload.WaitAndCall("loadMetaDataForRoutineSuggestion");
 
             webView.ExecuteScriptAsync(LoadTokenFunc);
         }
@@ -236,7 +244,9 @@ namespace Focus_Bear.Onboarding
         {
             appSettings.CapturePostHog("set-up-habits-webview-skipped");
             webView.Dispose();
-            _parentWindow.PageOnboardingViewController.Navigate(OnboardingViewController.ONBOARDINGSTATE._SET_DISTRACTION_BLOCKING_);
+            // Habit setup is now the last section (flow reorder to match mac) - skipping it goes
+            // straight to the finish screen instead of into distraction blocking.
+            _parentWindow.PageOnboardingViewController.Navigate(OnboardingViewController.ONBOARDINGSTATE._ALL_SET_);
         }
         private void Page_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {

@@ -1,6 +1,7 @@
 ﻿using Focus_Bear.API;
 using Focus_Bear.RelevanceClassifier;
 using Focus_Bear.Utils;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Sentry.Protocol;
 using System;
@@ -36,6 +37,32 @@ namespace Focus_Bear.Focus
     /// </summary>
     public partial class GentleBlock : Window
     {
+        /// <summary>
+        /// The "report a bad AI decision" body. Built as JSON: it was spliced, so a tab title or intention with a
+        /// quote (a YouTube title, say) made it invalid.
+        /// </summary>
+        internal static string ReportBody(bool isApp, string appName, string url, string tabTitle, string focusMode, string intention, string language)
+        {
+            JObject body = isApp
+                ? new JObject
+                {
+                    ["appName"] = appName ?? "",
+                    ["focusMode"] = focusMode ?? "",
+                    ["intention"] = intention ?? "",
+                    ["language"] = language ?? "",
+                }
+                : new JObject
+                {
+                    ["url"] = url ?? "",
+                    ["tab_title"] = tabTitle ?? "",
+                    ["meta_description"] = "",
+                    ["focus_mode"] = focusMode ?? "",
+                    ["intention"] = intention ?? "",
+                    ["language"] = language ?? "",
+                };
+            return body.ToString(Formatting.None);
+        }
+
         public class TaskItem
         {
             public string Id { get; set; }
@@ -112,6 +139,7 @@ namespace Focus_Bear.Focus
             ShowInTaskbar = false;
             Topmost = true;
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            IsVisibleChanged += (s, e) => { if (IsVisible) appSettings.NotifyBlockPopupShown(); };   // on the backdrop, never under it
             TitleBarThemeChange();
             App.ThemeChanged += TitleBarThemeChange;
         }
@@ -121,7 +149,7 @@ namespace Focus_Bear.Focus
         /// (try new Uri(url) / catch new UriBuilder(url).Uri) crashed the gentle-block popup because
         /// <c>new UriBuilder(url).Uri</c> itself throws <see cref="UriFormatException"/> for malformed
         /// URLs (spaces, unicode, bare IP:port, …) — 87 crash events across 5 users (#1095, windows-app#5).
-        /// <see cref="Uri.TryCreate(string, UriKind, out Uri)"/> never throws; we retry with an
+        /// <see cref="FocusBear.Core.SafeUri.TryCreate(string, UriKind, out Uri)"/> never throws; we retry with an
         /// <c>https://</c> prefix for scheme-less URLs (mirroring UriBuilder's old scheme-adding).
         /// Returns false (host = "") when no host can be parsed.
         /// </summary>
@@ -129,17 +157,82 @@ namespace Focus_Bear.Focus
         {
             sHost = "";
             if (string.IsNullOrWhiteSpace(sUrl)) return false;
-            if (Uri.TryCreate(sUrl, UriKind.Absolute, out Uri parsed) && !string.IsNullOrEmpty(parsed.Host))
+            if (FocusBear.Core.SafeUri.TryCreate(sUrl, UriKind.Absolute, out Uri parsed) && !string.IsNullOrEmpty(parsed.Host))
             {
                 sHost = parsed.Host;
                 return true;
             }
-            if (Uri.TryCreate("https://" + sUrl, UriKind.Absolute, out Uri prefixed) && !string.IsNullOrEmpty(prefixed.Host))
+            if (FocusBear.Core.SafeUri.TryCreate("https://" + sUrl, UriKind.Absolute, out Uri prefixed) && !string.IsNullOrEmpty(prefixed.Host))
             {
                 sHost = prefixed.Host;
                 return true;
             }
             return false;
+        }
+
+        /// <summary>
+        /// Builds the PostHog metadata fragment (comma-separated "key":value pairs, no braces -
+        /// <see cref="AppSettings.CapturePostHog"/> wraps it) describing WHAT set off this gentle-block
+        /// popup: whether the trigger was an app or a URL, which app/host, the blocking source
+        /// (teacher session / blocking schedule / focus mode), the bear mode, and - when the AI
+        /// distraction check ran - its probability and reason. Shared by "block-popup-shown" (fired only
+        /// where the popup is actually rendered: the non-AI branch of ShowGentleBlockWindowAndStartTimer,
+        /// ShowDistractingCuddlyPopup for apps, and the equivalent inline branch in CheckWithChatGPT for
+        /// URLs) and the existing "block-popup-allow-automatically" events, so all of them carry the same
+        /// shape and analytics can tell an AI-distraction popup apart from a plain block-list one.
+        /// </summary>
+        private string BuildBlockPopupMetadata(bool bAICheckEnabled, double? xAiProbability = null)
+        {
+            bool bIsApp = sActiveAppName.Length > 0;
+
+            string sBlockingSource;
+            string sContextName;
+            if (TeacherSessionManager.Instance.IsTeacherSessionActive())
+            {
+                sBlockingSource = "teacher-session";
+                sContextName = sFocusModeName;
+            }
+            else if (appSettings.IsBlockingScheduleActiveAndNotPaused(out var schedule))
+            {
+                sBlockingSource = "blocking-schedule";
+                sContextName = schedule.name;
+            }
+            else
+            {
+                sBlockingSource = "focus-mode";
+                sContextName = sFocusModeName;
+            }
+
+            var parts = new List<string>
+            {
+                "\"triggerType\":" + JsonConvert.SerializeObject(bIsApp ? "app" : "url"),
+                "\"blockingSource\":" + JsonConvert.SerializeObject(sBlockingSource),
+                "\"focusContextName\":" + JsonConvert.SerializeObject(sContextName ?? ""),
+                "\"bearMode\":" + JsonConvert.SerializeObject(appSettings.nFocusBearMode == 1 ? "cuddly" : "grizzly"),
+                "\"aiCheckEnabled\":" + JsonConvert.SerializeObject(bAICheckEnabled),
+            };
+
+            if (bIsApp)
+            {
+                parts.Add("\"blockedApp\":" + JsonConvert.SerializeObject(sActiveAppName));
+            }
+            else
+            {
+                TryGetHost(sActiveURL, out string sHost);
+                parts.Add("\"blockedHost\":" + JsonConvert.SerializeObject(sHost));
+            }
+
+            if (xAiProbability.HasValue)
+            {
+                parts.Add("\"aiProbability\":" + xAiProbability.Value.ToString("0.###", CultureInfo.InvariantCulture));
+            }
+
+            if (!string.IsNullOrEmpty(appSettings.sChatGPTReasonForCurrentURL))
+            {
+                parts.Add("\"aiReason\":" + JsonConvert.SerializeObject(appSettings.sChatGPTReasonForCurrentURL));
+            }
+
+            return string.Join(",", parts);
         }
 
         public void ShowGentleBlockWindowAndStartTimer(IntPtr hWnd, string sFocusModeTitle, string sAppName, string sURL = "", string sIntention = "", string sTabTitle = "")
@@ -178,31 +271,11 @@ namespace Focus_Bear.Focus
             bool bAICheckRequired = false;
             if (sAppName.Length > 0)
             {
-                // Determine whether the AI app-check is enabled for the current context
-                // (global setting / blocking-schedule / teacher session), mirroring the URL branch below.
-                if (appSettings.bAiCheckUrlEnabled)
-                {
-                    ReportBadAIDecision.Visibility = Visibility.Visible;
-                    bAICheckRequired = true;
-                }
-                else
-                {
-                    ReportBadAIDecision.Visibility = Visibility.Collapsed;
-                    bAICheckRequired = false;
-                }
-
-                if (appSettings.isBlockingScheduleRunning && appSettings.ActiveSchedule != null)
-                {
-                    bAICheckRequired = appSettings.ActiveSchedule.bAIBlockingEnabled;
-                    ReportBadAIDecision.Visibility = bAICheckRequired ? Visibility.Visible : Visibility.Collapsed;
-                }
-
-                //Teacher Mode - the class session's ai_blocking_enabled setting overrides the global / schedule setting.
-                if (TeacherSessionManager.Instance.IsTeacherSessionActive())
-                {
-                    bAICheckRequired = TeacherSessionManager.Instance.bTeacherSessionAiBlockingEnabled;
-                    ReportBadAIDecision.Visibility = bAICheckRequired ? Visibility.Visible : Visibility.Collapsed;
-                }
+                // One ladder, in FocusBear.Core: snooze > teacher > buddy > the block list's
+                // is_ai_enabled > the global toggle. This used to be hand-rolled here and skipped
+                // the block list, so the Mac's is_ai_enabled=false had no effect on Windows.
+                bAICheckRequired = AiBlocking.IsEnabled();
+                ReportBadAIDecision.Visibility = bAICheckRequired ? Visibility.Visible : Visibility.Collapsed;
 
                 if (bAICheckRequired)
                 {
@@ -223,38 +296,11 @@ namespace Focus_Bear.Focus
             {
                 ///////////////////////////////////////////////////////////////////
                 ///
-                if (appSettings.bAiCheckUrlEnabled)
-                {
-                    ReportBadAIDecision.Visibility = Visibility.Visible;
-                    bAICheckRequired = true;
-                }
-                else
-                {
-                    ReportBadAIDecision.Visibility = Visibility.Collapsed;
-                    bAICheckRequired = false;
-                }
-
-                if(appSettings.isBlockingScheduleRunning && appSettings.ActiveSchedule != null)
-                {
-                    if(appSettings.ActiveSchedule.bAIBlockingEnabled)
-                    {
-                        ReportBadAIDecision.Visibility = Visibility.Visible;
-                        bAICheckRequired = true;
-                    }
-                    else
-                    {
-                        ReportBadAIDecision.Visibility = Visibility.Collapsed;
-                        bAICheckRequired = false;
-                    }
-                }
-
-                //Teacher Mode - a class session carries its own ai_blocking_enabled setting; while it is
-                //active the AI URL check depends on that, overriding the global / schedule settings.
-                if (TeacherSessionManager.Instance.IsTeacherSessionActive())
-                {
-                    bAICheckRequired = TeacherSessionManager.Instance.bTeacherSessionAiBlockingEnabled;
-                    ReportBadAIDecision.Visibility = bAICheckRequired ? Visibility.Visible : Visibility.Collapsed;
-                }
+                // One ladder, in FocusBear.Core: snooze > teacher > buddy > the block list's
+                // is_ai_enabled > the global toggle. This used to be hand-rolled here and skipped
+                // the block list, so the Mac's is_ai_enabled=false had no effect on Windows.
+                bAICheckRequired = AiBlocking.IsEnabled();
+                ReportBadAIDecision.Visibility = bAICheckRequired ? Visibility.Visible : Visibility.Collapsed;
 
 
                 // Safe host extraction — the old try/UriBuilder pattern crashed on malformed URLs (#1095).
@@ -358,9 +404,9 @@ namespace Focus_Bear.Focus
                     TextBlockThisPage.Text = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["buttonBlockUrlText"].ToString();
                 }
 
-                if (appSettings.isBlockingScheduleRunning && !appSettings.ActiveSchedule.isPaused) // Blocking schedule
+                if (appSettings.IsBlockingScheduleActiveAndNotPaused(out var scheduleForHeading)) // Blocking schedule
                 {
-                    sHeading = sHeading.Replace("<FOCUSTYPE>", appSettings.ActiveSchedule.name);
+                    sHeading = sHeading.Replace("<FOCUSTYPE>", scheduleForHeading.name);
                 }
                 else
                 {
@@ -394,6 +440,9 @@ namespace Focus_Bear.Focus
 
                 CommandManager.InvalidateRequerySuggested();
 
+                //Analytics: no AI check applies here (grizzly mode / AI off / AI off for this schedule or
+                //teacher session), so this block popup is shown to the user unconditionally - record it.
+                appSettings.CapturePostHog("block-popup-shown", BuildBlockPopupMetadata(false));
 
                 appSettings.ShowBlurWindow(HWND);
                 this.Show(); //Will show this window
@@ -636,7 +685,7 @@ namespace Focus_Bear.Focus
                     }
                     FocusBearAPIClient client = new FocusBearAPIClient();
                     var nResponse = await client.ChatGPTIsURLSafe(sActiveURL, sCurrentTabTitle, "", appSettings.sRunningFocusModeName, appSettings.sRunningFocusModeIntention, appSettings.sLangCode);
-                    double xProbability = double.Parse(nResponse.ToString());
+                    double xProbability = nResponse;   //already a double: the culture round trip could only lose it
 
                     bool backendAllows = xProbability >= 0.80;
                     bool shadowAllows = shadowAction.Equals(
@@ -665,12 +714,9 @@ namespace Focus_Bear.Focus
 
                     try
                     {
-                        var currentDate = DateTime.UtcNow;
-
-                        string isoString = currentDate.ToString("o", CultureInfo.InvariantCulture); // ISO 8601
-
                         //"Timestamp,Url,Domain,TabTitle,AIRelevanceScore,AdditionalUserJustification,currentTaskName,focusIntention,AIReason”
-                        string csvLine = $"{isoString},\"{sActiveURL}\",{sHost},\"{sCurrentTabTitle}\",{xProbability}, {""}, {""}, \"{appSettings.sRunningFocusModeIntention}\", \"{appSettings.sChatGPTReasonForCurrentURL}\" ";
+                        string csvLine = FocusBear.Core.Blocking.AiDecisionCsv.Row(DateTime.UtcNow, sActiveURL, sHost, sCurrentTabTitle, xProbability,
+                            "", "", appSettings.sRunningFocusModeIntention, appSettings.sChatGPTReasonForCurrentURL);
                         appSettings.csvfocusAIDecisions.Append(csvLine);
                     }
                     catch (Exception ex)
@@ -706,7 +752,7 @@ namespace Focus_Bear.Focus
                             {
                                 //AI says the site is aligned with the focus session - allow it silently
                                 appSettings.TemporaryAllowedURLsGentleBlock.Add(new DistractingURL(sActiveURL.ToLower(), true));
-                                appSettings.CapturePostHog("block-popup-allow-automatically");
+                                appSettings.CapturePostHog("block-popup-allow-automatically", BuildBlockPopupMetadata(true, xProbability));
 
                                 //Reflect the aligned verdict in the focus-progress popup: productive icon + reason tooltip.
                                 FocusAlignmentScoreManager.DictionaryScoreAiCheckUrlsInCuddlyModeCurrentFocus[sFullURLForBlockedPage] = new Dictionary<string, object>
@@ -747,37 +793,48 @@ namespace Focus_Bear.Focus
                         return;
                     }
 
-                    string sHeading = appSettings.ConfigFileStrings["popUpBlockConfirmVcInfo"]["title"].ToString();
-
                     if (xProbability == -1)
                     {
                         CurrentURLBeingProcessedWithChatGPTAPI = "";
                         await Dispatcher.BeginInvoke((Action)(() =>
                         {
-                            //API failed. Nothing to do.
-                            ReportBadAIDecision.Visibility = Visibility.Collapsed;
-                            sHeading = sHeading + "\n\n" + "The status of this url could not be verified.";
-                            sHeading = sHeading.Replace("<URL>", sActiveURL.Length > 108 ? sActiveURL.Substring(0, 108) : sActiveURL);
+                            // The AI check failed (couldn't verify), not "AI says distracting" - fail open
+                            // the same way the non-cuddly branch already does, rather than stopping the user
+                            // with a popup over something that isn't actually a verdict. Record a neutral
+                            // 0.5 probability so this URL still contributes to the focus-alignment average
+                            // instead of being silently excluded from it.
+                            const double NeutralProbabilityOnVerificationFailure = 0.5;
+                            string sUrlNotVerifiedText = appSettings.GetConfigStringSafe("The status of this url could not be verified.", "popUpBlockConfirmVcInfo", "urlNotVerifiedText");
 
-                            if (appSettings.isBlockingScheduleRunning && !appSettings.ActiveSchedule.isPaused) // Blocking schedule
+                            FocusAlignmentScoreManager.DictionaryScoreAiCheckUrlsInCuddlyModeCurrentFocus[sFullURLForBlockedPage] = new Dictionary<string, object>
                             {
-                                sHeading = sHeading.Replace("<FOCUSTYPE>", appSettings.ActiveSchedule.name);
-                            }
-                            else
+                                { "probability", NeutralProbabilityOnVerificationFailure },
+                                { "isVisibleUrl", true },
+                                { "totalSeconds", 0 },
+                                { "startedTime", DateTime.Now },
+                                { "reason", sUrlNotVerifiedText }
+                            };
+                            FocusAlignmentScoreManager.CustomToolTip = sUrlNotVerifiedText;
+                            FocusAlignmentScoreManager.SetAppIconForFocusModeScore(NeutralProbabilityOnVerificationFailure);
+                            FocusAlignmentScoreManager.CalculateFocusAlignmentScore();
+
+                            appSettings.TemporaryAllowedURLsGentleBlock.Add(new DistractingURL(sActiveURL.ToLower(), true));
+
+                            sCurrentTabTitle = sCurrentTabTitle.Replace(" - Google Chrome", "");
+                            sCurrentTabTitle = sCurrentTabTitle.Replace(" — Mozilla Firefox", "");
+                            sCurrentTabTitle = sCurrentTabTitle.Replace(" - Microsoft? Edge", "");
+                            if (sCurrentTabTitle.Length > 0)
                             {
-                                sHeading = sHeading.Replace("<FOCUSTYPE>", sFocusModeName);
+                                var titleExists = appSettings.TemporaryAllowedURLsTabTitles.Where(i => i.ToLower() == sCurrentTabTitle.ToLower());
+                                if (titleExists.Count() == 0)
+                                {
+                                    appSettings.TemporaryAllowedURLsTabTitles.Add(sCurrentTabTitle);
+                                }
                             }
 
-                            Heading.Text = sHeading;
-
-                            CommandManager.InvalidateRequerySuggested();
-
-                            if (appSettings.sLastActiveURLInFirefox == sActiveURL)
-                            {
-                                dispatcherTimer.Start();
-                                appSettings.ShowBlurWindow(HWND);
-                                this.Show();
-                            }
+                            dispatcherTimer.Stop();
+                            appSettings.HideBlurWindow();
+                            Hide();
                         }));
                     }
                     else  //we have got the probability
@@ -821,7 +878,7 @@ namespace Focus_Bear.Focus
 
                                 appSettings.TemporaryAllowedURLsGentleBlock.Add(new DistractingURL(sActiveURL.ToLower(), true));
 
-                                appSettings.CapturePostHog("block-popup-allow-automatically");
+                                appSettings.CapturePostHog("block-popup-allow-automatically", BuildBlockPopupMetadata(true, xProbability));
 
                                 sCurrentTabTitle = sCurrentTabTitle.Replace(" - Google Chrome", "");
                                 sCurrentTabTitle = sCurrentTabTitle.Replace(" — Mozilla Firefox", "");
@@ -860,6 +917,14 @@ namespace Focus_Bear.Focus
                                     Hide();
                                     return;
                                 }
+
+                                //Analytics: URL counterpart of ShowDistractingCuddlyPopup's "block-popup-shown" -
+                                //this branch is its own un-refactored copy of that flow (ask for goal/task,
+                                //convince AI, suggested task) rather than calling the shared method, so it needs
+                                //its own call. Past both early-return guards above, so this only fires when a
+                                //popup is genuinely about to be shown.
+                                appSettings.CapturePostHog("block-popup-shown", BuildBlockPopupMetadata(true, xProbability));
+
                                 if (appSettings.sCurrentTaskPlayingInToDoPlayer.Length == 0 && appSettings.sRunningFocusModeIntention.Length == 0)
                                 {
                                     //Mean there is no task and no intention
@@ -942,6 +1007,10 @@ namespace Focus_Bear.Focus
                                     }
                                     wndConvinceAiFailed = null;
                                 }
+                                else if (appSettings.sChatGPTReasonForCurrentURL.Length > 0 && ShowAiBlockBuddy(xProbability))
+                                {
+                                    // The redesigned check-in took over (AiBlockBuddyWindow).
+                                }
                                 else if (appSettings.sChatGPTReasonForCurrentURL.Length > 0) //add reason from chat gpt
                                 {
                                     JObject obj = JObject.Parse(appSettings.sChatGPTResponse);
@@ -1009,9 +1078,9 @@ namespace Focus_Bear.Focus
                                     sHeading = sHeading.Replace("<URL>", sActiveURL.Length > 108 ? sActiveURL.Substring(0, 108) : sActiveURL);
 
 
-                                    if (appSettings.isBlockingScheduleRunning && !appSettings.ActiveSchedule.isPaused) // Blocking schedule
+                                    if (appSettings.IsBlockingScheduleActiveAndNotPaused(out var scheduleForHeading3)) // Blocking schedule
                                     {
-                                        sHeading = sHeading.Replace("<FOCUSTYPE>", appSettings.ActiveSchedule.name);
+                                        sHeading = sHeading.Replace("<FOCUSTYPE>", scheduleForHeading3.name);
                                     }
                                     else
                                     {
@@ -1093,7 +1162,7 @@ namespace Focus_Bear.Focus
 
                     FocusBearAPIClient client = new FocusBearAPIClient();
                     var nResponse = await client.ChatGPTIsAppSafe(sActiveAppName, appSettings.sRunningFocusModeName, appSettings.sRunningFocusModeIntention, appSettings.sLangCode);
-                    double xProbability = double.Parse(nResponse.ToString());
+                    double xProbability = nResponse;   //already a double: the culture round trip could only lose it
 
                     if (CurrentURLBeingProcessedWithChatGPTAPI != sActiveAppName) //user switched app while the request was in flight
                         return;
@@ -1103,9 +1172,8 @@ namespace Focus_Bear.Focus
                     //Write to focus ai decisions csv
                     try
                     {
-                        var currentDate = DateTime.UtcNow;
-                        string isoString = currentDate.ToString("o", CultureInfo.InvariantCulture);
-                        string csvLine = $"{isoString},\"{sActiveAppName}\",{sActiveAppName},\"\",{xProbability}, {""}, {""}, \"{appSettings.sRunningFocusModeIntention}\", \"{appSettings.sChatGPTReasonForCurrentURL}\" ";
+                        string csvLine = FocusBear.Core.Blocking.AiDecisionCsv.Row(DateTime.UtcNow, sActiveAppName, sActiveAppName, "", xProbability,
+                            "", "", appSettings.sRunningFocusModeIntention, appSettings.sChatGPTReasonForCurrentURL);
                         appSettings.csvfocusAIDecisions.Append(csvLine);
                     }
                     catch (Exception exCsv)
@@ -1132,7 +1200,7 @@ namespace Focus_Bear.Focus
                         {
                             //AI says the app is aligned with the focus session - allow it silently.
                             appSettings.TemporaryAllowedAppsGentleBlock.Add(new DistractingURL(sAppKey, true));
-                            appSettings.CapturePostHog("block-popup-allow-automatically");
+                            appSettings.CapturePostHog("block-popup-allow-automatically", BuildBlockPopupMetadata(true, xProbability));
 
                             FocusAlignmentScoreManager.DictionaryScoreAiCheckUrlsInCuddlyModeCurrentFocus[sAppKey] = new Dictionary<string, object>
                             {
@@ -1225,8 +1293,9 @@ namespace Focus_Bear.Focus
             try
             {
                 StopTimer();                    //also closes any modal sub-popups over it
-                appSettings.HideBlurWindow();
+                DismissAiBlockBuddy();
                 Hide();
+                appSettings.HideBlurWindow();
             }
             catch (Exception ex)
             {
@@ -1246,16 +1315,23 @@ namespace Focus_Bear.Focus
                 appSettings.ShowGentleBlockWindow(HWND, "", sActiveURL, sCurrentTabTitle);
         }
 
-        // Shared cuddly "this is distracting" popup flow, used by BOTH the URL (CheckWithChatGPT) and the app
-        // (CheckWithChatGPTForApp) checks so they behave identically: ask for a goal/task when none is set,
-        // let the user convince the AI, or set/pick a suggested task. The only difference is the identity
-        // (URL vs app), which drives the convince-comparison, temporary-access target and recheck.
+        // Cuddly "this is distracting" popup flow for the APP check (CheckWithChatGPTForApp): ask for a
+        // goal/task when none is set, let the user convince the AI, or set/pick a suggested task.
+        // NOTE: despite the name, this is not actually shared with the URL check - CheckWithChatGPT has its
+        // own separate, un-refactored copy of this same flow inline (search "block-popup-shown" there);
+        // keep both in sync (and their "block-popup-shown" analytics calls) until they're unified.
         private void ShowDistractingCuddlyPopup(double xProbability)
         {
             //The app AI check is async - if the focus session ended while it was in flight, don't pop the
             //distracting/goal-task UI over the focus-end screen.
             if (SuppressPopupIfBlockingEnded())
                 return;
+
+            //Analytics: the AI came back with a distracting verdict, so - whichever branch below actually
+            //renders (ask for a goal/task, the convince-AI dialog, or the main decision screen) - the user
+            //is about to see a block popup. Includes the AI's probability/reason for this verdict, matching
+            //what the auto-allow events already record.
+            appSettings.CapturePostHog("block-popup-shown", BuildBlockPopupMetadata(true, xProbability));
 
             string identity = IsAppBlocking() ? sActiveAppName : sActiveURL;
 
@@ -1328,6 +1404,10 @@ namespace Focus_Bear.Focus
                     BlockSiteWork();
                 }
                 wndConvinceAiFailed = null;
+            }
+            else if (appSettings.sChatGPTReasonForCurrentURL.Length > 0 && ShowAiBlockBuddy(xProbability))
+            {
+                // The redesigned check-in took over (AiBlockBuddyWindow).
             }
             else if (appSettings.sChatGPTReasonForCurrentURL.Length > 0) //show reason + suggested task from AI
             {
@@ -1497,39 +1577,11 @@ namespace Focus_Bear.Focus
             }
             ///////////////////////////////////////////////////////////////////
             ///
-            bool bAICheckRequired = false;
-            if (appSettings.bAiCheckUrlEnabled)
-            {
-                ReportBadAIDecision.Visibility = Visibility.Visible;
-                bAICheckRequired = true;
-            }
-            else
-            {
-                ReportBadAIDecision.Visibility = Visibility.Collapsed;
-                bAICheckRequired = false;
-            }
-
-            if (appSettings.isBlockingScheduleRunning && appSettings.ActiveSchedule != null)
-            {
-                if (appSettings.ActiveSchedule.bAIBlockingEnabled)
-                {
-                    ReportBadAIDecision.Visibility = Visibility.Visible;
-                    bAICheckRequired = true;
-                }
-                else
-                {
-                    ReportBadAIDecision.Visibility = Visibility.Collapsed;
-                    bAICheckRequired = false;
-                }
-            }
-
-            //Teacher Mode - the class session's ai_blocking_enabled setting overrides the global / schedule
-            //settings while it is active.
-            if (TeacherSessionManager.Instance.IsTeacherSessionActive())
-            {
-                bAICheckRequired = TeacherSessionManager.Instance.bTeacherSessionAiBlockingEnabled;
-                ReportBadAIDecision.Visibility = bAICheckRequired ? Visibility.Visible : Visibility.Collapsed;
-            }
+            // One ladder, in FocusBear.Core: snooze > teacher > buddy > the block list's
+            // is_ai_enabled > the global toggle. This used to be hand-rolled here and skipped
+            // the block list, so the Mac's is_ai_enabled=false had no effect on Windows.
+            bool bAICheckRequired = AiBlocking.IsEnabled();
+            ReportBadAIDecision.Visibility = bAICheckRequired ? Visibility.Visible : Visibility.Collapsed;
             ///////////////////////////////////////////
             if (!bAICheckRequired) //No AI check - allow directly (URL or app)
             {
@@ -1655,6 +1707,10 @@ namespace Focus_Bear.Focus
 
         private void BlockSiteWork()
         {
+            // The check is decided: forget the in-flight guard, or the same app is never asked about again. It was
+            // left set for apps, so "Oops I actually need it" (which un-blocks the app and asks again) brought the app
+            // back with no popup at all, and returning to it only re-checked after some other app had been checked.
+            CurrentURLBeingProcessedWithChatGPTAPI = "";
             if (sActiveAppName.Length > 0)
             {
                 appSettings.TemporarryBlockedAppsGentleBlock.Add(sActiveAppName.ToLower());
@@ -1725,23 +1781,16 @@ namespace Focus_Bear.Focus
             appSettings.HideBlurWindow();
             Hide();
 
-            string addItemJsonString;
+            // Reporting a bad AI decision means the AI wrongly blocked this site/app — so allow the current
+            // URL/app too (same as the direct-allow path), otherwise it stays blocked after reporting. #1290
             if (IsAppBlocking())
-            {
-                addItemJsonString = $"{{\"appName\":\"{sActiveAppName}\"," +
-                       $"\"focusMode\":\"{appSettings.sRunningFocusModeName}\"," +
-                       $"\"intention\":\"{appSettings.sRunningFocusModeIntention}\"," +
-                       $"\"language\":\"{appSettings.sLangCode}\"}}";
-            }
+                appSettings.TemporaryAllowedAppsGentleBlock.Add(new DistractingURL(sActiveAppName.ToLower(), true));
             else
-            {
-                addItemJsonString = $"{{\"url\":\"{sActiveURL}\"," +
-                       $"\"tab_title\":\"{sCurrentTabTitle}\"," +
-                       $"\"meta_description\":\"\"," +
-                       $"\"focus_mode\":\"{appSettings.sRunningFocusModeName}\"," +
-                       $"\"intention\":\"{appSettings.sRunningFocusModeIntention}\"," +
-                       $"\"language\":\"{appSettings.sLangCode}\"}}";
-            }
+                appSettings.TemporaryAllowedURLsGentleBlock.Add(new DistractingURL(sActiveURL.ToLower(), false));
+
+            //Built as JSON: a tab title or intention with a quote made the report invalid.
+            string addItemJsonString = ReportBody(IsAppBlocking(), sActiveAppName, sActiveURL, sCurrentTabTitle,
+                appSettings.sRunningFocusModeName, appSettings.sRunningFocusModeIntention, appSettings.sLangCode);
 
             //Show the Report Bad AI Desicion Feedback Window
             appSettings.ShowReportBadAIDecision(addItemJsonString, IsAppBlocking() ? sActiveAppName : sActiveURL);
@@ -1831,6 +1880,193 @@ namespace Focus_Bear.Focus
             // which closes after Set Task. Re-enable the button first so the popup
             // works again if it is re-shown (it is hidden, not closed).
             btnSetTask.IsEnabled = true;
+            dispatcherTimer.Stop();
+            appSettings.HideBlurWindow();
+            Hide();
+        }
+
+        // ── The AI block check-in (Mac "AI Blocking Latest") ─────────────────────────────────────────────
+
+        private AiBlockBuddyWindow _aiBlockBuddy;
+        private string _aiBlockBuddyKey = "";
+
+        /// <summary>Whether the AI check-in (and so its backdrop) is on screen.</summary>
+        internal bool IsAiBlockBuddyOpen => _aiBlockBuddy != null && _aiBlockBuddy.IsVisible;
+
+        /// <summary>
+        /// Takes the AI check-in down without blocking or allowing, for when blocking has ended. Closing it the
+        /// ordinary way counts as "Block". Not part of <see cref="StopTimer"/>: that also runs each time this window
+        /// takes up the next app or page, and the check-in decides for itself when the user has left its item.
+        /// </summary>
+        internal void DismissAiBlockBuddy()
+        {
+            if (_aiBlockBuddy == null) return;
+            LogWriter.LogWrite("AiBlockBuddy - dismissed for " + _aiBlockBuddyKey + " (blocking ended)");
+            var buddy = _aiBlockBuddy;
+            _aiBlockBuddy = null;
+            buddy.DismissStale();
+        }
+
+        private string CurrentItemKey() => FocusBear.Core.Blocking.AiBlockBuddy.ItemKey(IsAppBlocking(), sActiveAppName, sActiveURL);
+
+        /// <summary>
+        /// Closing the check-in blocks the app/page it was about - which, if this window has since moved on to the
+        /// next app, is not the one in its fields now.
+        /// </summary>
+        private void BlockBuddyItem(bool isApp, string app, string url, string fullUrl, IntPtr hwnd)
+        {
+            if (!IsBlockingStillActive())
+            {
+                // The session or schedule ended while the check-in was up: there is nothing left to block, and
+                // suppressing the page now would close a tab the user is free to use.
+                LogWriter.LogWrite("AiBlockBuddy - closed after blocking ended, not blocking " + FocusBear.Core.Blocking.AiBlockBuddy.ItemKey(isApp, app, url));
+                appSettings.HideBlurWindow();
+                return;
+            }
+            if (CurrentItemKey() == FocusBear.Core.Blocking.AiBlockBuddy.ItemKey(isApp, app, url)) { BlockSiteWork(); return; }
+            if (isApp) appSettings.TemporarryBlockedAppsGentleBlock.Add(app.ToLower());
+            else
+            {
+                appSettings.TemporarryBlockedURLsGentleBlock.Add(url.ToLower());
+                ProcessBrowserURLs.suppressURLForFirefox(hwnd, fullUrl, "focus");
+            }
+            appSettings.HideBlurWindow();
+        }
+
+        /// <summary>
+        /// Shows the check-in in place of this window's decision view. Its outcomes use this window's own
+        /// primitives: closing blocks (BlockSiteWork), an argued allow adds a timed temporary allow, a task
+        /// switch plays that task and re-judges, and leaving the page just dismisses.
+        /// </summary>
+        private bool ShowAiBlockBuddy(double xProbability)
+        {
+            try
+            {
+                bool isApp = IsAppBlocking();
+                string app = sActiveAppName;
+                string url = sActiveURL;
+                string key = FocusBear.Core.Blocking.AiBlockBuddy.ItemKey(isApp, app, url);
+                if (_aiBlockBuddy != null)
+                {
+                    // One check-in at a time, for what is in front now: the same app/page keeps the one on screen;
+                    // a different one replaces it (it used to be dropped, leaving the stale check-in up).
+                    if (_aiBlockBuddyKey == key) return true;
+                    LogWriter.LogWrite("AiBlockBuddy - replacing the check-in for " + _aiBlockBuddyKey + " with one for " + key);
+                    var stale = _aiBlockBuddy;
+                    _aiBlockBuddy = null;
+                    stale.DismissStale();
+                }
+                // URL: only while the browser is still on this page (as the old view checked before showing).
+                if (!isApp && appSettings.sLastActiveURLInFirefox != url) return true;
+                string fullUrl = sFullURLForBlockedPage.Length > 0 ? sFullURLForBlockedPage : url;
+                IntPtr hwnd = HWND;
+                string itemProcess = isApp ? app : BlockForeground.ProcessOf(hwnd);
+                var request = new AiBlockBuddyRequest
+                {
+                    IsApp = isApp,
+                    Url = fullUrl,
+                    PageTitle = sCurrentTabTitle,
+                    Label = FocusBear.Core.Blocking.AiBlockBuddy.DisplayLabel(isApp, app, fullUrl, sCurrentTabTitle),
+                    Reason = appSettings.sChatGPTReasonForCurrentURL,
+                    Probability = xProbability,
+                    CurrentTask = appSettings.sCurrentTaskPlayingInToDoPlayer.Length > 0 ? appSettings.sCurrentTaskPlayingInToDoPlayer : appSettings.sRunningFocusModeIntention,
+                    Argue = async why =>
+                    {
+                        appSettings.AddJustification(why);
+                        appSettings.sExtraJustificationForThisSite = why;
+                        var client = new FocusBearAPIClient();
+                        double p = isApp
+                            ? await client.ChatGPTIsAppSafe(app, appSettings.sRunningFocusModeName, appSettings.sRunningFocusModeIntention, appSettings.sLangCode)
+                            : await client.ChatGPTIsURLSafe(url, sCurrentTabTitle, "", appSettings.sRunningFocusModeName, appSettings.sRunningFocusModeIntention, appSettings.sLangCode);
+                        return p;
+                    },
+                    Allow = (minutes, why) => AllowForMinutes(isApp, isApp ? app.ToLower() : url.ToLower(), minutes),
+                    Block = () => BlockBuddyItem(isApp, app, url, fullUrl, hwnd),
+                    PickTask = task => SwitchTaskFromAiBlockBuddy(task),
+                    Report = () => BtnReportBadAIDecision_Click(null, null),
+                    ItemProcess = itemProcess,
+                    StillOnItem = isApp ? (Func<bool>)null : () => appSettings.sLastActiveURLInFirefox == url,
+                    // Leaving (or being replaced) neither blocks nor allows. Forget the in-flight marker so coming
+                    // back to the app/page runs the check again - otherwise it is skipped as "already running" and
+                    // the app would be let through. Only this item's own popup state is touched: this window may
+                    // already be working on the next app.
+                    Dismissed = () =>
+                    {
+                        if (CurrentURLBeingProcessedWithChatGPTAPI == (isApp ? app : url)) CurrentURLBeingProcessedWithChatGPTAPI = "";
+                        appSettings.HideBlurWindow();
+                        if (CurrentItemKey() == key) { dispatcherTimer.Stop(); Hide(); }
+                    },
+                };
+                dispatcherTimer.Stop();
+                var sw = System.Diagnostics.Stopwatch.StartNew();
+                appSettings.ShowBlurWindow(HWND);
+                long backdropMs = sw.ElapsedMilliseconds;
+                var buddy = new AiBlockBuddyWindow(request);
+                long builtMs = sw.ElapsedMilliseconds;
+                _aiBlockBuddy = buddy;
+                _aiBlockBuddyKey = key;
+                buddy.Closed += (s, e) => { if (_aiBlockBuddy == buddy) _aiBlockBuddy = null; };
+                buddy.Show();
+                buddy.Activate();
+                LogWriter.LogWrite("AiBlockBuddy - shown for " + request.Label + " (backdrop " + backdropMs + " ms, build " + (builtMs - backdropMs)
+                    + " ms, show " + (sw.ElapsedMilliseconds - builtMs) + " ms)");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("ShowAiBlockBuddy ex - " + ex.Message);
+                _aiBlockBuddy = null;
+                return false;   // the old decision view still works
+            }
+        }
+
+        /// <summary>A temporary allow that lapses after <paramref name="minutes"/>, so the buddy checks in again.</summary>
+        private void AllowForMinutes(bool isApp, string key, int minutes)
+        {
+            var entry = new DistractingURL(key, true);
+            if (isApp) appSettings.TemporaryAllowedAppsGentleBlock.Add(entry);
+            else appSettings.TemporaryAllowedURLsGentleBlock.Add(entry);
+            appSettings.CapturePostHog("block-popup-allowed-after-explaining", BuildBlockPopupMetadata(true));
+            var expiry = new DispatcherTimer { Interval = TimeSpan.FromMinutes(Math.Max(1, minutes)) };
+            expiry.Tick += (s, e) =>
+            {
+                expiry.Stop();
+                if (isApp) appSettings.TemporaryAllowedAppsGentleBlock.Remove(entry);
+                else appSettings.TemporaryAllowedURLsGentleBlock.Remove(entry);
+                CurrentURLBeingProcessedWithChatGPTAPI = "";
+                LogWriter.LogWrite("AiBlockBuddy - allow for " + key + " lapsed after " + minutes + " min");
+            };
+            expiry.Start();
+            dispatcherTimer.Stop();
+            appSettings.HideBlurWindow();
+            Hide();
+        }
+
+        /// <summary>Plays the picked task (a new to-do when it is not one yet), then re-judges the page against it.</summary>
+        private async void SwitchTaskFromAiBlockBuddy(Habits.DayPlan.DayPlanTask task)
+        {
+            try
+            {
+                JObject matched = null;
+                if (appSettings.sAllTasks.Length > 0)
+                {
+                    JArray all = JArray.Parse(appSettings.sAllTasks);
+                    if (!string.IsNullOrEmpty(task.SourceTaskId))
+                        matched = all.FirstOrDefault(t => t["id"]?.ToString() == task.SourceTaskId) as JObject;
+                    if (matched == null)
+                        matched = all.FirstOrDefault(t => string.Equals(t["title"]?.ToString(), task.Title, StringComparison.OrdinalIgnoreCase)) as JObject;
+                }
+                bool ready;
+                if (matched != null)
+                {
+                    appSettings.sCurrentTaskCreated = matched.ToString();
+                    ready = true;
+                }
+                else ready = await new FocusBearAPIClient().AddTask(task.Title) == 1 && appSettings.sCurrentTaskCreated.Length > 0;
+                if (ready) ((App)Application.Current).wndFocusBearMainWindow.PageToDoPlayer?.AddAndPlayTaskInCurrentList(false);
+                RecheckCurrentWithAI();
+            }
+            catch (Exception ex) { LogWriter.LogWrite("SwitchTaskFromAiBlockBuddy ex - " + ex.Message); }
             dispatcherTimer.Stop();
             appSettings.HideBlurWindow();
             Hide();

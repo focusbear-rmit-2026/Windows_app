@@ -66,10 +66,13 @@ namespace Focus_Bear.Survey
         // (omit on initial load); it rides along with the other flags in the same payload.
         public void LoadAccessToken(string requestId = null)
         {
-            string sRequestId = string.IsNullOrEmpty(requestId) ? "" : string.Format(",\"requestId\":\"{0}\"", requestId);
-
-            string LoadToken = string.Format("{{\"access_token\":\"{0}\",\"platform\":\"win\",lang:\"{1}\"{2}}}", appSettings.userAccount.accessToken, appSettings.sLangCode, sRequestId);
-            string LoadTokenFunc = string.Format("const waitForAppLoaded = setInterval(() => {{ if (window.loadAccessTokenForSurvey) {{ loadAccessTokenForSurvey({0}); clearInterval(waitForAppLoaded); }} }}, 100);", LoadToken);
+            //Built as JSON (WebviewPayload), including the requestId the page echoes back.
+            string LoadTokenFunc = new FocusBear.Core.Ui.WebviewPayload()
+                .Add("access_token", appSettings.userAccount.accessToken)
+                .Add("platform", "win")
+                .Add("lang", appSettings.sLangCode)
+                .WithRequestId(requestId)
+                .WaitAndCall("loadAccessTokenForSurvey");
             var sReturn = webView.ExecuteScriptAsync(LoadTokenFunc);
         }
         private void CoreWebView2InitializationCompleted(object sender, CoreWebView2InitializationCompletedEventArgs e)

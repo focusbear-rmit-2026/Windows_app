@@ -87,7 +87,20 @@ namespace Focus_Bear.TabAudit
         // Close button is null for Vivaldi (HTML-rendered UI) and Brave inactive tabs — callers
         // must handle null gracefully.
         public static System.Collections.Generic.List<(AutomationElement Tab, AutomationElement CloseBtn, IntPtr Hwnd, string Browser)>
-            CollectBrowserTabs()
+            CollectBrowserTabs() => CollectBrowserTabs(true, out _);
+
+        // The UIA root of each browser window read so far, by handle: the tab limiter reads the same few windows
+        // every few seconds, so the element (and Chromium's woken accessibility tree) is kept rather than rebuilt.
+        private static readonly object _rootsLock = new object();
+        private static Dictionary<IntPtr, AutomationElement> _roots = new Dictionary<IntPtr, AutomationElement>();
+
+        /// <summary>
+        /// <paramref name="withCloseButtons"/> false skips the per-tab close-button search (one cross-process call
+        /// per tab), which only closing tabs needs. <paramref name="windowCount"/> is how many browser windows
+        /// there were, so a caller can tell "no browser" from "no tabs found".
+        /// </summary>
+        public static System.Collections.Generic.List<(AutomationElement Tab, AutomationElement CloseBtn, IntPtr Hwnd, string Browser)>
+            CollectBrowserTabs(bool withCloseButtons, out int windowCount)
         {
             var result = new System.Collections.Generic.List<(AutomationElement, AutomationElement, IntPtr, string)>();
 
@@ -98,17 +111,26 @@ namespace Focus_Bear.TabAudit
 
             // Enumerate EVERY top-level browser window (a browser can have several windows under one
             // process, so proc.MainWindowHandle alone would miss all but one).
-            foreach (var win in GetAllBrowserWindows())
+            var windowsNow = GetAllBrowserWindows();
+            windowCount = windowsNow.Count;
+            var roots = new Dictionary<IntPtr, AutomationElement>();
+            Dictionary<IntPtr, AutomationElement> known;
+            lock (_rootsLock) known = _roots;
+            foreach (var win in windowsNow)
             {
                 IntPtr hwnd = win.Hwnd;
                 string browser = win.Browser;
                 try
                 {
-                    // Wake Chromium's accessibility tree (Chrome keeps it off until asked) so its tabs are
-                    // visible to UIA. Harmless for Firefox/Edge.
-                    WakeAccessibility(hwnd);
-
-                    AutomationElement root = AutomationElement.FromHandle(hwnd);
+                    AutomationElement root;
+                    if (!known.TryGetValue(hwnd, out root))
+                    {
+                        // Wake Chromium's accessibility tree (Chrome keeps it off until asked) so its tabs are
+                        // visible to UIA. Harmless for Firefox/Edge. Once per window: it stays on.
+                        WakeAccessibility(hwnd);
+                        root = AutomationElement.FromHandle(hwnd);
+                    }
+                    if (root != null) roots[hwnd] = root;
                     if (root == null) { LogWriter.LogWrite($"CollectBrowserTabs: {browser} root is null, skipping"); continue; }
 
                     Rect winBounds = root.Current.BoundingRectangle;
@@ -119,6 +141,7 @@ namespace Focus_Bear.TabAudit
                     cacheReq.Add(AutomationElement.BoundingRectangleProperty);
                     cacheReq.Add(AutomationElement.NameProperty);   // batch tab titles for Tab Audit (avoids a slow per-tab call)
                     cacheReq.Add(AutomationElement.IsSelectionItemPatternAvailableProperty); // used to drop Firefox's New Tab (+) — see below
+                    cacheReq.Add(AutomationElement.RuntimeIdProperty);   // the limiter's "which tabs are new" snapshot
 
                     AutomationElementCollection FindTabs()
                     {
@@ -183,18 +206,20 @@ namespace Focus_Bear.TabAudit
                                 catch { /* property missing → keep the tab rather than risk under-counting */ }
                             }
 
-                            AutomationElement closeBtn = tab.FindFirst(
-                                System.Windows.Automation.TreeScope.Subtree, btnCondition);
+                            AutomationElement closeBtn = withCloseButtons
+                                ? tab.FindFirst(System.Windows.Automation.TreeScope.Subtree, btnCondition)
+                                : null;
 
                             result.Add((tab, closeBtn, hwnd, browser));
                         }
                         catch (Exception ex) { LogWriter.LogWrite($"CollectBrowserTabs: {browser} tab ex — {ex.Message}"); }
                     }
                 }
-                catch (Exception ex) { LogWriter.LogWrite($"CollectBrowserTabs: {browser} window ex — {ex.Message}"); }
+                catch (Exception ex) { roots.Remove(hwnd); LogWriter.LogWrite($"CollectBrowserTabs: {browser} window ex — {ex.Message}"); }
             }
 
             //LogWriter.LogWrite($"CollectBrowserTabs: total tabs collected = {result.Count}");
+            lock (_rootsLock) _roots = roots;   // windows that closed are dropped
 
             return result;
         }
@@ -207,17 +232,25 @@ namespace Focus_Bear.TabAudit
 
             // Map every browser process id -> its browser name (child/renderer processes share the name
             // but have no top-level titled windows, so they're harmlessly filtered out below).
+            // One process snapshot, not one per browser (each GetProcessesByName enumerates every process on the
+            // machine, and this ran fourteen of them every few seconds).
             var pidToBrowser = new System.Collections.Generic.Dictionary<int, string>();
-            foreach (string browser in Global.BROWSERS)
+            var mainWindows = new System.Collections.Generic.List<(IntPtr, string)>();
+            var browserNames = new System.Collections.Generic.HashSet<string>(Global.BROWSERS, StringComparer.OrdinalIgnoreCase);
+            Process[] all;
+            try { all = Process.GetProcesses(); } catch { return windows; }
+            foreach (Process p in all)
             {
                 try
                 {
-                    foreach (Process p in Process.GetProcessesByName(browser))
-                    {
-                        try { pidToBrowser[p.Id] = browser; } catch { }
-                    }
+                    if (!browserNames.Contains(p.ProcessName)) continue;
+                    string browser = Global.BROWSERS.First(b => string.Equals(b, p.ProcessName, StringComparison.OrdinalIgnoreCase));
+                    pidToBrowser[p.Id] = browser;
+                    IntPtr h = p.MainWindowHandle;
+                    if (h != IntPtr.Zero) mainWindows.Add((h, browser));
                 }
-                catch { /* browser not running */ }
+                catch { /* exited meanwhile */ }
+                finally { p.Dispose(); }
             }
             if (pidToBrowser.Count == 0) return windows;
 
@@ -242,22 +275,8 @@ namespace Focus_Bear.TabAudit
             // 2) Fallback: each browser process's MainWindowHandle (the previous approach). Some browsers'
             //    main window isn't surfaced by the EnumWindows pass on every setup (e.g. Edge), so include
             //    it explicitly. Deduped against the pass above.
-            foreach (string browser in Global.BROWSERS)
-            {
-                try
-                {
-                    foreach (Process p in Process.GetProcessesByName(browser))
-                    {
-                        try
-                        {
-                            IntPtr h = p.MainWindowHandle;
-                            if (h != IntPtr.Zero && seen.Add(h)) windows.Add((h, browser));
-                        }
-                        catch { }
-                    }
-                }
-                catch { }
-            }
+            foreach (var (h, browser) in mainWindows)
+                if (seen.Add(h)) windows.Add((h, browser));
 
             return windows;
         }

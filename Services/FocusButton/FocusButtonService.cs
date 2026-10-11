@@ -1,5 +1,6 @@
 ﻿using Duende.IdentityModel;
 using Focus_Bear.API;
+using Focus_Bear.Services.VoiceCommand;
 using Focus_Bear.Utils;
 using Sentry.Protocol;
 using System;
@@ -80,11 +81,15 @@ namespace Focus_Bear.Services.FocusButton
 
         private bool FirmwareSupports(Version minimumVersion)
         {
-            return appSettings.FirmwareVersion != null && appSettings.FirmwareVersion >= minimumVersion;
+            //A device reporting "1.6" is at least 1.6.0 (System.Version alone says it is older).
+            return FocusBear.Core.Updates.VersionCompare.AtLeast(appSettings.FirmwareVersion, minimumVersion);
         }
         public bool Start()
         {
             LogWriter.LogWrite("FocusButton: Start()");
+
+            // The E2E test build never opens the serial port: it would take the Focus Button from the real app.
+            if (!E2EBuild.MachineIntegrationAllowed) return false;
 
             //_countdownTimer.Interval = TimeSpan.FromSeconds(1);
             //_countdownTimer.Tick += CountdownTick;
@@ -126,6 +131,7 @@ namespace Focus_Bear.Services.FocusButton
         public void Connect(string portName)
         {
             LogWriter.LogWrite("FocusButton Connect()");
+            if (!E2EBuild.MachineIntegrationAllowed) return;
 
             try
             {
@@ -166,6 +172,7 @@ namespace Focus_Bear.Services.FocusButton
                 // device won't reply, leaving it unset so the updater offers to install firmware.
                 appSettings.FirmwareVersion = null;
                 appSettings.sFirmwareVersion = "";
+                appSettings.sFirmwareHardwareCode = "";
 
                 // Fetch the firmware version from the device
                 SendCmd("GET|FIRMWAREVER");
@@ -361,8 +368,8 @@ namespace Focus_Bear.Services.FocusButton
                                 ns = _state;
                                 break;
                         }
-                        if (parts.Length >= 3 && long.TryParse(parts[2], out long rem))
-                            ////SetRemaining(rem);
+                        //(A commented-out SetRemaining(rem) used to leave the remaining-time "if" without a body, so it
+                        //swallowed the mode check below: the habit name was read only when the remaining time parsed.)
                         // mode + optional habit name
                         if (parts.Length >= 4 && parts[3].ToUpperInvariant() == "HABIT")
                         {
@@ -398,10 +405,11 @@ namespace Focus_Bear.Services.FocusButton
                                     _sessionTotalSeconds = tot;
                                     ///SetRemaining(tot);
                                 }
-                                if (parts[1].ToUpperInvariant() == "STARTHB" && parts.Length >= 4)
+                                if (parts[1].ToUpperInvariant() == "STARTHB"
+                                    && FocusButtonProtocol.TryParseStartHabit(parts, out string startedId, out string startedName))
                                 {
-                                    _currentHabitName = parts[4].Trim();
-                                    _currentHabitID = parts[3].Trim();
+                                    _currentHabitName = startedName;
+                                    _currentHabitID = startedId;
                                     if (_currentHabitID.Length > 0)
                                     {   
                                         if (((App)Application.Current).wndFocusBearMainWindow.PageHabits.PageHabitActivityOnGoing?.bTimerRunning == true)
@@ -566,16 +574,12 @@ namespace Focus_Bear.Services.FocusButton
                     if (parts.Length >= 2 && !string.IsNullOrWhiteSpace(parts[1]))
                     {
                         string ver = parts[1].Trim();
-                        string hwCode = ver.Split('-')[0];
-          
-                        try
-                        {
-                            appSettings.FirmwareVersion = new Version(ver.Split('-')[1]);
-                        }
-                        catch (Exception)
-                        {
-                            // Invalid version
-                        }
+                        //An unreadable version (no "-", not a number) leaves it unknown instead of throwing.
+                        FocusButtonProtocol.TryParseFirmwareVersion(ver, out string hwCode, out Version parsedVersion);
+                        if (parsedVersion != null)
+                            appSettings.FirmwareVersion = parsedVersion;
+                        //The board decides which firmware image may be offered (FirmwareBoard.ReleaseFor).
+                        appSettings.sFirmwareHardwareCode = hwCode ?? "";
               
                         string hwName;
 
@@ -621,8 +625,7 @@ namespace Focus_Bear.Services.FocusButton
                 try
                 {
                     LogWriter.LogWrite("FocusButton ProcessVoiceCommand() started");
-                    string apiKey = OpenAIService.OpenAIApiKey;
-                    IntentResponse result = await OpenAIService.ProcessVoiceCommand(apiKey, appSettings.RecordingPath);
+                    IntentResponse result = await VoiceCommandService.ProcessVoiceCommand(appSettings.RecordingPath);
                     if (result.confidence == "low")
                     {
                         // Ask user for clarification.
@@ -639,7 +642,7 @@ namespace Focus_Bear.Services.FocusButton
 
                                     // Create the task.
                                     // Parse time if needed.
-                                    if (task.Length > 0)
+                                    if (!string.IsNullOrEmpty(task))
                                     {
                                         FocusBearAPIClient client = new FocusBearAPIClient();
                                         var m = await client.AddTask(task);
@@ -666,7 +669,7 @@ namespace Focus_Bear.Services.FocusButton
                                     }
                                     //todo Start the most recent focus session here
                                     //use appSettings.sMostRecentFocusmodeDoneID;
-                                    if(goal.Length > 0)
+                                    if (!string.IsNullOrEmpty(goal))
                                     {
                                         appSettings.sRunningFocusModeIntention = goal;
                                     }
@@ -708,7 +711,7 @@ namespace Focus_Bear.Services.FocusButton
                                     int duration = result.parameters?.duration_minutes ?? 0;
                                     string repeat = result.parameters?.repeat;
                                     // Start the habit.
-                                    if (habit.Length > 0)
+                                    if (!string.IsNullOrEmpty(habit))
                                     {
                                         if (((App)Application.Current).wndFocusBearMainWindow.PageHabits.PageHabitActivityOnGoing?.bTimerRunning == true)
                                         {
@@ -762,11 +765,25 @@ namespace Focus_Bear.Services.FocusButton
                         }
                     }
                 }
+                catch (VoiceCommandException ex)
+                {
+                    LogWriter.LogWrite("FocusButton ProcessVoiceCommand() FAILED " + ex.Reason + " - " + ex.Message);
+                    ShowVoiceCommandError(VoiceCommandMessages.ForFailure(ex.Reason));
+                }
                 catch (Exception ex)
                 {
-                    LogWriter.LogWrite("FocusButton ProcessVoiceCommand() FAILED ex - " + ex.Message);
+                    LogWriter.LogWrite("FocusButton ProcessVoiceCommand() FAILED ex - " + ex);
+                    ShowVoiceCommandError(VoiceCommandMessages.Failed());
                 }
             }
+        }
+
+        // The hardware button has no screen of its own, so a failed voice command is reported in an
+        // auto-closing message box; otherwise the press would appear to do nothing.
+        private static void ShowVoiceCommandError(string message)
+        {
+            FBMessageBox msg = new FBMessageBox(message, "", MessageBoxButton.OK, "", "", "", false, "", true);
+            msg.ShowDialog();
         }
 
         // ── UI state machine ──────────────────────────────────────────────────

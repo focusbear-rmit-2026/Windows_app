@@ -114,10 +114,10 @@ namespace Focus_Bear.FocusMusic
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 
         string imageFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                                                        "Focus Bear", "FocusMusic", "Images");
+                                                        FocusBear.Core.AppInstance.DataFolderName, "FocusMusic", "Images");
 
         string trackFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                                                        "Focus Bear", "FocusMusic", "Tracks");
+                                                        FocusBear.Core.AppInstance.DataFolderName, "FocusMusic", "Tracks");
         public FocusMusicTrack(string Id, string Name, string ServerAudioUrl, string ServerImageUrl, string Duration, string DurationFormatted)
         {
             this.Id = Id;

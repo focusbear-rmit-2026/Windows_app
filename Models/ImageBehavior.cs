@@ -48,12 +48,66 @@ namespace Focus_Bear.Models
             var newValue = e.NewValue as ImageSource;
             if (oldValue != null)
             {
-                imageControl.BeginAnimation(Image.SourceProperty, null);
+                StopAnimation(imageControl);
+                imageControl.ClearValue(AnimationProperty);
             }
             if (newValue != null)
             {
-                imageControl.DoWhenLoaded(InitAnimationOrImage);
+                // A GIF animates only while its image is on screen. The routine player shows a new page per habit, and
+                // an animation left running on a page that has gone keeps ticking forever (report 2026-09-26: the idle
+                // CPU grew all day with every habit played). It runs while the image IS VISIBLE: loaded is not enough,
+                // since a collapsed image, or one on a page of the main window hidden to the tray, still kept WPF
+                // rendering at 60 fps (start-up smoke test, 27 Sep).
+                if (!(bool)imageControl.GetValue(LifetimeHookedProperty))
+                {
+                    imageControl.SetValue(LifetimeHookedProperty, true);
+                    imageControl.IsVisibleChanged += (s, args) => { var img = (Image)s; if (img.IsVisible) StartAnimation(img); else StopAnimation(img); };
+                    imageControl.Unloaded += (s, args) => StopAnimation((Image)s);
+                }
+                if (imageControl.IsVisible) StartAnimation(imageControl);
             }
+        }
+
+        private static readonly DependencyProperty LifetimeHookedProperty =
+            DependencyProperty.RegisterAttached("LifetimeHooked", typeof(bool), typeof(ImageBehavior), new PropertyMetadata(false));
+
+        /// <summary>The frames built for the current source, kept so a page shown again doesn't decode them again.</summary>
+        private static readonly DependencyProperty AnimationProperty =
+            DependencyProperty.RegisterAttached("Animation", typeof(ObjectAnimationUsingKeyFrames), typeof(ImageBehavior), new PropertyMetadata(null));
+
+        /// <summary>The running clock. Stopped and removed explicitly: a clock only taken off the image keeps
+        /// ticking in WPF's timing tree until the garbage collector happens to reclaim it.</summary>
+        private static readonly DependencyProperty ClockProperty =
+            DependencyProperty.RegisterAttached("Clock", typeof(AnimationClock), typeof(ImageBehavior), new PropertyMetadata(null));
+
+        private static void StartAnimation(Image imageControl)
+        {
+            if (GetAnimatedSource(imageControl) == null) return;
+            if (imageControl.GetValue(AnimationProperty) is ObjectAnimationUsingKeyFrames built)
+            {
+                RunClock(imageControl, built);
+                return;
+            }
+            InitAnimationOrImage(imageControl);
+        }
+
+        private static void RunClock(Image imageControl, ObjectAnimationUsingKeyFrames animation)
+        {
+            StopAnimation(imageControl);
+            AnimationClock clock = animation.CreateClock();
+            imageControl.SetValue(ClockProperty, clock);
+            imageControl.ApplyAnimationClock(Image.SourceProperty, clock);
+        }
+
+        private static void StopAnimation(Image imageControl)
+        {
+            if (imageControl.GetValue(ClockProperty) is AnimationClock clock)
+            {
+                clock.Controller?.Stop();
+                clock.Controller?.Remove();
+                imageControl.ClearValue(ClockProperty);
+            }
+            imageControl.ApplyAnimationClock(Image.SourceProperty, null);
         }
 
         private static void InitAnimationOrImage(Image imageControl)
@@ -89,7 +143,8 @@ namespace Focus_Bear.Models
                         imageControl.Source = (ImageSource)animation.KeyFrames[0].Value;
                     else
                         imageControl.Source = decoder.Frames[0];
-                    imageControl.BeginAnimation(Image.SourceProperty, animation);
+                    imageControl.SetValue(AnimationProperty, animation);
+                    RunClock(imageControl, animation);
                     return;
                 }
             }

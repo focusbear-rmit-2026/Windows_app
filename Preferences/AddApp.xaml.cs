@@ -35,6 +35,8 @@ namespace Focus_Bear.Preferences
             this.Owner = ParentWindow;
 
             this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            // Never taller than the screen's work area (a 569-px laptop screen at 175%): the footer with Done / Cancel stays on it.
+            Focus_Bear.ToDoScreens.DialogFit.Apply(this);
 
             LoadTexts();
         }
@@ -55,6 +57,8 @@ namespace Focus_Bear.Preferences
             this.Owner = ParentWindow;
 
             this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            // Never taller than the screen's work area (a 569-px laptop screen at 175%): the footer with Done / Cancel stays on it.
+            Focus_Bear.ToDoScreens.DialogFit.Apply(this);
 
             LoadTexts();
         }

@@ -108,32 +108,13 @@ namespace Focus_Bear.Utils
                
                 //Zip all the logs files, better the entire log folder
                 string sourceDir = AppSettings.AppDataDirLogsPath;
+                LogWriter.Flush();   // the buffered lines belong in the report
 
-                //ZipFile.CreateFromDirectory(sourceDir, zipPath, CompressionLevel.Fastest, includeBaseDirectory: false);
-                using (FileStream zipToOpen = new FileStream(zipPath, FileMode.Create))
-                {
-                    using (ZipArchive archive = new ZipArchive(zipToOpen, ZipArchiveMode.Create))
-                    {
-                        // 1. Add all log files
-                        foreach (string file in Directory.GetFiles(sourceDir))
-                        {
-                            archive.CreateEntryFromFile(
-                                file,
-                                "Logs/" + Path.GetFileName(file),
-                                CompressionLevel.Fastest);
-                        }
-
-                        // 2. Add screenshots
-                        foreach (var screenshot in appSettings.droppedFiles)
-                        {
-                            archive.CreateEntryFromFile(
-                                screenshot.FilePath,
-                                "Screenshots/" + Path.GetFileName(screenshot.FilePath),
-                                CompressionLevel.Fastest);
-                        }
-                    }
-                }
-
+                // Off the UI thread (the logs run to tens of MB), sharing write access with the log being written, and
+                // leaving out - rather than failing on - a screenshot that has gone since it was picked.
+                var screenshots = appSettings.droppedFiles.Select(f => f.FilePath).ToList();
+                var skipped = await Task.Run(() => FocusBear.Core.Reports.LogBundle.Write(zipPath, Directory.GetFiles(sourceDir), screenshots));
+                foreach (string missing in skipped) LogWriter.LogWrite("ZipAndUploadLogs() left out unreadable " + Path.GetFileName(missing));
 
                 if (File.Exists(zipPath))
                 {
@@ -155,17 +136,15 @@ namespace Focus_Bear.Utils
         {
             try
             {
-                using (var client = new HttpClient())
-                using (var content = new MultipartFormDataContent())
+                // A presigned PUT takes the zip itself, with the content type it was signed for (application/zip), as
+                // the Mac sends it. The multipart form this used to send carried a different Content-Type, and stored
+                // a form envelope rather than a zip.
+                using (var client = new HttpClient { Timeout = TimeSpan.FromMinutes(5) })
                 using (var fileStream = new FileStream(zipPath, FileMode.Open, FileAccess.Read))
+                using (var content = new StreamContent(fileStream))
                 {
-                    var fileContent = new StreamContent(fileStream);
-                    fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/zip");
+                    content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/zip");
 
-                    // Add file to form data
-                    content.Add(fileContent, "file", System.IO.Path.GetFileName(zipPath));
-
-                    // POST to the server
                     HttpResponseMessage response = await client.PutAsync(appSettings.sUploadURL, content);
 
                     if (response.IsSuccessStatusCode)
@@ -175,7 +154,7 @@ namespace Focus_Bear.Utils
                     }
                     else
                     {
-                        Console.WriteLine($"Upload failed: {response.StatusCode} - {await response.Content.ReadAsStringAsync()}");
+                        LogWriter.LogWrite($"UploadZipFileAsync() FAILED - {(int)response.StatusCode} {await response.Content.ReadAsStringAsync()}");
                         return false;
                     }
                 }

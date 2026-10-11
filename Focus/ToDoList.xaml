@@ -3,11 +3,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Focus_Bear.Focus"
-        xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+        xmlns:todo="clr-namespace:Focus_Bear.ToDoScreens"
         mc:Ignorable="d"
         Background="{DynamicResource BackgroundColor}" AutomationProperties.AutomationId="ToDoList">
     <Grid>
-        <wv2:WebView2 Name="webView" />
+        <todo:ToDoScreen x:Name="screen" />
     </Grid>
 </UserControl>

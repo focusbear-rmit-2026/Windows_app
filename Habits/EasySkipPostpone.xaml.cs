@@ -85,12 +85,50 @@ namespace Focus_Bear.Habits
                 btnPostponeText.Text = appSettings.ConfigFileStrings["easyPostponeVcInfo"]["buttonPostponeText"].ToString();
                 FrictionLevel.Text = appSettings.ConfigFileStrings["easyPostponeVcInfo"]["infoText"].ToString();
                 btnCancelText.Text = appSettings.ConfigFileStrings["menuInfo"]["menuItemResumeHabitsTitle"].ToString();
+                ComboBoxMinutes.ToolTip = appSettings.GetConfigStringSafe("Pick a preset or type your own - minimum 1 minute", "easyPostponeVcInfo", "toolTipMinimumMinutes");
             }
             catch (Exception ex)
             {
                 LogWriter.LogWrite(ex.Message);
             }
 
+            //Editable combo box - reject a pasted value the same way typed keystrokes are filtered (#1036).
+            DataObject.AddPastingHandler(ComboBoxMinutes, ComboBoxMinutes_Pasting);
+        }
+
+        // Digits only - the combo box is editable so the user can either pick a preset or type their
+        // own minutes (#1036: simpler than a separate "Custom" item + hidden textbox).
+        private void ComboBoxMinutes_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            e.Handled = !e.Text.All(char.IsDigit);
+        }
+
+        private void ComboBoxMinutes_Pasting(object sender, DataObjectPastingEventArgs e)
+        {
+            if (e.DataObject.GetDataPresent(typeof(string)) && ((string)e.DataObject.GetData(typeof(string))).All(char.IsDigit))
+                return;
+
+            e.CancelCommand();
+        }
+
+        // Correct "0" the moment the user leaves the field (tabs away, clicks Postpone, ...) rather than
+        // only at submit time - otherwise the box still visibly reads "0" right when they click Postpone,
+        // which reads as "I'm about to postpone for 0 minutes" even though the click handler would have
+        // silently corrected it.
+        private void ComboBoxMinutes_LostFocus(object sender, RoutedEventArgs e)
+        {
+            ClampMinutesToMinimum();
+        }
+
+        // If the box parses to less than 1 minute, bump it up to 1 and reflect that in the displayed
+        // text. Leaves genuinely unparseable text (empty, etc.) alone - that's still caught as an error
+        // at submit time in btnPostpone_Click.
+        private void ClampMinutesToMinimum()
+        {
+            if (int.TryParse(ComboBoxMinutes.Text, out int nMinutes) && nMinutes < 1)
+            {
+                ComboBoxMinutes.Text = "1";
+            }
         }
 
         private void btnPostpone_Click(object sender, RoutedEventArgs e)
@@ -99,16 +137,39 @@ namespace Focus_Bear.Habits
 
             try
             {
-                ComboBoxItem typeItem = (ComboBoxItem)ComboBoxMinutes.SelectedItem;
-                int nMinutesToPostpone = int.Parse(typeItem.Content.ToString());
+                //ComboBoxMinutes is editable (#1036) - Text reflects either the selected preset or
+                //whatever the user typed, so it's the one source of truth to parse either way. Also
+                //belt-and-suspenders clamp here in case LostFocus didn't fire before this click.
+                ClampMinutesToMinimum();
+                var input = FocusBear.Core.Postpone.PostponeMinutes.Parse(ComboBoxMinutes.Text, out int nMinutesToPostpone);
+                if (input == FocusBear.Core.Postpone.PostponeMinutesInput.Invalid)
+                {
+                    string sMessage = appSettings.GetConfigStringSafe("Enter a valid positive number for minutes", "easyPostponeVcInfo", "customTimeError");
+                    FBMessageBox ff = new FBMessageBox(sMessage);
+                    ff.Owner = this;
+                    ff.ShowDialog();
+                    return;
+                }
+                if (input == FocusBear.Core.Postpone.PostponeMinutesInput.Capped)
+                {
+                    //Past about 35,791 minutes the timer refused the interval and the postpone silently did
+                    //nothing. Show the cap in the box and say so; the user confirms with a second click.
+                    ComboBoxMinutes.Text = nMinutesToPostpone.ToString();
+                    string sMessage = appSettings.GetConfigStringSafe("You can postpone for up to 24 hours (1440 minutes).", "easyPostponeVcInfo", "customTimeMaxInfo");
+                    FBMessageBox ff = new FBMessageBox(sMessage);
+                    ff.Owner = this;
+                    ff.ShowDialog();
+                    return;
+                }
 
                 LogWriter.LogWrite("nMinutesToPostpone - " + nMinutesToPostpone.ToString());
 
                 if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY) // FOr Breaks we will simply cancel the current routine.
                 {
-                    appSettings.nCurrentActivityType = CurrentActivityType.NONE;
-                    LogWriter.LogWrite("appSettings.nCurrentActivityType = CurrentActivityType.NONE;");
-                    
+                    // A break taken during a postponed routine hands the state back to that routine, as finishing
+                    // the break does; NONE here let the background tick start the postponed routine at once.
+                    ((App)(Application.Current)).RestoreActivityTypeAfterBreak();
+
                     //simply set the timer for thenext break activity.
                     ((App)(Application.Current)).StartBreakActivityTimer(true, nMinutesToPostpone);
 

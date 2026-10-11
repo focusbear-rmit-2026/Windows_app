@@ -43,8 +43,8 @@
         </Grid.Resources>
          
         <TextBlock  Name="Heading" Margin="0,0,0,0" TextWrapping="Wrap" Text="" Foreground="#e88800" FontSize="40" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
-        <Frame x:Name="AppFrameHabitScreens" Margin="0" NavigationUIVisibility="Hidden"   Grid.Row="1" Grid.Column="1" Foreground="{x:Null}" Visibility="Collapsed"  />
-        <Frame x:Name="AppFrameLogQuantity" Margin="0" NavigationUIVisibility="Hidden"  Grid.Row="1" Grid.Column="1" Foreground="{x:Null}" Visibility="Collapsed" Opacity="0.5" />
+        <Frame x:Name="AppFrameHabitScreens" IsTabStop="False" Margin="0" NavigationUIVisibility="Hidden"   Grid.Row="1" Grid.Column="1" Foreground="{x:Null}" Visibility="Collapsed"  />
+        <Frame x:Name="AppFrameLogQuantity" IsTabStop="False" Margin="0" NavigationUIVisibility="Hidden"  Grid.Row="1" Grid.Column="1" Foreground="{x:Null}" Visibility="Collapsed" Opacity="0.5" />
 
         <TextBlock Name="TodaysTime" Visibility="Collapsed" Margin="0,18,173,0" Width="400" TextWrapping="Wrap" Text="x10:10 AM" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Top" TextAlignment="Right" HorizontalAlignment="Right"/>
         <Button x:Name="btnPleaseSpareMe" AutomationProperties.AutomationId="btnPleaseSpareMe" IsDefault="False" Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True" MinWidth="120" Height="40" VerticalAlignment="Top" HorizontalAlignment="Right" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" Padding="0" Margin="7,7" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnPleaseSpareMe_Click" >
@@ -73,13 +73,13 @@
             <ListView  MaxHeight="320" Width="540" Grid.Row="1"  Margin="0,5,0,20" x:Name="ListLogQuestions" AutomationProperties.AutomationId="lvLogQuestions"  VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemContainerStyle="{StaticResource ListViewItemStyle}" Background="{x:Null}"  BorderThickness="1" Foreground="{x:Null}"  >
                 <ListView.ItemTemplate>
                     <DataTemplate>
-                        <Grid x:Name="ItemHeader"  Height="72"  Background="Transparent"  Margin="10,0,10,0" IsHitTestVisible="True"   >
+                        <Grid x:Name="ItemHeader"  Height="84"  Background="Transparent"  Margin="10,0,10,0" IsHitTestVisible="True"   >
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="25"/>
                                 <RowDefinition Height="45"/>
                             </Grid.RowDefinitions>
                             <TextBlock Grid.Row="0" Text="{Binding question, StringFormat=\{0\}}" Foreground="{DynamicResource ForegroundColor}" FontSize="13" FontWeight="Semibold" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left"/>
-                            <Grid  Grid.Row="1">
+                            <Grid  Grid.Row="1" Height="57">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="150"/>
                                     <ColumnDefinition Width="35"/>  
@@ -102,10 +102,11 @@
                                 <TextBlock Grid.Column="1" Text="{Binding minValue, StringFormat=(\{0\})}" Foreground="{DynamicResource ForegroundColor}"  FontSize="13"  Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left" Visibility="{Binding Path=bShowSlider, Converter={StaticResource BoolToVis}}"/>
                                 <Grid Grid.Column="2">
                                     <Grid.RowDefinitions>
-                                        <RowDefinition Height="15"/>
+                                        <RowDefinition Height="27"/>
                                         <RowDefinition Height="30"/>
                                     </Grid.RowDefinitions>
-                                    <TextBlock Grid.Row="0" Text="{Binding quantity, StringFormat=\{0\}}" Foreground="{DynamicResource ForegroundColor}"  FontSize="13" Cursor="Hand"  VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Center" Visibility="{Binding Path=bShowSlider, Converter={StaticResource BoolToVis}}"/>
+                                    <!-- The slider's value is typeable too: the box and the slider share the answer. -->
+                                    <TextBox Grid.Row="0" x:Name="SliderQuantity" AutomationProperties.AutomationId="txtBoxSliderQuantity" Text="{Binding quantity, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Width="70" Height="25" HorizontalAlignment="Center" TextAlignment="Center" VerticalContentAlignment="Center" FontSize="13" Padding="2,0" Background="{DynamicResource TextBoxBackgroundColor}" Foreground="{DynamicResource ForegroundColor}" CaretBrush="{DynamicResource ForegroundColor}" BorderBrush="{DynamicResource TrayCardBorder}" MaxLines="1" Visibility="{Binding Path=bShowSlider, Converter={StaticResource BoolToVis}}" PreviewTextInput="Quantity_PreviewTextInput" PreviewKeyDown="Quantity_PreviewKeyDown"/>
                                     <Slider Grid.Row="1" Margin="0,0,0,10" TabIndex="1" VerticalAlignment="Bottom" LargeChange="0.5" TickFrequency="0.1"  Minimum="{Binding minValue, StringFormat=(\{0\})}" Maximum="{Binding maxValue, StringFormat=(\{0\})}" Value="{Binding quantity, StringFormat=(\{0\})}" Cursor="Hand" IsSnapToTickEnabled="True" Visibility="{Binding Path=bShowSlider, Converter={StaticResource BoolToVis}}"></Slider>
                                    
 
@@ -169,7 +170,7 @@
                 <RowDefinition Height="20"/>
                 <RowDefinition />
             </Grid.RowDefinitions>
-            <Button  Grid.Row="0" x:Name="btnGridWhyDoYouWantToSkipClose" AutomationProperties.AutomationId="btnWhyDoYouWantToSkipClose" Content="Button" Style="{DynamicResource BtnStyleCloseRed}" SnapsToDevicePixels="True" HorizontalAlignment="Right" Height="34" VerticalAlignment="Top" Width="34" ToolTip="Close" Click="btnGridWhyDoYouWantToSkipClose_Click"   Cursor="Hand"/>
+            <Button  Grid.Row="0" x:Name="btnGridWhyDoYouWantToSkipClose" AutomationProperties.AutomationId="btnWhyDoYouWantToSkipClose" Content="Button" AutomationProperties.Name="Close" Style="{DynamicResource BtnStyleCloseRed}" SnapsToDevicePixels="True" HorizontalAlignment="Right" Height="34" VerticalAlignment="Top" Width="34" ToolTip="Close" Click="btnGridWhyDoYouWantToSkipClose_Click"   Cursor="Hand"/>
 
             <TextBlock  Grid.Row="1" Name="HeadingWhySkip" Margin="0,0,0,0" TextWrapping="Wrap" Text="xxWhy do you want to skip?" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
 

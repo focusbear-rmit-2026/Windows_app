@@ -72,9 +72,12 @@ namespace Focus_Bear
         // Models are loaded once and reused during the application lifetime.
         internal NativeRelevanceClassifier NativeRelevanceClassifier { get; private set; }
         private readonly object _nativeRelevanceInitializationLock = new object();
-        private const string MutexGUID = "369F3719-1C05-41A1-B9E1-FC0CF0FCE3AE";
 
-        private const string EventMutex = "9E2C7FEB-476B-41D3-9F7F-D02C512595C0";
+        // Single-instance names. The E2E test build appends "-E2E" (see E2EBuild), so it runs beside the real app
+        // instead of waking it and exiting.
+        private static readonly string MutexGUID = E2EBuild.InstanceName("369F3719-1C05-41A1-B9E1-FC0CF0FCE3AE");
+
+        private static readonly string EventMutex = E2EBuild.InstanceName("9E2C7FEB-476B-41D3-9F7F-D02C512595C0");
         private EventWaitHandle appWaitHandle;
 
         private Mutex appMutex;
@@ -83,12 +86,12 @@ namespace Focus_Bear
         // focusbear:// deep link for the gated advanced AuDHD results (Focus-Bear/online-tests#57).
         // Incoming: focusbear://view-audhd-results?test-code=…  →  loaded as the results page below.
         // Note the split: 'view-audhd-results' is the custom-scheme host only; the web results
-        // page lives at the pages.dev test app under /view-results (view-audhd-results 404s as a
+        // page lives at the pages.dev test app under /resume (view-audhd-results 404s as a
         // web path). The base host may move to a custom domain later — keep it in this constant.
         private const string DeepLinkScheme = "focusbear://";
         private const string DeepLinkAudhdHost = "view-audhd-results";
         private const string DeepLinkTestCodeParam = "test-code";
-        private const string AudhdResultsBaseUrl = "https://audhdtest-focusbear.pages.dev/view-results?test-code=";
+        private const string AudhdResultsBaseUrl = "https://audhdtest-focusbear.pages.dev/resume?test-code=";
 
         // Set when the app is launched via a focusbear:// deep link; opened once startup is ready
         // (cold start) or forwarded across the single-instance boundary (warm start).
@@ -110,6 +113,7 @@ namespace Focus_Bear
         [DllImport("user32.dll")]
         static extern IntPtr UnhookWinEvent(IntPtr hWinEventHook);
         IntPtr m_hhook = IntPtr.Zero;
+        readonly List<IntPtr> m_hhooks = new List<IntPtr>();
 
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
@@ -140,14 +144,14 @@ namespace Focus_Bear
 
         public TabMetrics TebMetricsObject = new TabMetrics();
 
-        public static FocusButtonService FocusButton = new FocusButtonService();
+        /// <summary>Created in the static constructor, after a watchdog probe that isn't needed has left.</summary>
+        public static FocusButtonService FocusButton;
         public void WinEventProc(IntPtr hWinEventHook, uint eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
         {
+            if (!FocusBear.Core.Blocking.ForegroundHookEvents.IsHooked(eventType)) return;
+
             //Always get the last active app name when the menu is clicked and ignore Focus Bear
             string sAppName = GetLastActiveAppName(hwnd);
-            
-            if (sAppName == "chrome.exe")
-                LogWriter.LogWrite("DEBUG Chrome WinEvent - eventType=" + eventType + " hwnd=" + hwnd);
 
             if (string.IsNullOrEmpty(sAppName))
                 return;
@@ -208,7 +212,9 @@ namespace Focus_Bear
                         {
                             object objChild = null;
                             IAccessible accWindow = null;
-                            uint hr = AccessibleObjectFromEvent(hwnd, (uint)idObject, (uint)idChild, out accWindow, out objChild);
+                            // A cross-process call: only for the one event that carries the URL.
+                            uint hr = FocusBear.Core.Blocking.ForegroundHookEvents.CarriesUrl(eventType)
+                                ? AccessibleObjectFromEvent(hwnd, (uint)idObject, (uint)idChild, out accWindow, out objChild) : 1;
                             if (hr == 0 && accWindow != null)
                             {
                                 if (eventType == 0x800E)
@@ -236,7 +242,7 @@ namespace Focus_Bear
                                         }
 
                                     }
-                                    else if (sName != null && (sName.Contains("Focus Bear/focus-block.html")) && (sURL != null && sURL.Length > 0 && sURL.Contains("&unblock_it=true")))
+                                    else if (sName != null && FocusBear.Core.Blocking.BlockPageUnblock.MentionsBlockPage(sName, AppSettings.FocusBlockPagePath) && (sURL != null && sURL.Length > 0 && sURL.Contains("&unblock_it=true")))
                                     {
                                         LogWriter.LogWrite("App.cs - URL = " + sURL);
 
@@ -291,8 +297,6 @@ namespace Focus_Bear
                     //Get the window class name
                     nRet = GetClassName(hwnd, ClassName, ClassName.Capacity);
 
-                    LogWriter.LogWrite("DEBUG Chrome ClassName - nRet=" + nRet + " class=" + ClassName.ToString() + " eventType=" + eventType);
-                    
                     // Vivaldi fires events from a child hwnd with no class name, so we walk up to the root window
                     if (nRet == 0 && appSettings.sLastActiveAppName == "vivaldi.exe")
                     {
@@ -310,7 +314,9 @@ namespace Focus_Bear
                         {
                             object objChild = null;
                             IAccessible accWindow = null;
-                            uint hr = AccessibleObjectFromEvent(hwnd, (uint)idObject, (uint)idChild, out accWindow, out objChild);
+                            // A cross-process call: only for the one event that carries the URL.
+                            uint hr = FocusBear.Core.Blocking.ForegroundHookEvents.CarriesUrl(eventType)
+                                ? AccessibleObjectFromEvent(hwnd, (uint)idObject, (uint)idChild, out accWindow, out objChild) : 1;
                             if (hr == 0 && accWindow != null)
                             {
                                 if (eventType == 0x800E)
@@ -332,6 +338,8 @@ namespace Focus_Bear
                                     }
 
                                     string sURL = accWindow.accValue[objChild];
+                                    if (E2EBuild.TraceUrls)
+                                        LogWriter.LogWrite("E2E url trace: " + appSettings.sLastActiveAppName + " state=" + accWindow.accState[objChild] + " name=" + sName + " value=" + sURL);
                                     if (sURL != null && sURL.Length > 0) //It's our chrome address bar value
                                     {
                                         Debug.WriteLine("accState = " + accWindow.accState[objChild].ToString());
@@ -400,9 +408,66 @@ namespace Focus_Bear
 
         //Cache the last resolved foreground (PID -> exe name) so this high-frequency WinEvent hook
         //(EVENT_OBJECT_* 0x8005-0x800E, incl. location/state/value changes) doesn't re-resolve the name
-        //on every event. Accessed only from the hook-owning UI thread (WINEVENT_OUTOFCONTEXT), so no lock.
-        private static int _lastActivePid = 0;
-        private static string _lastActiveAppName = string.Empty;
+        //on every event - and doesn't retry (and log) a process that has exited while its window lingers.
+        //Accessed only from the hook-owning UI thread (WINEVENT_OUTOFCONTEXT), so no lock.
+        //ImageNameOf's OpenProcess handle is always closed: an earlier version never closed it, leaking a
+        //process handle on every event until the OS ran out of handles (a system-wide freeze).
+        private static readonly FocusBear.Core.Blocking.ProcessNameCache _activeAppNames = new FocusBear.Core.Blocking.ProcessNameCache(
+            pid =>
+            {
+                //Callers compare against "<name>.exe" (e.g. "chrome.exe", "Focus Bear.exe"). The image path is one cheap
+                //query; Process.GetProcessById + ProcessName snapshot every process on the machine (~3 ms each).
+                string image = ImageNameOf(pid);
+                if (image != null) return image;
+                using (Process process = Process.GetProcessById(pid))
+                {
+                    return process.ProcessName + ".exe";
+                }
+            },
+            message => LogWriter.LogWrite("GetLastActiveAppName ex - " + message),
+            StartTimeOf);   //a reused process id is not taken for the exited app
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        private static extern IntPtr OpenProcess(uint dwDesiredAccess, bool bInheritHandle, int dwProcessId);
+        [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool CloseHandle(IntPtr hObject);
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool QueryFullProcessImageName(IntPtr hProcess, uint dwFlags, StringBuilder lpExeName, ref uint lpdwSize);
+        private const uint PROCESS_QUERY_LIMITED_INFORMATION = 0x1000;
+        [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool GetProcessTimes(IntPtr hProcess, out long lpCreationTime, out long lpExitTime, out long lpKernelTime, out long lpUserTime);
+
+        /// <summary>When the process with this id started (UTC), or null; cheap: no process enumeration.</summary>
+        private static DateTime? StartTimeOf(int pid)
+        {
+            IntPtr handle = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, false, pid);
+            if (handle == IntPtr.Zero) return null;
+            try
+            {
+                if (!GetProcessTimes(handle, out long created, out _, out _, out _)) return null;
+                return DateTime.FromFileTimeUtc(created);
+            }
+            finally { CloseHandle(handle); }
+        }
+
+        /// <summary>"chrome.exe" for a process id from its image path, or null when it can't be opened. The handle is closed.</summary>
+        private static string ImageNameOf(int pid)
+        {
+            IntPtr handle = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, false, pid);
+            if (handle == IntPtr.Zero) return null;
+            try
+            {
+                var path = new StringBuilder(1024);
+                uint size = (uint)path.Capacity;
+                if (!QueryFullProcessImageName(handle, 0, path, ref size)) return null;
+                string name = Path.GetFileName(path.ToString());
+                return string.IsNullOrEmpty(name) ? null : name;
+            }
+            finally { CloseHandle(handle); }
+        }
 
         private static string GetLastActiveAppName(IntPtr hwnd)
         {
@@ -415,36 +480,10 @@ namespace Focus_Bear
                 }
 
                 GetWindowThreadProcessId(hwnd, out IntPtr activeAppProcessId);
-                int pid = (int)activeAppProcessId;
-                if (pid == 0)
-                {
-                    return string.Empty;
-                }
-
-                //Common case: consecutive events come from the same foreground app - return the cached
-                //name and skip the (relatively expensive) lookup below.
-                if (pid == _lastActivePid)
-                {
-                    return _lastActiveAppName;
-                }
-
-                //No OpenProcess here on purpose. The old code called OpenProcess() and never closed the
-                //handle it returned, leaking a process handle on every event until the OS ran out of
-                //handles - the reported system-wide freeze / "not responding". Process.GetProcessById
-                //hands back no such raw handle; the using block just disposes the managed Process wrapper.
-                //(ProcessName enumerates processes internally, which is why the PID cache above matters.)
-                using (Process process = Process.GetProcessById(pid))
-                {
-                    //Callers compare against "<name>.exe" (e.g. "chrome.exe", "Focus Bear.exe").
-                    //ProcessName is the exe base name without its extension, so re-add ".exe".
-                    _lastActiveAppName = process.ProcessName + ".exe";
-                    _lastActivePid = pid;
-                    return _lastActiveAppName;
-                }
+                return _activeAppNames.NameFor((int)activeAppProcessId, DateTime.UtcNow);
             }
             catch (Exception ex)
             {
-                //Process may have exited between reading the PID and querying it - log, don't crash.
                 LogWriter.LogWrite("GetLastActiveAppName ex - " + ex.Message);
             }
 
@@ -467,6 +506,11 @@ namespace Focus_Bear
         public WinForms.NotifyIcon trayIcon = null;
 
         public bool isMorningHabitsAlreadyShown = false;
+
+        //#1517: set when the user has just finished onboarding, so StartWorkFlow puts the Focus screen
+        //in front of them. Onboarding ends by hiding the main window and suppresses both routines for
+        //the first day, so without this hand-off a brand-new user is left with nothing to start.
+        private bool bShowFirstFocusPromptAfterOnboarding = false;
 
         ShutOffWindow wndShutOff = null;
         SplashWindow wndSplash = null;
@@ -506,8 +550,13 @@ namespace Focus_Bear
         public static event Action ThemeChanged;
 
 
+        /// <summary>Written to the local log so a swallowed crash is visible on the machine too; CI's launch smoke test fails on it.</summary>
+        private const string UnhandledExceptionLogPrefix = "Unhandled dispatcher exception - ";
+
         void App_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
         {
+            LogWriter.LogWrite(UnhandledExceptionLogPrefix + e.Exception);
+
             SentrySdk.ConfigureScope(scope =>
             {
                 scope.User = new Sentry.User() { Id = appSettings.userAccount.userID };
@@ -518,6 +567,27 @@ namespace Focus_Bear
             // If you want to avoid the application from crashing:
             e.Handled = true;
         }
+        /// <summary>
+        /// A watchdog probe that isn't needed (the app is running, or was quit on purpose) leaves here, before any
+        /// instance state — settings, log files, telemetry — is created. See <see cref="AppWatchdog"/>.
+        /// </summary>
+        static App()
+        {
+            E2EBuild.EnsureConsistent();
+            E2EBackground.Apply();   // E2E build + FOCUSBEAR_E2E_NO_ACTIVATE only
+            AppWatchdog.ExitEarlyIfProbeNotNeeded(MutexGUID);
+            // Not a field initializer: those run before this constructor, and FocusButtonService builds AppSettings
+            // (registry reads, timers) - which every one-minute probe did before deciding to leave.
+            FocusButton = new FocusButtonService();
+        }
+
+        /// <summary>
+        /// Set when this process leaves without ever becoming the running app (a second instance, a watchdog
+        /// probe, /startupYes). Its exit handler must not save anything: it never loaded the day's counters, so
+        /// writing them wrote zeros over the running instance's.
+        /// </summary>
+        private bool _exitWithoutRunning;
+
         public App()
         {
             // Run the whole process under InvariantCulture so date/number parsing is locale-independent.
@@ -530,6 +600,9 @@ namespace Focus_Bear
             System.Globalization.CultureInfo.DefaultThreadCurrentUICulture = invariant;
             System.Threading.Thread.CurrentThread.CurrentCulture = invariant;
             System.Threading.Thread.CurrentThread.CurrentUICulture = invariant;
+
+            // Tooltips on icon glyphs inherit the icon font and render as boxes - give them the text font.
+            Utils.ToolTipFonts.Register();
 
             SentrySdk.Init(o =>
             {
@@ -546,13 +619,50 @@ namespace Focus_Bear
                 // Enable Global Mode since this is a client app
                 o.IsGlobalModeEnabled = true;
 
+                // A CI launch is a brand-new user on a throwaway machine; keep its reports out of
+                // production rather than dropping them, so a crash CI hits is still findable.
+                if (FocusBear.Core.AutomatedRun.IsDetected(Environment.GetEnvironmentVariable))
+                {
+                    o.Environment = FocusBear.Core.AutomatedRun.SentryEnvironment;
+                }
+
             });
 
             DispatcherUnhandledException += App_DispatcherUnhandledException;
+
+            // Screen-reader names for text-content buttons, and no Tab stops on hidden links (see AccessibilityDefaults).
+            AccessibilityDefaults.Register();
+
+            if (E2EBuild.IsActive)
+            {
+                // Every window of the E2E test build says so in its title, so it can't be mistaken for the real app.
+                EventManager.RegisterClassHandler(typeof(Window), FrameworkElement.LoadedEvent, new RoutedEventHandler(DecorateE2EWindowTitle));
+            }
+        }
+
+        private static readonly System.ComponentModel.DependencyPropertyDescriptor WindowTitleDescriptor =
+            System.ComponentModel.DependencyPropertyDescriptor.FromProperty(Window.TitleProperty, typeof(Window));
+
+        private static void DecorateE2EWindowTitle(object sender, RoutedEventArgs e)
+        {
+            if (!(sender is Window window)) return;
+            window.Title = E2EBuild.DecorateTitle(window.Title);
+            // Some windows set their title later (localised strings, the current screen); keep the suffix on.
+            WindowTitleDescriptor.RemoveValueChanged(window, OnE2EWindowTitleChanged);
+            WindowTitleDescriptor.AddValueChanged(window, OnE2EWindowTitleChanged);
+        }
+
+        private static void OnE2EWindowTitleChanged(object sender, EventArgs e)
+        {
+            if (!(sender is Window window)) return;
+            string decorated = E2EBuild.DecorateTitle(window.Title);
+            if (decorated != window.Title) window.Title = decorated;
         }
         private void Application_Startup(object sender, StartupEventArgs e)
         {
             LogWriter.LogWrite(string.Format("App Started - Version {0}", appSettings.AppVersion.ToString()));
+            DispatcherProfiler.StartIfAsked(Dispatcher);   // E2E build + FOCUSBEAR_E2E_PROFILE=1 only
+            E2EProbe.Start(Dispatcher);   // E2E build only: the UI tests ask it which AutomationIds exist
 
             bool bStartingAfterReactivate = false;
             if (e.Args.Length > 0)
@@ -560,6 +670,7 @@ namespace Focus_Bear
                 if (e.Args[0] == "/startupYes")
                 {
                     SetAtWindowsStartup();
+                    _exitWithoutRunning = true;
                     Application.Current.Shutdown(0);
                     return;
                 }
@@ -585,13 +696,21 @@ namespace Focus_Bear
                 {
                     #region Managing Instances
                     //Handling running instances
-                    
+
                     appMutex = new Mutex(true, MutexGUID, out createdNew);
                     appWaitHandle = new EventWaitHandle(false, EventResetMode.AutoReset, EventMutex);
 
                     GC.KeepAlive(this.appMutex);
                     if (!createdNew)
                     {
+                        _exitWithoutRunning = true;
+                        // A watchdog probe that raced another start: leave quietly, without popping the
+                        // running instance's tray menu the way a user's second launch does.
+                        if (AppWatchdog.IsWatchdogLaunch(e.Args))
+                        {
+                            Application.Current.Shutdown(0);
+                            return;
+                        }
                         // Single-instance: this 2nd instance is about to exit and its args would be
                         // lost. If it carries a deep link, hand it to the running instance first.
                         if (!string.IsNullOrEmpty(_pendingDeepLinkArg))
@@ -604,24 +723,39 @@ namespace Focus_Bear
                     }
                     else
                     {
+                        if (AppWatchdog.IsWatchdogLaunch(e.Args))
+                            LogWriter.LogWrite("Watchdog: Focus Bear was closed without quitting - starting it again");
+                        // From here only a graceful exit counts as clean; a kill leaves this for the watchdog.
+                        AppWatchdog.MarkRunning();
+
                         // Fresh primary instance: drop any deep link left behind by a crashed
                         // session so it can't be replayed on the next bring-to-front signal.
                         ClearPendingDeepLink();
 
+                        // Captured here, on the UI thread. Read from this background thread, Application.Current
+                        // can already be null while the app shuts down, so a 2nd instance launched as this one
+                        // quit crashed it with an unhandled NullReferenceException (Sentry FOCUS-BEAR-WINDOWS-6C).
+                        var uiDispatcher = Dispatcher;
+                        var bringToFrontSignal = appWaitHandle;
                         var thread = new Thread(() =>
                         {
-                            while (this.appWaitHandle.WaitOne())
+                            while (bringToFrontSignal.WaitOne())
                             {
-                                Current.Dispatcher.BeginInvoke((Action)(() =>
+                                if (uiDispatcher.HasShutdownStarted)
                                 {
-                                    if (Current.MainWindow is TrayMenu)
+                                    return;
+                                }
+                                uiDispatcher.BeginInvoke((Action)(() =>
+                                {
+                                    if (this.MainWindow is TrayMenu)
                                     {
-                                        var alreadyRunningMainWin = (TrayMenu)Current.MainWindow;
+                                        var alreadyRunningMainWin = (TrayMenu)this.MainWindow;
                                         alreadyRunningMainWin.Topmost = true;
                                         alreadyRunningMainWin.UpdateTrayMenu();
                                         alreadyRunningMainWin.Show();
                                         alreadyRunningMainWin.BringIntoView();
-                                        alreadyRunningMainWin.Activate();
+                                        if (!Focus_Bear.Utils.E2EBackground.IsActive)   // never activated (see BringMainWindowToFront)
+                                            alreadyRunningMainWin.Activate();
                                         alreadyRunningMainWin.Focus();
                                         alreadyRunningMainWin.SetTrayMenuPosition();
                                     }
@@ -729,6 +863,110 @@ namespace Focus_Bear
                 (Action)(() => HandleDeepLink(deepLink)));
         }
 
+        private static string AudhdClipboardCheckedFilePath
+        {
+            get { return Path.Combine(AppSettings.AppDataDirPath, "audhd-clipboard-checked.txt"); }
+        }
+
+        // Deferred deep link: a fresh install from the web AuDHD test carries the retest
+        // code on the clipboard (the deep link is lost across the install), so read it
+        // ONCE on the first launch and open the results — otherwise a new downloader
+        // lands on the home screen and never sees their results. A marker file gates it
+        // to the first launch so a returning user's clipboard is never re-scanned.
+        //
+        // onContinue (optional) is what should happen next: on a brand-new install this is
+        // the welcome/onboarding flow, which must wait until the user has closed the results
+        // window (results first, then onboarding). It's invoked exactly once — right away when
+        // there's nothing to show (already checked / no code on the clipboard / window failed
+        // to open), otherwise when the results window closes. Callers that just want the
+        // legacy fire-and-forget behaviour (post-login path) pass nothing.
+        private void CheckAudhdClipboardOnFirstLaunch(Action onContinue = null)
+        {
+            Action continueOnce = null;
+            if (onContinue != null)
+            {
+                bool bContinued = false;
+                continueOnce = () =>
+                {
+                    if (bContinued)
+                        return;
+                    bContinued = true;
+                    onContinue();
+                };
+            }
+
+            try
+            {
+                // The E2E test build never reads the tester's clipboard: whatever they last copied would decide what
+                // a first run shows (a path like "...\FocusBear-Claude-Tasks" opened the AuDHD results page).
+                if (File.Exists(AudhdClipboardCheckedFilePath) || E2EBuild.IsActive)
+                {
+                    continueOnce?.Invoke();
+                    return;
+                }
+                File.WriteAllText(AudhdClipboardCheckedFilePath, DateTime.UtcNow.ToString("o"));
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("CheckAudhdClipboardOnFirstLaunch flag ex - " + ex.Message);
+                continueOnce?.Invoke();
+                return;
+            }
+
+            // Clipboard access needs the STA/UI thread; run once the app is idle.
+            Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ApplicationIdle, (Action)(() =>
+            {
+                AudhdResults.AudhdResultsWindow wndResults = null;
+                try
+                {
+                    string clip = System.Windows.Clipboard.GetText();
+                    if (!string.IsNullOrWhiteSpace(clip))
+                    {
+                        var match = System.Text.RegularExpressions.Regex.Match(
+                            // A whole code only: "FocusBear-Claude-Tasks" (a path the user copied) matched "Bear-Claude-Tasks".
+                            clip, "(?<![A-Z0-9])BEAR-[A-Z0-9]+(-[A-Z0-9]+)?(?![A-Z0-9])",
+                            System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                        if (match.Success)
+                        {
+                            // Stitch the web-quiz PostHog identity onto this app's person, same as the
+                            // focusbear:// deep-link path in HandleDeepLink — this clipboard fallback is
+                            // the path most downloaders actually take (deep link is lost across install),
+                            // so skipping it here would miss most of the quiz -> download -> sign-up stitch.
+                            _ = new FocusBearAPIClient().PostHogIdentify(match.Value);
+
+                            string resultsUrl = AudhdResultsBaseUrl + Uri.EscapeDataString(match.Value);
+                            LogWriter.LogWrite("CheckAudhdClipboardOnFirstLaunch - opening " + resultsUrl);
+                            wndResults = OpenAudhdResultsWindow(resultsUrl);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogWriter.LogWrite("CheckAudhdClipboardOnFirstLaunch ex - " + ex.Message);
+                }
+
+                if (continueOnce == null)
+                    return;
+
+                if (wndResults == null)
+                {
+                    // Nothing to show (or it couldn't be shown) - carry on straight away.
+                    continueOnce();
+                    return;
+                }
+
+                // Results are up: hold the next step until the user closes them. Defer past the
+                // Closed handler so the results window has fully gone before the next screen
+                // (main window / onboarding) is brought to the front.
+                LogWriter.LogWrite("CheckAudhdClipboardOnFirstLaunch - holding next step until results window closes");
+                wndResults.Closed += (s, e) =>
+                {
+                    LogWriter.LogWrite("CheckAudhdClipboardOnFirstLaunch - results window closed, continuing");
+                    Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal, continueOnce);
+                };
+            }));
+        }
+
         private static string PendingDeepLinkFilePath
         {
             get { return Path.Combine(AppSettings.AppDataDirPath, "pending-deeplink.txt"); }
@@ -790,6 +1028,26 @@ namespace Focus_Bear
                 LogWriter.LogWrite("HandleDeepLink - unrecognised or incomplete deep link, ignoring");
                 return;
             }
+
+            // Stitch the web-quiz PostHog identity onto this app's person. The public
+            // AuDHD test identifies its PostHog person by the retest code, so aliasing
+            // the same test-code here merges the two — otherwise the quiz -> download ->
+            // sign-up journey shows up as two disjoint people and looks like nobody
+            // converts. PostHogIdentify sends $create_alias(alias = testCode). Same
+            // call pattern as ConnectGlobalAndMacIDWithDistinctUserID().
+            try
+            {
+                string testCode = GetQueryParam(new Uri(rawUrl).Query, DeepLinkTestCodeParam);
+                if (!string.IsNullOrWhiteSpace(testCode))
+                {
+                    _ = new FocusBearAPIClient().PostHogIdentify(testCode);
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("HandleDeepLink alias ex - " + ex.Message);
+            }
+
             OpenAudhdResultsWindow(resultsUrl);
         }
 
@@ -833,7 +1091,9 @@ namespace Focus_Bear
             return null;
         }
 
-        private void OpenAudhdResultsWindow(string resultsUrl)
+        // Returns the results window that is now showing (new or re-used), or null if it
+        // couldn't be opened - callers that need to wait for it to close hook its Closed event.
+        private AudhdResults.AudhdResultsWindow OpenAudhdResultsWindow(string resultsUrl)
         {
             try
             {
@@ -842,20 +1102,29 @@ namespace Focus_Bear
                     _audhdResultsWindow.Navigate(resultsUrl);
                     _audhdResultsWindow.Topmost = true; //keep above other Focus Bear windows
                     _audhdResultsWindow.Activate();
-                    return;
+                    appSettings.CapturePostHog("audhd-results-window-shown");
+                    return _audhdResultsWindow;
                 }
 
                 _audhdResultsWindow = new AudhdResults.AudhdResultsWindow(resultsUrl);
-                _audhdResultsWindow.Closed += (s, e) => _audhdResultsWindow = null;
+                //Pairs with 'audhd-results-window-shown'; canonical cross-platform names (Mac AudhdResults enum).
+                _audhdResultsWindow.Closed += (s, e) =>
+                {
+                    _audhdResultsWindow = null;
+                    appSettings.CapturePostHog("audhd-results-window-closed");
+                };
                 //Show on top of any other open Focus Bear window (habits / focus / tray), otherwise the
                 //results window could open behind them.
                 _audhdResultsWindow.Topmost = true;
                 _audhdResultsWindow.Show();
                 _audhdResultsWindow.Activate();
+                appSettings.CapturePostHog("audhd-results-window-shown");
+                return _audhdResultsWindow;
             }
             catch (Exception ex)
             {
                 LogWriter.LogWrite("OpenAudhdResultsWindow ex - " + ex.Message);
+                return null;
             }
         }
 
@@ -889,14 +1158,27 @@ namespace Focus_Bear
         {
             LogWriter.LogWrite("SetAtWindowsStartup()");
 
+            // The E2E test build never starts with Windows, and must not repoint the real app's logon or watchdog task at itself.
+            if (!E2EBuild.MachineIntegrationAllowed)
+            {
+                LogWriter.LogWrite("SetAtWindowsStartup() skipped - E2E test build");
+                return;
+            }
+
             try
             {
                 AppTaskScheduler taskSchedule = new AppTaskScheduler();
+                bool isAdmin = WinSecurity.IsAdmin();
+                string exePath = System.Reflection.Assembly.GetEntryAssembly().Location;
 
                 if (taskSchedule.CheckTaskExists("Focus Bear"))
+                {
+                    if (isAdmin) taskSchedule.RepairLongRunningSettings("Focus Bear");
+                    taskSchedule.EnsureWatchdogTask(exePath, isAdmin);
                     return;
+                }
 
-                if (WinSecurity.IsAdmin())
+                if (isAdmin)
                 {
                     LogWriter.LogWrite("User IS admin, setting in task scheduler for startup");
                     taskSchedule.CreateTask("Focus Bear", "");
@@ -906,6 +1188,7 @@ namespace Focus_Bear
                     LogWriter.LogWrite("User not admin, setting in RUN for startup");
                     RegistryManager.AddToStartup();
                 }
+                taskSchedule.EnsureWatchdogTask(exePath, isAdmin);
             }
             catch (Exception ex)
             {
@@ -983,12 +1266,12 @@ namespace Focus_Bear
             var status = appSettings.DownloadBlockHTMLFile();
 
             //App first install configuration
-            
+
             if (!RegistryManager.GetFirstInstallDate())
             {
                 LogWriter.LogWrite("IsFirstInstall = true;");
 
-                //If first install DT is not available from registry then it will be considered that 
+                //If first install DT is not available from registry then it will be considered that
                 appSettings.IsFirstInstall = true;
                 appSettings.FirstAppInstallDT = DateTime.Now;
                 RegistryManager.SetFirstInstallDate();
@@ -1017,12 +1300,26 @@ namespace Focus_Bear
             }
 
             //Enbale url blocking we need this
-            dele = new WinEventDelegate(WinEventProc);
-            m_hhook = SetWinEventHook(0x8005, 0x800E, IntPtr.Zero, dele, 0, 0, WINEVENT_OUTOFCONTEXT | WINEVENT_SKIPOWNPROCESS);
+            // Not in the E2E test build unless the runner opted in: it would act on the person's own windows.
+            if (E2EBuild.BlockingEnforcementAllowed)
+            {
+                dele = new WinEventDelegate(WinEventProc);
+                // Only the events the handler acts on (FocusBear.Core.Blocking.ForegroundHookEvents): the whole
+                // 0x8005-0x800E range posted ~125 events a second to the UI thread on a busy desktop.
+                foreach (var range in FocusBear.Core.Blocking.ForegroundHookEvents.Ranges)
+                    m_hhooks.Add(SetWinEventHook(range.Key, range.Value, IntPtr.Zero, dele, 0, 0, WINEVENT_OUTOFCONTEXT | WINEVENT_SKIPOWNPROCESS));
+            }
+            else
+            {
+                LogWriter.LogWrite("E2E test build: window-event hook (URL blocking) not started");
+            }
+
+            // The sign-in chain's first requests go out now, so they run while the window below is built on this thread.
+            appSettings.StartSignInPrefetch();
 
             //Create the Main application Window: V3
             wndFocusBearMainWindow = new FocusBearMainWindow();
-            
+
             if (!RegistryManager.GetWelcomeAboardingDoneStatus())
             {
                 LogWriter.LogWrite("GetWelcomeAboardingDoneStatus NO");
@@ -1032,13 +1329,16 @@ namespace Focus_Bear
                     LogWriter.LogWrite("Hide SplashWindow() to show onboardiong flow");
                     wndSplash.Close();
                 }
-                
+
                 //GEt the list of Installed app
                 var engine = new AppsEngine();
                 engine.GetData();
                 bAppExtracted = true;
 
-                ShowWelcomeAbordOnBoradingFlow();
+                // Brand-new install: if the web AuDHD test's retest code is on the clipboard, show the
+                // results FIRST (before the welcome screen / account creation) and only start the
+                // onboarding once the user has closed them. With no code this goes straight to onboarding.
+                CheckAudhdClipboardOnFirstLaunch(ShowWelcomeAbordOnBoradingFlow);
             }
             else
             {
@@ -1077,8 +1377,8 @@ namespace Focus_Bear
                 if (trayIcon == null)
                 {
                     trayIcon = new WinForms.NotifyIcon();
-                    trayIcon.Text = "Focus Bear";
-                    trayIcon.BalloonTipText = "Focus Bear";
+                    trayIcon.Text = E2EBuild.DecorateTitle("Focus Bear");
+                    trayIcon.BalloonTipText = E2EBuild.DecorateTitle("Focus Bear");
                     trayIcon.Visible = true;
                     trayIcon.ContextMenuStrip = CreateContextMenu();
 
@@ -1105,6 +1405,8 @@ namespace Focus_Bear
                     }
 
                     trayIcon.MouseClick += TrayIcon_MouseClick;
+                    // From here the app can be quit from its tray icon: this start counts as a success.
+                    AppWatchdog.MarkStartedUp();
                 }
 
                 if (wndTrayMenu == null)
@@ -1175,6 +1477,14 @@ namespace Focus_Bear
                 LogWriter.LogWrite("breaks not enabled so returning from StartBreakActivityTimer()");
                 return;
             }
+            if (!Focus_Bear.Utils.E2EBuild.BreaksAllowed)
+            {
+                // The E2E suite's test account has a break habit for the break tests; any other test run must not
+                // get a micro break over the screen it is checking.
+                dispatcherTimerBreaks.Stop();
+                LogWriter.LogWrite("E2E build: micro breaks off (set FOCUSBEAR_E2E_BREAKS=1 to run them)");
+                return;
+            }
 
             if (appSettings.IsShutOffTime())
             {
@@ -1220,8 +1530,10 @@ namespace Focus_Bear
                     LogWriter.LogWrite("User Postponed set StartBreakActivityTimer() for 5 minutes");
                     if (DevFlags.FastTimers)
                     {
-                        dispatcherTimerBreaks.Interval = new TimeSpan(0, 10, 15);
-                        appSettings.NextBreakAt = DateTime.Now.AddMinutes(10);
+                        // Seconds, like the other fast timers ((0, 10, 15) was ten minutes and fifteen seconds).
+                        int postponeSeconds = E2EBuild.FastBreakSeconds ?? 15;
+                        dispatcherTimerBreaks.Interval = new TimeSpan(0, 0, postponeSeconds);
+                        appSettings.NextBreakAt = DateTime.Now.AddSeconds(postponeSeconds);
                     }
                     else
                     {
@@ -1233,7 +1545,7 @@ namespace Focus_Bear
                 {
                     if (DevFlags.FastTimers)
                     {
-                        dispatcherTimerBreaks.Interval = new TimeSpan(0, 0, 10);
+                        dispatcherTimerBreaks.Interval = new TimeSpan(0, 0, E2EBuild.FastBreakSeconds ?? 10);
                         appSettings.NextBreakAt = DateTime.Now.AddMinutes(1);
                     }
                     else
@@ -1276,7 +1588,7 @@ namespace Focus_Bear
             }
             catch (Exception ex)
             {
-                // Log or handle errors 
+                // Log or handle errors
                 LogWriter.LogWrite("dispatcherTimer_Breaks() WaitForIdleAsync Error: " + ex.Message);
             }
 
@@ -1330,10 +1642,9 @@ namespace Focus_Bear
                     return;
                 }
 
-                if(appSettings.ActiveSchedule != null && appSettings.isBlockingScheduleRunning
-                    && !appSettings.ActiveSchedule.isPaused)
+                if(appSettings.IsBlockingScheduleActiveAndNotPaused(out var scheduleForBreakTimer))
                 {
-                    if (!appSettings.ActiveSchedule.bMicroBreaksEnabled)
+                    if (!scheduleForBreakTimer.bMicroBreaksEnabled)
                     {
                         LogWriter.LogWrite("appSettings.ActiveSchedule.bMicroBreaksEnabled is false - return reset timer");
                         //Start the break Activities Timer
@@ -1345,6 +1656,14 @@ namespace Focus_Bear
                 {
                     LogWriter.LogWrite("appSettings.IsAppDeactivated() - return from breaks timer");
                     //Start the break Activities Timer
+                    StartBreakActivityTimer();
+                    return;
+                }
+                if (FocusBear.Core.Breaks.BreakPostponeFriction.BreaksOffToday(RegistryManager.GetBreaksOffToday(), DateTime.Now))
+                {
+                    //"Turn them off for today" from the deactivate-breaks prompt; the timer keeps running so
+                    //breaks come back tomorrow on their own.
+                    LogWriter.LogWrite("Breaks turned off for today - return from breaks timer");
                     StartBreakActivityTimer();
                     return;
                 }
@@ -1375,6 +1694,68 @@ namespace Focus_Bear
         }
 
 
+        /// <summary>
+        /// The break warning's 30-second countdown ended. Start the break only if nothing that holds breaks back
+        /// became true during it (a focus session that skips breaks, deactivation, a call, a schedule without
+        /// breaks, shut-off); otherwise put the next break back on the timer. The Mac re-checks the same way.
+        /// </summary>
+        public void StartBreakAfterWarning()
+        {
+            var decision = FocusBear.Core.Breaks.AutoBreakDecision.Start;
+            try
+            {
+                bool scheduleDisablesBreaks = appSettings.IsBlockingScheduleActiveAndNotPaused(out var schedule)
+                                              && schedule != null && !schedule.bMicroBreaksEnabled;
+                decision = FocusBear.Core.Breaks.AutoBreakGate.WhenWarningEnds(new FocusBear.Core.Breaks.AutoBreakConditions
+                {
+                    SkipBreaksDuringFocus = appSettings.bSkipMicroBreaksDuringFocus,
+                    FocusSessionRunning = appSettings.isFocusModeRunning,
+                    SuperFocusRunning = appSettings.bUseSuperPomodoroMode,
+                    AppDeactivated = appSettings.IsAppDeactivated(),
+                    ScheduleDisablesBreaks = scheduleDisablesBreaks,
+                    OnCall = appSettings.bIsUserOnCall,
+                    ShowBreaksInCall = appSettings.bShowBreaksWhileInCall,
+                    BreakAlreadyRunning = appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY,
+                    ShutOffTime = appSettings.IsShutOffTime(),
+                    BreaksOffToday = FocusBear.Core.Breaks.BreakPostponeFriction.BreaksOffToday(RegistryManager.GetBreaksOffToday(), DateTime.Now),
+                });
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("StartBreakAfterWarning ex - " + ex.Message);
+            }
+
+            LogWriter.LogWrite("StartBreakAfterWarning - " + decision);
+            if (decision == FocusBear.Core.Breaks.AutoBreakDecision.Start)
+            {
+                FocusBear.Core.Breaks.BreakPostponeFriction.Shared.BreakTaken(); //the next postpone is back to the shortest hold
+                ShowBreakActivities();
+            }
+            else if (decision == FocusBear.Core.Breaks.AutoBreakDecision.Reschedule)
+                StartBreakActivityTimer();
+        }
+
+        /// <summary>
+        /// What a finished or postponed break hands the state back to. A break taken while a routine is postponed
+        /// (ShowBreakActivities allows that) must leave the routine postponed: the background tick reads a
+        /// postponed routine from <c>nCurrentActivityType</c>, and NONE made it start the routine straight away.
+        /// The routine is the persisted one; if the app knows none, the clock decides.
+        /// </summary>
+        internal void RestoreActivityTypeAfterBreak()
+        {
+            if (appSettings.bHabitsPostponedState)
+            {
+                var type = appSettings.HabitsPostponeActivityType;
+                if (type != CurrentActivityType.MORNING_HABITS && type != CurrentActivityType.EVENING_HABITS)
+                    type = appSettings.IsShutOffTime() ? CurrentActivityType.EVENING_HABITS : CurrentActivityType.MORNING_HABITS;
+                appSettings.nCurrentActivityType = type;
+                LogWriter.LogWrite("Break over - routine still postponed, nCurrentActivityType = " + type);
+                return;
+            }
+            appSettings.nCurrentActivityType = CurrentActivityType.NONE;
+            LogWriter.LogWrite("Break over - nCurrentActivityType = NONE");
+        }
+
         public async void ShowBreakActivities()
         {
             LogWriter.LogWrite("ShowBreakActivities()");
@@ -1387,6 +1768,7 @@ namespace Focus_Bear
             if (appSettings.nCurrentActivityType == CurrentActivityType.SHUT_OFF  )
             {
                 LogWriter.LogWrite("SHUT_OFF or EVENING_HABITS - Return from ShowBreakActivities()");
+                HideBreakStartLoader();
                 return;
             }
 
@@ -1394,6 +1776,7 @@ namespace Focus_Bear
                 (!appSettings.bHabitsPostponedState && !appSettings.bFocusSummaryPostponedState ))
             {
                 LogWriter.LogWrite("SHUT_OFF or EVENING_HABITS - Return from ShowBreakActivities()");
+                HideBreakStartLoader();
                 return;
             }
 
@@ -1401,6 +1784,7 @@ namespace Focus_Bear
                 !appSettings.bHabitsPostponedState)
             {
                 LogWriter.LogWrite("MORNING_HABITS - Return from ShowBreakActivities()");
+                HideBreakStartLoader();
                 return;
             }
 
@@ -1440,7 +1824,7 @@ namespace Focus_Bear
                     {
                         LogWriter.LogWrite("GetLastActivityInfo Success");
 
-                        if (appSettings.sLastActivityDoneInfo != null || appSettings.sLastActivityDoneInfo.Length > 0)
+                        if (appSettings.sLastActivityDoneInfo != null && appSettings.sLastActivityDoneInfo.Length > 0)
                         {
                             //Parse the JSON string
                             try
@@ -1480,7 +1864,7 @@ namespace Focus_Bear
                                     LogWriter.LogWrite("Start new break activities sequence:- current_activity_sequence not found as dictionary");
                                     //Start Default
                                 }
-                                // 
+                                //
                             }
                             catch (Exception ex)
                             {
@@ -1519,17 +1903,23 @@ namespace Focus_Bear
             }
             else
             {
-                appSettings.nCurrentActivityType = CurrentActivityType.NONE;
-
+                RestoreActivityTypeAfterBreak();
+                HideBreakStartLoader();
                 RestoreFocusUIAfterRoutine();
             }
+        }
+
+        /// <summary>The Start Break button's loader (the grid shade), which a break that never starts must take down.</summary>
+        private void HideBreakStartLoader()
+        {
+            if (wndFocusBearMainWindow != null) wndFocusBearMainWindow.GridShade.Visibility = Visibility.Collapsed;
         }
         public void ShowWelcomeAbordOnBoradingFlow()
         {
             LogWriter.LogWrite("ShowWelcomeAbordOnBoradingFlow");
 
             appSettings.nCurrentActivityType = CurrentActivityType.ONBOARDING; //Set the state
-            
+
             BringMainWindowToFront();//v3
 
             wndFocusBearMainWindow.ShowOnboardingViewController();
@@ -1554,6 +1944,10 @@ namespace Focus_Bear
             Task.Delay(3000); //Let the onboarding window be closed
 
             LogWriter.LogWrite("ShowLogin-MAIN-Window");
+
+            // Whoever signs in next makes their own requests: nothing fetched for the last session may be handed to them.
+            AppSettings.SubscriptionPrefetch.Discard();
+            AppSettings.LocalDeviceSettingsPrefetch.Discard();
 
             if (wndSplash != null)
             {
@@ -1610,8 +2004,6 @@ namespace Focus_Bear
                 if (w == null) return list;
 
                 AddIfAlive(list, w.PageEditHabits != null ? w.PageEditHabits.webView : null);
-                AddIfAlive(list, w.PageStats != null ? w.PageStats.webView : null);
-                AddIfAlive(list, w.PageToDoList != null ? w.PageToDoList.webView : null);
                 AddIfAlive(list, w.PageToDoPlayer != null ? w.PageToDoPlayer.webView : null);
                 if (w.PageHelp != null)
                 {
@@ -1620,7 +2012,6 @@ namespace Focus_Bear
                 }
                 if (w.PageHabits != null)
                 {
-                    AddIfAlive(list, w.PageHabits.PageHabitExtraPersonal != null ? w.PageHabits.PageHabitExtraPersonal.webView : null);
                     AddIfAlive(list, w.PageHabits.PageWelcomeList != null ? w.PageHabits.PageWelcomeList.webView : null);
                 }
             }
@@ -1652,7 +2043,7 @@ namespace Focus_Bear
         public async void ProceedAfterLogin()
         {
             LogWriter.LogWrite("ProceedAfterLogin");
-            
+
             RegistryManager.SetWelcomeAboardingDoneStatus();//Update onboarding before login status now
 
             RegistryManager.GetApplicationFont();
@@ -1660,7 +2051,8 @@ namespace Focus_Bear
             //We also need to get the user settings to chck if the user was an old other device user and do nto show the distracting site screen
             LogWriter.LogWrite("attempt to Get User Local Device Settings");
             FocusBearAPIClient client = new FocusBearAPIClient();
-            var userLocalSettingsResponse = await client.GetUserLocalDeviceSettingsInfo();
+            // At start-up this request was already made while the main window was built (AppSettings.StartSignInPrefetch).
+            var userLocalSettingsResponse = await AppSettings.LocalDeviceSettingsPrefetch.Take(() => client.GetUserLocalDeviceSettingsInfo(), DateTime.UtcNow);
             int m = int.Parse(userLocalSettingsResponse.ToString());
             if (m == 1)
             {
@@ -1699,7 +2091,8 @@ namespace Focus_Bear
 
                     ShowWelcomeAbordOnBoradingFlow();//Will show the onboarding view in right content
 
-                    wndFocusBearMainWindow.PageOnboardingViewController.Navigate(OnboardingViewController.ONBOARDINGSTATE._HOLD_ON_);
+                    // Hold On now shows after distraction blocking, right before habit setup (flow reorder to match mac).
+                    wndFocusBearMainWindow.PageOnboardingViewController.Navigate(OnboardingViewController.ONBOARDINGSTATE._SET_DISTRACTION_BLOCKING_);
                     return;
                 }
                 else
@@ -1732,7 +2125,7 @@ namespace Focus_Bear
 
                 var SyncPlatformCoursesResponseUnused = await client.SyncPlatformCourses();
 
-                var EnrolForCoursesUnused = await client.EnrollForCourses(); //Enroll for courses 
+                var EnrolForCoursesUnused = await client.EnrollForCourses(); //Enroll for courses
 
                 //We are setting evening routine shown here for thenext 2 hours so that evening routine willnot come for the next 2 hours the video is shown
                 appSettings.ShutOFFAbortedTillDate = DateTime.Now.AddHours(2);
@@ -1749,6 +2142,9 @@ namespace Focus_Bear
 
                 if (appSettings.bShowOnBoardingVideo) //If user had agreed to see the video
                     ShowOnBoradingVideo();//Show Onboarding Video
+
+                //Onboarding just finished - hand the user over to the Focus screen in StartWorkFlow (#1517).
+                bShowFirstFocusPromptAfterOnboarding = true;
 
                 appSettings.CapturePostHog("menu_tour_setup_complete");
             }
@@ -1809,7 +2205,7 @@ namespace Focus_Bear
                 }
                 CommandManager.InvalidateRequerySuggested();
             });
-            
+
             // Teacher Mode (issue #1343): detect whether this user is a teacher (administers a class)
             // so the Focus button starts a class focus session instead of a personal one. Non-teachers
             // are unaffected (the call sets bIsTeacher = false).
@@ -1874,6 +2270,10 @@ namespace Focus_Bear
                 //Write the Offline data CSV file with headers
                 appSettings.WriteDefaultOffilineCSVFile();
 
+                //One-time: push any existing local Brain Dump text to the backend note store so the
+                //new Notes webview has it. No-ops after the first successful run (per-user flag).
+                appSettings.MigrateBrainDumpToBackendIfNeeded();
+
                 CommandManager.InvalidateRequerySuggested();
             }))).Start();
 
@@ -1881,7 +2281,7 @@ namespace Focus_Bear
             if (!bAppExtracted)
             {
                 //GEt the list of Installed app
-                var engine = new AppsEngine(); 
+                var engine = new AppsEngine();
                 engine.GetData();
             }
 
@@ -1907,7 +2307,7 @@ namespace Focus_Bear
 
                 CommandManager.InvalidateRequerySuggested();
 
-                
+
                 //IF its the onboarding time, we have already extracted thelist above
                 if (!bAppExtracted)
                 {
@@ -1940,7 +2340,7 @@ namespace Focus_Bear
                 else
                 {
                     LogWriter.LogWrite("GetAllBlockingSchedules Failed");
-                    BlockingScheduleManager.ReadAndParseBlockingSchedules(); 
+                    BlockingScheduleManager.ReadAndParseBlockingSchedules();
                 }
 
 
@@ -1960,7 +2360,7 @@ namespace Focus_Bear
                     LogWriter.LogWrite("GetAllTracks Failed");
                     FocusMusicManager.ReadAndParseFocusMusicTracks();
                 }
-                
+
                 LogWriter.LogWrite("attempt to Get all buddies");
                 var buddyResponse = await client.GetAllBuddies();
                 int mBuddy = int.Parse(buddyResponse.ToString());
@@ -1983,16 +2383,36 @@ namespace Focus_Bear
 
 
             appSettings.automation = new CUIAutomation();
-            appSettings.handler = new FocusChangeHandler();
-            appSettings.automation.AddFocusChangedEventHandler(null, appSettings.handler);
-            LogWriter.LogWrite("Handler for Blocking Global URLS / Apps etc. STARTED");
+            // Not in the E2E test build unless the runner opted in: this is what minimises and blocks other apps.
+            if (E2EBuild.BlockingEnforcementAllowed)
+            {
+                appSettings.handler = new FocusChangeHandler();
+                // Registered with UIA only while something can be blocked, off the UI thread (FocusEventsSubscriber).
+                _focusEvents = new FocusEventsSubscriber(appSettings.handler);
+                E2EBuild.FocusSubscribed = () => _focusEvents?.IsRegistered == true;
+                UpdateFocusEventsSubscription();
+                //A session, habit or shut-off starting anywhere updates the subscription now, not on the next 5 s tick.
+                AppSettings.BlockingStateChanged -= OnBlockingStateChanged;
+                AppSettings.BlockingStateChanged += OnBlockingStateChanged;
+                LogWriter.LogWrite("Handler for Blocking Global URLS / Apps etc. ready");
+            }
+            else
+            {
+                LogWriter.LogWrite("E2E test build: blocking handler not started (set " + E2EBuild.EnableBlockingVariable + "=1 to enable)");
+            }
+            E2EBuild.ListenForEndSession(() => Dispatcher.BeginInvoke(new Action(() =>
+            {
+                LogWriter.LogWrite("E2E: ending the focus session (test seam), running=" + appSettings.isFocusModeRunning);
+                if (appSettings.isFocusModeRunning) StopFocusSessionFromEvents();
+            })));
+            E2EBuild.ListenForRestartRoutine(() => Dispatcher.BeginInvoke(new Action(RestartMorningRoutineForE2E)));
 
             await Task.Run(async () =>
             {
                 //One the USer details have been parsed and focus mode names have been fetched, we will check for default focus modes, if not present we will create them
                 appSettings.ReadAndCreateDefaultFocusModes();
 
-                
+
                 if (!RegistryManager.GetFocusModeSetupDone())
                 {
                     if (appSettings.arrFocusModes.Count <= 5)
@@ -2037,6 +2457,10 @@ namespace Focus_Bear
             // link that launched the app from cold (e.g. AuDHD advanced results), so it lands on top of a
             // ready UI rather than during loading.
             ProcessPendingColdStartDeepLink();
+            // On a brand-new install this already ran (results-before-onboarding) in Application_Startup
+            // and the marker file makes this a no-op; it still covers an existing/logged-in user whose
+            // first launch of a build with this check is post-login.
+            CheckAudhdClipboardOnFirstLaunch();
             if (DevFlags.DisagreementEval)
             {
                 await DisagreementEvaluator.RunFiveExampleTestAsync(
@@ -2133,6 +2557,11 @@ namespace Focus_Bear
             //end of the method and was skipped on every early-return path, leaving the button silent.
             FocusButton.Start();
 
+            //Late No More: meeting alerts from the calendars the backend syncs (its own light schedule; the Day Plan's
+            //calendar cache is shared, so no second poller).
+            LateNoMore.LateNoMoreService.Shared.Start();
+            Habits.DayPlan.DayPlanCreateRetry.Start();   // local-only Day Plan tasks keep trying to get their to-do (#1646)
+
 
 #if DEBUG
             //Write any routines or functionality to test in DEBUG mode here
@@ -2149,19 +2578,32 @@ namespace Focus_Bear
                 RegistryManager.SetMorningHabitsShownTillDate();
             }
 
-            //Right after the procastinating screen have been shown and the tray menu window have been created, we will show the start simple pomodoro window
-            if (!RegistryManager.GetSimplePomodoroTourShownStatus()) //can use this to detect the first pomodoro session
+            //Right after the procastinating screen have been shown and the tray menu window have been created,
+            //we will show the start simple pomodoro window. Also shown straight after onboarding (#1517), which
+            //otherwise leaves the user with a hidden window and both routines suppressed for the rest of the day.
+            if (bShowFirstFocusPromptAfterOnboarding || !RegistryManager.GetSimplePomodoroTourShownStatus()) //can use this to detect the first pomodoro session
             {
-                ((App)(Application.Current)).ShowSimplePomodoroWindow();
+                ShowFirstFocusSessionPrompt();
             }
 
             //Do clear the Postponed variables
             RegistryManager.RemovePostponedHabitData();
 
+            // Whatever the routine branching below throws, the background timer must still start (the smoke test,
+            // 27 Sep: an unparseable shut-off time threw here and the app then ran no routine or schedule checks).
+            try
+            {
             //Check if a focus mode is still in progress on the backend, resume it.
             //Awaited so the resume sets isFocusModeRunning/isOn BEFORE the routine branching below,
             //letting ShowMorningRoutine/ShowShutOffView's force-stop reliably show the focus-end window.
             await CheckAndResumeRunningFocusMode();
+
+            // E2E seam: a forced routine starts fresh, so a postpone an earlier test left behind is dropped.
+            if (Focus_Bear.Utils.E2EBuild.StartRoutine != null && RegistryManager.GetHabitsPostponeEndTime())
+            {
+                LogWriter.LogWrite("E2E start routine: dropping a persisted postpone");
+                RegistryManager.RemoveHabitsPostponeEndTime();
+            }
 
             //Restore a habit postpone persisted in a previous session (survives an app restart). Honour it
             //only while (a) its own end time hasn't passed, (b) we're still inside the routine window (the
@@ -2210,7 +2652,8 @@ namespace Focus_Bear
 
                     try
                     {
-                        dispatcherTimerBackground.Tick += new EventHandler(dispatcherTimer_Background);
+                        dispatcherTimerBackground.Tick -= dispatcherTimer_Background;   // idempotent: a second workflow start must not add a second handler
+                        dispatcherTimerBackground.Tick += dispatcherTimer_Background;
                         dispatcherTimerBackground.Interval = new TimeSpan(0, 0, 5);
                         dispatcherTimerBackground.Start();
                         CommandManager.InvalidateRequerySuggested();
@@ -2250,8 +2693,25 @@ namespace Focus_Bear
                 LogWriter.LogWrite("isMorningHabitsAlreadyShown = false");
             }
 
+            // E2E seam (E2EBuild.StartRoutineVariable): the test asked for a routine now, whatever the clock or
+            // today's history says. IsShutOffTime agrees with it (morning: not shut-off; evening: shut-off).
+            string e2eRoutine = Focus_Bear.Utils.E2EBuild.StartRoutine;
+            if (e2eRoutine == "morning")
+            {
+                LogWriter.LogWrite("E2E start routine: morning");
+                isMorningHabitsAlreadyShown = false;
+                // Also for the background loop: a routine postponed (or cancelled) by an earlier test must come back
+                // when its postpone ends, as today's real routine would.
+                RegistryManager.RemoveMorningHabitsShownTillDate();
+            }
+
             //Check if its shutoff time
-            if (appSettings.IsShutOffTime())
+            if (e2eRoutine == "evening")
+            {
+                LogWriter.LogWrite("E2E start routine: evening");
+                ShowEveningRoutine();
+            }
+            else if (appSettings.IsShutOffTime())
             {
                 LogWriter.LogWrite("IsShutOffTime = true");
 
@@ -2272,7 +2732,8 @@ namespace Focus_Bear
                         //Start the background timer
                         try
                         {
-                            dispatcherTimerBackground.Tick += new EventHandler(dispatcherTimer_Background);
+                            dispatcherTimerBackground.Tick -= dispatcherTimer_Background;   // idempotent: a second workflow start must not add a second handler
+                            dispatcherTimerBackground.Tick += dispatcherTimer_Background;
                             dispatcherTimerBackground.Interval = new TimeSpan(0, 0, 5);
 
                             dispatcherTimerBackground.Start();
@@ -2341,16 +2802,24 @@ namespace Focus_Bear
                     }
                 }
             }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("StartWorkFlow() routine branching EX - " + ex);
+            }
+
             //Start the background timer
             try
             {
-                dispatcherTimerBackground.Tick += new EventHandler(dispatcherTimer_Background);
+                dispatcherTimerBackground.Tick -= dispatcherTimer_Background;   // idempotent: a second workflow start must not add a second handler
+                dispatcherTimerBackground.Tick += dispatcherTimer_Background;
                 dispatcherTimerBackground.Interval = new TimeSpan(0, 0, 5);
 
                 dispatcherTimerBackground.Start();
                 CommandManager.InvalidateRequerySuggested();
 
-                dispatcherTimerProductivityStats.Tick += new EventHandler(dispatcherTimer_ProductivityStats);
+                dispatcherTimerProductivityStats.Tick -= dispatcherTimer_ProductivityStats;   // idempotent: a second workflow start must not add a second handler
+                dispatcherTimerProductivityStats.Tick += dispatcherTimer_ProductivityStats;
                 dispatcherTimerProductivityStats.Interval = new TimeSpan(0, 0, 3); //every three seconds
 
                 dispatcherTimerProductivityStats.Start();
@@ -2394,13 +2863,53 @@ namespace Focus_Bear
                 LogWriter.LogWrite("CheckTabLimitAndAlert Exception - " + ex.Message);
             }
         }
+        // The state lines below are logged when the state is entered, not on every 5 s tick.
+        private readonly FocusBear.Core.StateChangeLog _backgroundStateLog = new FocusBear.Core.StateChangeLog();
+
+        private FocusEventsSubscriber _focusEvents;
+
+        /// <summary>
+        /// Registers or drops the blocking focus handler for the current state. Cheap and never blocks (the UIA call,
+        /// when there is one, runs on its own thread); called by the 5 s tick and when a session starts or pauses.
+        /// </summary>
+        private void OnBlockingStateChanged()
+        {
+            try { Dispatcher.BeginInvoke((Action)UpdateFocusEventsSubscription); } catch (Exception) { }
+        }
+
+        internal void UpdateFocusEventsSubscription()
+        {
+            try
+            {
+                if (_focusEvents == null) return;
+                bool needed = FocusBear.Core.Blocking.FocusEventSubscription.IsNeeded(
+                    appSettings.nCurrentActivityType == CurrentActivityType.SHUT_OFF,
+                    appSettings.bHabitwithAllowedAppsRunning, appSettings.bHabitwithUseFocusModeRunning,
+                    appSettings.isFocusModeRunning, appSettings.isFocusModePaused,
+                    appSettings.IsBlockingScheduleActiveAndNotPaused(out _));
+                _focusEvents.Update(needed);
+            }
+            catch (Exception ex) { LogWriter.LogWrite("UpdateFocusEventsSubscription ex - " + ex.Message); }
+        }
+
+        private bool _loggedNoDayTimes;
+
+        /// <summary>E2E build only (the probe's <c>tick</c>): run the background check (routines, shut-off, schedules) now.</summary>
+        internal void RunBackgroundTickForE2E()
+        {
+            if (!E2EBuild.IsActive) return;
+            dispatcherTimer_Background(null, EventArgs.Empty);
+        }
+
         private void dispatcherTimer_Background(object sender, EventArgs e)
         {
-           
+
 
             try
             {
                 CommandManager.InvalidateRequerySuggested();
+                _backgroundStateLog.Observe(appSettings.nCurrentActivityType.ToString());
+                UpdateFocusEventsSubscription();
 
                 if (appSettings.IsAppDeactivated())
                 {
@@ -2414,7 +2923,10 @@ namespace Focus_Bear
                 }
 
 
-                if (appSettings.bEnableMeetingsDetection)
+                // Only when a call could be found at all (Core CallDetectionPolicy): both checks look for a Meetings-mode app.
+                var meetingsMode = appSettings.arrFocusModes?.FirstOrDefault(m => m.isMeetings);
+                if (FocusBear.Core.Focus.CallDetectionPolicy.ShouldCheck(appSettings.bEnableMeetingsDetection,
+                        meetingsMode?.arrAllowedAppsWin?.SelectMany(a => a.ExeNames ?? new List<string>())))
                 {
                     if (AudioUtilities.IsUserOnaAudioCall() || CameraUtilities.IsUserOnVideoCall())
                     {
@@ -2472,13 +2984,23 @@ namespace Focus_Bear
                     Console.WriteLine("FALSE IsScreenSaverActive");
                 }
                 //Show notification just before Evening habits / Shutoff screen
-                TimeSpan tsShutOffTime = TimeSpan.Parse(appSettings.sDayShutOffTime);
+                // No day times yet (no settings, and none cached): nothing below can run. Once, not an exception every 5 s.
+                TimeSpan? knownShutOff = FocusBear.Core.Schedule.ShutOffClock.TimeOfDay(appSettings.sDayShutOffTime);
+                TimeSpan? knownStart = FocusBear.Core.Schedule.ShutOffClock.TimeOfDay(appSettings.sDayStartTime);
+                if (!knownShutOff.HasValue || !knownStart.HasValue)
+                {
+                    if (!_loggedNoDayTimes) LogWriter.LogWrite("dispatcherTimer_Background - no day start / shut-off time yet, routine checks skipped");
+                    _loggedNoDayTimes = true;
+                    return;
+                }
+                _loggedNoDayTimes = false;
+                TimeSpan tsShutOffTime = knownShutOff.Value;
 
                 DateTime now = DateTime.Now;
                 DateTime myShutOffTime = new DateTime(now.Year, now.Month, now.Day, tsShutOffTime.Hours, tsShutOffTime.Minutes, 00);
                 Console.WriteLine("{0}", myShutOffTime.ToString());
 
-                TimeSpan tsStartTime = TimeSpan.Parse(appSettings.sDayStartTime);
+                TimeSpan tsStartTime = knownStart.Value;
                 DateTime myStartTime = new DateTime(now.Year, now.Month, now.Day, tsStartTime.Hours, tsStartTime.Minutes, 00);
                 Console.WriteLine("{0}", myStartTime.ToString());
 
@@ -2522,13 +3044,13 @@ namespace Focus_Bear
                 {
                     if (!bShowEveningRoutine)
                     {
-                        //Looks like app is deactivated and evening password is not set, so we do not need to show evening routine 
+                        //Looks like app is deactivated and evening password is not set, so we do not need to show evening routine
                         LogWriter.LogWrite("App is deactivated and skip evening password is not set / or cutoff one, so we do not need to show evening routine, return");
                         return;
                     }
                     if (appSettings.nCurrentActivityType == CurrentActivityType.SHUT_OFF)
                     {
-                        LogWriter.LogWrite("SHUT_OFF STATE - Return from timer");
+                        if (_backgroundStateLog.ShouldLog("SHUT_OFF STATE - Return from timer")) LogWriter.LogWrite("SHUT_OFF STATE - Return from timer");
                         //If shutoff window is already visible, we need to check the 4 hours before morning time and show the up early section
                         if (CheckIf4HoursBeforeNextMorningRoutine())
                         {
@@ -2555,7 +3077,7 @@ namespace Focus_Bear
                     }
                     else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
                     {
-                        LogWriter.LogWrite("EVENING_HABITS STATE - Return from timer");
+                        if (_backgroundStateLog.ShouldLog("EVENING_HABITS STATE - Return from timer")) LogWriter.LogWrite("EVENING_HABITS STATE - Return from timer");
 
                         if (appSettings.nHabitIndex <= 0) //habit index is -1 if focus summary is visible and 0 if first habit is still not started
                         {
@@ -2573,7 +3095,10 @@ namespace Focus_Bear
                         {
                             if (appSettings.bHabitsPostponedState && !appSettings.bEveningHabitsPostponedAfterCutoffTime)
                             {
-                                //Kick the user off at the cutoff time
+                                //Kick the user off at the cutoff time: the postpone ends here, so end it fully
+                                //(timers, resume popup, persisted copy). Only dropping to NONE left the postpone
+                                //timer armed, and it later forced the resumed routine to NONE mid-habit.
+                                EndHabitsPostpone();
                                 appSettings.nCurrentActivityType = CurrentActivityType.NONE;
                                 LogWriter.LogWrite("Kick the user off at the cutoff time as it was postponed before cutoff time elapsed");
 
@@ -2592,7 +3117,7 @@ namespace Focus_Bear
                                 if (!appSettings.arrAllEveningHabits[appSettings.nHabitIndex].bHighPriorityActivity)
                                 {
 
-                                    //since a high priority activity is not running, we need to skip it and show the finish screen 
+                                    //since a high priority activity is not running, we need to skip it and show the finish screen
                                     //and allow starting next high priority activity or show unlock button
                                     if (wndFocusBearMainWindow != null)
                                     {
@@ -2613,8 +3138,15 @@ namespace Focus_Bear
                                                 //If the above is null, finish screen may be visible, as ShowACtivityFinishedScreen() make is null
                                                 appSettings.RemoveSecondaryWindows();
 
-                                                LogWriter.LogWrite("EVENING_HABITS STATE - now > myCutoffTime - Show Alert");
-                                                FBMessageBox msg = new FBMessageBox(appSettings.ConfigFileStrings["common"]["cutOffTimePassedText"].ToString());
+                                                LogWriter.LogWrite("EVENING_HABITS STATE - now > myCutoffTime - Show auto-closing alert, high-priority habits start automatically");
+                                                // Auto-start the high-priority habits at cutoff instead of waiting for the user to
+                                                // click OK (#866). The box auto-closes after 5s (or an early OK), then the flow below
+                                                // (ShowACtivityFinishedScreen) proceeds on its own. The cutoff text is the heading and a
+                                                // subheading tells the user the habits will start shortly.
+                                                string sCutoffMsg = appSettings.ConfigFileStrings["common"]["cutOffTimePassedText"].ToString();
+                                                string sCutoffSub = appSettings.ConfigFileStrings["common"]["cutOffTimePassedSubText"]?.ToString()
+                                                    ?? "Your high priority habits will start in 5 seconds.";
+                                                FBMessageBox msg = new FBMessageBox(sCutoffSub, sCaption: sCutoffMsg, bAutoClose: true);
                                                 msg.WindowStartupLocation = WindowStartupLocation.CenterScreen;
                                                 msg.ShowDialog();
 
@@ -2639,7 +3171,7 @@ namespace Focus_Bear
                                 {
                                     //If its a high priority habit, we will need to check if its cutoff time have passed then stop and act accordingly
                                     //cutOffTimePassedForHabitText
-                                    //since a high priority activity is running, we need to skip it and show the finish screen 
+                                    //since a high priority activity is running, we need to skip it and show the finish screen
                                     //and allow starting next high priority activity or show unlock button
                                     //Let's also check if the cut off time of this individual habit and not add if the time already elapsed
                                     if (appSettings.arrAllEveningHabits[appSettings.nHabitIndex].sCutOffTime != "")
@@ -2672,7 +3204,7 @@ namespace Focus_Bear
                                                         appSettings.RemoveSecondaryWindows();
 
                                                         LogWriter.LogWrite("EVENING_HABITS STATE - now > myCutoffTime of Individual habit - Show Alert");
-                                                        
+
                                                         FBMessageBox msg = new FBMessageBox(appSettings.ConfigFileStrings["common"]["cutOffTimePassedForHabitText"].ToString(), "", MessageBoxButton.OK, "", "", "", false, "", true);
                                                         msg.WindowStartupLocation = WindowStartupLocation.CenterScreen;
                                                         msg.ShowDialog();
@@ -2781,7 +3313,7 @@ namespace Focus_Bear
                         LogWriter.LogWrite("appSettings.IsAppDeactivated() - DO not show morning routine");
                         return;
                     }
-                    
+
                     if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
                     {
                         if(appSettings.bHabitsPostponedState)
@@ -2926,90 +3458,16 @@ namespace Focus_Bear
             try
             {
                 //Here we will filter the array to just have the current days activity
-                //It might be possible that the app is contineously running since many days 
+                //It might be possible that the app is contineously running since many days
                 //SO we always need to first fetch from the GLobal array and then filer it per days
                 appSettings.arrAllMorningHabits.Clear();
-                DayOfWeek Today = DateTime.Now.DayOfWeek;
-                for (int i = 0; i < appSettings.arrGLOBALAllMorningHabits.Count; i++)
+                appSettings.arrAllMorningHabits.AddRange(Focus_Bear.Habits.DayPlan.RoutineHabitDays.ScheduledOn(appSettings.arrGLOBALAllMorningHabits, DateTime.Now));
+                // E2E build: the test account's morning routine runs only when the runner asks for it
+                // (E2EBuild.StartRoutineVariable), so the clock can't put a routine over another test's screen.
+                if (Focus_Bear.Utils.E2EBuild.IsActive && Focus_Bear.Utils.E2EBuild.StartRoutine != "morning" && appSettings.arrAllMorningHabits.Count > 0)
                 {
-                    for (int m = 0; m < appSettings.arrGLOBALAllMorningHabits[i].DaysOfWeek.Count(); m++)
-                    {
-                        if (appSettings.arrGLOBALAllMorningHabits[i].DaysOfWeek[m].ToLower() == "all")
-                        {
-                            appSettings.arrAllMorningHabits.Add(appSettings.arrGLOBALAllMorningHabits[i]);
-                            break;
-                        }
-                        else
-                        {
-                            bool bfound = false;
-                            string day = appSettings.arrGLOBALAllMorningHabits[i].DaysOfWeek[m].ToLower();
-                            switch (Today)
-                            {
-                                case DayOfWeek.Sunday:
-                                    {
-                                        if (day.ToLower() == "sun")
-                                        {
-                                            bfound = true;
-                                        }
-                                        break;
-                                    }
-                                case DayOfWeek.Monday:
-                                    {
-                                        if (day.ToLower() == "mon")
-                                        {
-                                            bfound = true;
-                                        }
-                                        break;
-                                    }
-                                case DayOfWeek.Tuesday:
-                                    {
-                                        if (day.ToLower() == "tue")
-                                        {
-                                            bfound = true;
-                                        }
-                                        break;
-                                    }
-                                case DayOfWeek.Wednesday:
-                                    {
-                                        if (day.ToLower() == "wed")
-                                        {
-                                            bfound = true;
-                                        }
-                                        break;
-                                    }
-                                case DayOfWeek.Thursday:
-                                    {
-                                        if (day.ToLower() == "thu")
-                                        {
-                                            bfound = true;
-                                        }
-                                        break;
-                                    }
-                                case DayOfWeek.Friday:
-                                    {
-                                        if (day.ToLower() == "fri")
-                                        {
-                                            bfound = true;
-                                        }
-                                        break;
-                                    }
-                                case DayOfWeek.Saturday:
-                                    {
-                                        if (day.ToLower() == "sat")
-                                        {
-                                            bfound = true;
-                                        }
-                                        break;
-                                    }
-
-                            }
-                            if (bfound)
-                            {
-                                appSettings.arrAllMorningHabits.Add(appSettings.arrGLOBALAllMorningHabits[i]);
-                                break;
-                            }
-                        }
-                    }
+                    LogWriter.LogWrite("E2E: morning routine not requested (" + Focus_Bear.Utils.E2EBuild.StartRoutineVariable + ") - treating today's as empty");
+                    appSettings.arrAllMorningHabits.Clear();
                 }
             }
             catch (Exception ex)
@@ -3069,9 +3527,9 @@ namespace Focus_Bear
                 {
                     LogWriter.LogWrite("GetLastActivityInfo Success");
 
-                    if (appSettings.sLastActivityDoneInfo != null || appSettings.sLastActivityDoneInfo.Length > 0)
+                    if (appSettings.sLastActivityDoneInfo != null && appSettings.sLastActivityDoneInfo.Length > 0)
                     {
-                        LogWriter.LogWrite("GetLastActivityInfo Value - " + appSettings.sLastActivityDoneInfo);
+                        LogWriter.LogWrite("GetLastActivityInfo Value - " + FocusBear.Core.Reports.LogSafe.Keys(appSettings.sLastActivityDoneInfo));
                         //Parse the JSON string
                         try
                         {
@@ -3112,7 +3570,8 @@ namespace Focus_Bear
                                             {
 
                                                 DateTime lastCompletedSequenceStartedAtDate = DateTime.Parse(lastCompletedSequenceStartedAt);
-                                                if (lastCompletedSequenceStartedAtDate > myStartTime)
+                                                // E2E seam: a forced morning routine runs even if today's is done.
+                                                if (lastCompletedSequenceStartedAtDate > myStartTime && Focus_Bear.Utils.E2EBuild.StartRoutine != "morning")
                                                 {
                                                     //Today's Morning activity is done
                                                     LogWriter.LogWrite("Morning habits already shown for today - return");
@@ -3159,7 +3618,9 @@ namespace Focus_Bear
                                                     if (habitSequenceID.Length > 0)
                                                     {
                                                         DateTime activityAssignedDate = DateTime.Parse(current_activity_assigned_at);
-                                                        if (activityAssignedDate > myStartTime)
+                                                        // E2E seam: a forced morning routine starts from its first habit, not where
+                                                        // an earlier test run left today's sequence.
+                                                        if (activityAssignedDate > myStartTime && Focus_Bear.Utils.E2EBuild.StartRoutine != "morning")
                                                         {
                                                             //Morning routine started but did not finished
                                                             if (habitSequenceID == sequenceId)
@@ -3313,7 +3774,7 @@ namespace Focus_Bear
                                 //Start Default
                             }
 
-                            // 
+                            //
                         }
                         catch (Exception ex)
                         {
@@ -3385,24 +3846,17 @@ namespace Focus_Bear
             //If its the expired version, then we need to show top 3 activities only
             if (appSettings.isExpired)
             {
-                appSettings.bShowReducedHabitsOnExpired = false;
-                for (int i = 0; i < appSettings.arrAllMorningHabits.Count; i++)
-                {
-                    if (i > 2)
-                    {
-                        appSettings.arrAllMorningHabits.RemoveAt(i);
-                        i--;
-                        appSettings.bShowReducedHabitsOnExpired = true;
-                    }
-                }
+                int nBeforeLimit = appSettings.arrAllMorningHabits.Count;
+                appSettings.arrAllMorningHabits = appSettings.ApplyExpiredHabitLimit(appSettings.arrAllMorningHabits, isEvening: false);
+                appSettings.bShowReducedHabitsOnExpired = appSettings.arrAllMorningHabits.Count != nBeforeLimit;
             }
-            
+
             FocusButton.SendHabits();
 
             try
             {
                 LogWriter.LogWrite("ShowMorningRoutine - Now show the HabitWindow");
-                                 
+
                 ShowBlankWindowOnOtherScreens();
 
                 wndFocusBearMainWindow.PageHabits.InitializeInnerScreens(); //V2 most important to load all screens as required.
@@ -3429,6 +3883,22 @@ namespace Focus_Bear
                 LogWriter.LogWrite("ShowMorningRoutine" + ex.Message);
             }
 
+        }
+
+        /// <summary>
+        /// After the day's cut-off only high-priority evening habits still run, each until its own
+        /// cut-off time; one with no time of its own runs regardless.
+        /// </summary>
+        private bool IsPastItsEveningCutOff(habit eveningHabit)
+        {
+            if (!appSettings.DidCutOffTimePassed()) return false;
+            if (!eveningHabit.bHighPriorityActivity) return true;
+            if (string.IsNullOrEmpty(eveningHabit.sCutOffTime)) return false;
+
+            DateTime now = DateTime.Now;
+            TimeSpan cutOff = TimeSpan.Parse(eveningHabit.sCutOffTime);
+            DateTime habitCutOff = new DateTime(now.Year, now.Month, now.Day, cutOff.Hours, cutOff.Minutes, 0);
+            return now >= habitCutOff;
         }
 
         public async void ShowEveningRoutine()
@@ -3521,7 +3991,7 @@ namespace Focus_Bear
             //Stopping the breaks timer here
             dispatcherTimerBreaks.Stop();
 
-            //Check if we have already show the Focus Summary,  
+            //Check if we have already show the Focus Summary,
             if (RegistryManager.GetFocusSummaryShownTillDate())
             {
                 if (DateTime.Now > appSettings.FocusSummaryShownTillDate) //Looks like a previous day Evening shown value
@@ -3543,151 +4013,19 @@ namespace Focus_Bear
             }
 
             //Here we will filter the array to just have the current days activity
-            //It might be possible that the app is contineously running since many days 
+            //It might be possible that the app is contineously running since many days
             //SO we always need to first fetch from the GLobal array and then filer it per days
             appSettings.bSomeHabitsRemovedDueToCutOffTime = false; //Initialte Again
 
             appSettings.arrAllEveningHabits.Clear();
-            DayOfWeek Today = DateTime.Now.DayOfWeek;
-            if(appSettings.arrGLOBALAllEveningHabits != null)
-            { 
-                for (int i = 0; i < appSettings.arrGLOBALAllEveningHabits.Count; i++)
+            foreach (habit eveningHabit in Focus_Bear.Habits.DayPlan.RoutineHabitDays.ScheduledOn(appSettings.arrGLOBALAllEveningHabits, DateTime.Now))
+            {
+                if (IsPastItsEveningCutOff(eveningHabit))
                 {
-                    for (int m = 0; m < appSettings.arrGLOBALAllEveningHabits[i].DaysOfWeek.Count(); m++)
-                    {
-                        if (appSettings.arrGLOBALAllEveningHabits[i].DaysOfWeek[m].ToLower() == "all")
-                        {
-                            //Let's also check if the cut off time of this individual habit and not add if the time already elapsed
-                            if (appSettings.DidCutOffTimePassed())
-                            {
-                                if (appSettings.arrGLOBALAllEveningHabits[i].bHighPriorityActivity)
-                                {
-                                    if (appSettings.arrGLOBALAllEveningHabits[i].sCutOffTime != "")
-                                    {
-                                        DateTime now = DateTime.Now;
-                                        TimeSpan tsTime = TimeSpan.Parse(appSettings.arrGLOBALAllEveningHabits[i].sCutOffTime);
-                                        DateTime myAvtivityStartTime = new DateTime(now.Year, now.Month, now.Day, tsTime.Hours, tsTime.Minutes, 00);
-                                        if (now < myAvtivityStartTime)
-                                        {
-                                            appSettings.arrAllEveningHabits.Add(appSettings.arrGLOBALAllEveningHabits[i]);
-                                        }
-                                        else
-                                        {
-                                            appSettings.bSomeHabitsRemovedDueToCutOffTime = true;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        appSettings.arrAllEveningHabits.Add(appSettings.arrGLOBALAllEveningHabits[i]); //Add if there is no 
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                appSettings.arrAllEveningHabits.Add(appSettings.arrGLOBALAllEveningHabits[i]);
-                            }
-                            break;
-                        }
-                        else
-                        {
-                            bool bfound = false;
-                            string day = appSettings.arrGLOBALAllEveningHabits[i].DaysOfWeek[m].ToLower();
-                            switch (Today)
-                            {
-                                case DayOfWeek.Sunday:
-                                    {
-                                        if (day.ToLower() == "sun")
-                                        {
-                                            bfound = true;
-                                        }
-                                        break;
-                                    }
-                                case DayOfWeek.Monday:
-                                    {
-                                        if (day.ToLower() == "mon")
-                                        {
-                                            bfound = true;
-                                        }
-                                        break;
-                                    }
-                                case DayOfWeek.Tuesday:
-                                    {
-                                        if (day.ToLower() == "tue")
-                                        {
-                                            bfound = true;
-                                        }
-                                        break;
-                                    }
-                                case DayOfWeek.Wednesday:
-                                    {
-                                        if (day.ToLower() == "wed")
-                                        {
-                                            bfound = true;
-                                        }
-                                        break;
-                                    }
-                                case DayOfWeek.Thursday:
-                                    {
-                                        if (day.ToLower() == "thu")
-                                        {
-                                            bfound = true;
-                                        }
-                                        break;
-                                    }
-                                case DayOfWeek.Friday:
-                                    {
-                                        if (day.ToLower() == "fri")
-                                        {
-                                            bfound = true;
-                                        }
-                                        break;
-                                    }
-                                case DayOfWeek.Saturday:
-                                    {
-                                        if (day.ToLower() == "sat")
-                                        {
-                                            bfound = true;
-                                        }
-                                        break;
-                                    }
-
-                            }
-
-                            if (bfound)
-                            {
-                                //Let's also check if the cut off time of this individual habit and not add if the time already elapsed
-                                if (appSettings.DidCutOffTimePassed())
-                                {
-                                    if (appSettings.arrGLOBALAllEveningHabits[i].bHighPriorityActivity)
-                                    {
-                                        if (appSettings.arrGLOBALAllEveningHabits[i].sCutOffTime != "")
-                                        {
-                                            DateTime now = DateTime.Now;
-                                            TimeSpan tsTime = TimeSpan.Parse(appSettings.arrGLOBALAllEveningHabits[i].sCutOffTime);
-                                            DateTime myAvtivityStartTime = new DateTime(now.Year, now.Month, now.Day, tsTime.Hours, tsTime.Minutes, 00);
-                                            if (now > myAvtivityStartTime)
-                                            {
-                                                bfound = false;
-                                                appSettings.bSomeHabitsRemovedDueToCutOffTime = true;
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        bfound = false;
-                                        appSettings.bSomeHabitsRemovedDueToCutOffTime = true;
-                                    }
-                                }
-                            }
-
-                            if (bfound)
-                            {
-                                appSettings.arrAllEveningHabits.Add(appSettings.arrGLOBALAllEveningHabits[i]);
-                                break;
-                            }
-                        }
-                    }
+                    appSettings.bSomeHabitsRemovedDueToCutOffTime = true;
+                    continue;
                 }
+                appSettings.arrAllEveningHabits.Add(eveningHabit);
             }
 
             if (appSettings.arrAllEveningHabits.Count == 0)
@@ -3714,9 +4052,9 @@ namespace Focus_Bear
             {
                 LogWriter.LogWrite("GetLastActivityInfo Success - checking before evening routine");
 
-                if (appSettings.sLastActivityDoneInfo != null || appSettings.sLastActivityDoneInfo.Length > 0)
+                if (appSettings.sLastActivityDoneInfo != null && appSettings.sLastActivityDoneInfo.Length > 0)
                 {
-                    LogWriter.LogWrite("GetLastActivityInfo Value - " + appSettings.sLastActivityDoneInfo);
+                    LogWriter.LogWrite("GetLastActivityInfo Value - " + FocusBear.Core.Reports.LogSafe.Keys(appSettings.sLastActivityDoneInfo));
                     //Parse the JSON string
                     try
                     {
@@ -3752,7 +4090,8 @@ namespace Focus_Bear
                                     {
 
                                         DateTime lastCompletedSequenceStartedAtDate = DateTime.Parse(lastCompletedSequenceStartedAt);
-                                        if (lastCompletedSequenceStartedAtDate > myShutOffTime)
+                                        // E2E seam: a forced evening routine runs even if today's is done.
+                                        if (lastCompletedSequenceStartedAtDate > myShutOffTime && Focus_Bear.Utils.E2EBuild.StartRoutine != "evening")
                                         {
                                             //Today's Evening activity is done
                                             LogWriter.LogWrite("Evening habits already shown for today - return");
@@ -3964,7 +4303,7 @@ namespace Focus_Bear
                             //Start Default
                         }
 
-                        // 
+                        //
                     }
                     catch (Exception ex)
                     {
@@ -4031,42 +4370,9 @@ namespace Focus_Bear
             //If its the expired version, then we need to show top 3 activities only but ignore the relax one whereever it is in the list
             if (appSettings.isExpired)
             {
-                appSettings.bShowReducedHabitsOnExpired = false;
-           
-                var list = appSettings.arrAllEveningHabits;
-
-                // Find the relax habit (first one with the flag)
-                int relaxIndex = list.FindIndex(h => h.show_saved_distracting_websites);
-
-                List<habit> reduced;
-
-                if (relaxIndex >= 0)
-                {
-                    var relaxHabit = list[relaxIndex];
-
-                    // Take the top 3 *excluding* the special habit
-                    var others = list
-                        .Where(h => !h.show_saved_distracting_websites)
-                        .Take(3)
-                        .ToList();
-
-                    reduced = new List<habit>();
-                    reduced.AddRange(others);
-
-                    // Add the relax habit (ensure it's included)
-                    reduced.Add(relaxHabit);
-                }
-                else
-                {
-                    // No special → only top 3
-                    reduced = list.Take(3).ToList();
-                }
-
-                // Replace original list
-                bool wasReduced = list.Count != reduced.Count;
-                appSettings.arrAllEveningHabits = reduced;
-                appSettings.bShowReducedHabitsOnExpired = wasReduced;
-
+                int nBeforeLimit = appSettings.arrAllEveningHabits.Count;
+                appSettings.arrAllEveningHabits = appSettings.ApplyExpiredHabitLimit(appSettings.arrAllEveningHabits, isEvening: true);
+                appSettings.bShowReducedHabitsOnExpired = appSettings.arrAllEveningHabits.Count != nBeforeLimit;
             }
 
             FocusButton.SendHabits();
@@ -4107,7 +4413,7 @@ namespace Focus_Bear
             if (appSettings.nCurrentActivityType == CurrentActivityType.SHUT_OFF)
             {
                 LogWriter.LogWrite("ShowShutOffScreen() - appSettings.nCurrentActivityType == CurrentActivityType.SHUT_OFF return");
-                return; 
+                return;
             }
 
             if(!appSettings.DidCutOffTimePassed())
@@ -4124,8 +4430,8 @@ namespace Focus_Bear
             {
                 ShowBlankWindowOnOtherScreens();
 
-                ShowHabitsSectionInMainWindow();  
-               
+                ShowHabitsSectionInMainWindow();
+
             }
             catch (Exception ex)
             {
@@ -4230,11 +4536,14 @@ namespace Focus_Bear
             }
 
 
-            // Bring to foreground
-            SetForegroundWindow(hWnd);
-
             wndFocusBearMainWindow.Visibility = Visibility.Visible;
-            wndFocusBearMainWindow.Activate();
+            // Bring to foreground (not a background E2E instance: its windows are never activated, and a refused
+            // activation left the other instance's window without the foreground)
+            if (!Focus_Bear.Utils.E2EBackground.IsActive)
+            {
+                SetForegroundWindow(hWnd);
+                wndFocusBearMainWindow.Activate();
+            }
 
             // Force redraw
             Dispatcher.BeginInvoke(new Action(() =>
@@ -4357,6 +4666,12 @@ namespace Focus_Bear
 
         public void ShowEasyPostponeWindow()
         {
+            // The AI accountability buddy replaces the minutes picker for routines (the password already ran).
+            if (ShouldUseAccountabilityBuddy())
+            {
+                ShowAccountabilityBuddy();
+                return;
+            }
             //always create new
             wndEasyPostpone = new EasySkipPostpone(wndFocusBearMainWindow);
             wndFocusBearMainWindow.GridShade.Visibility = Visibility.Visible;
@@ -4422,11 +4737,10 @@ namespace Focus_Bear
                     ? appSettings.arrGLOBALAllEveningHabits : appSettings.arrGLOBALAllMorningHabits;
                 if (globalArr == null) return true;
                 string todayKey = DateTime.Now.ToString("yyyy-MM-dd");
-                string dow3 = DateTime.Now.DayOfWeek.ToString().Substring(0, 3).ToLower();
                 int scheduled = 0, remaining = 0;
                 foreach (var h in globalArr)
                 {
-                    bool forToday = h.DaysOfWeek != null && h.DaysOfWeek.Any(d => { string dl = (d ?? "").ToLower(); return dl == "all" || dl == dow3; });
+                    bool forToday = Focus_Bear.Habits.DayPlan.RoutineHabitDays.IsScheduledOn(h, DateTime.Now);
                     if (!forToday) continue;
                     scheduled++;
                     if (string.IsNullOrEmpty(h.id) || !Focus_Bear.Habits.DayPlan.DayPlanDataSource.IsHabitDoneOrSkipped(h.id, todayKey))
@@ -4508,14 +4822,10 @@ namespace Focus_Bear
         {
             try
             {
-                string dow3 = DateTime.Now.DayOfWeek.ToString().Substring(0, 3).ToLower();
                 var globalArr = (type == CurrentActivityType.EVENING_HABITS) ? appSettings.arrGLOBALAllEveningHabits : appSettings.arrGLOBALAllMorningHabits;
                 var todayArr = (type == CurrentActivityType.EVENING_HABITS) ? appSettings.arrAllEveningHabits : appSettings.arrAllMorningHabits;
                 todayArr.Clear();
-                if (globalArr != null)
-                    foreach (var h in globalArr)
-                        if (h.DaysOfWeek != null && h.DaysOfWeek.Any(d => { string dl = (d ?? "").ToLower(); return dl == "all" || dl == dow3; }))
-                            todayArr.Add(h);
+                todayArr.AddRange(Focus_Bear.Habits.DayPlan.RoutineHabitDays.ScheduledOn(globalArr, DateTime.Now));
 
                 FocusBearAPIClient client = new FocusBearAPIClient();
                 await client.GetLastActivityInfo();
@@ -4538,6 +4848,10 @@ namespace Focus_Bear
         {
             LogWriter.LogWrite("PostponeHabitWork()");
 
+            //Every caller's minutes kept within what the timer accepts (past ~35,791 minutes setting the
+            //interval threw, and the postpone silently did nothing).
+            nMinutesToPostpone = FocusBear.Core.Postpone.PostponeMinutes.Clamp(nMinutesToPostpone);
+
             try
             {
                 //It might be possible that habits are already postponed and user is trying to postpone again from the 2 min popup that appears before 2 mins of resumin habits
@@ -4547,8 +4861,14 @@ namespace Focus_Bear
                     LogWriter.LogWrite("PostponeHabitWork Timer extended for minutes from now - " + nMinutesToPostpone.ToString());
                     //If any old timer for postpone is running, we need to stop that add minutes from now and start it back.
                     dispatcherTimerPostponeHabits.Stop();
-                    dispatcherTimerPostponeHabits.Interval = TimeSpan.FromMinutes(nMinutesToPostpone);
+                    dispatcherTimerPostponeHabits.Interval = E2EBuild.PostponeInterval(nMinutesToPostpone);
                     dispatcherTimerPostponeHabits.Start();
+
+                    // An extension made after the evening cutoff is a post-cutoff postpone, whatever the first one was.
+                    CurrentActivityType postponedRoutine = AppSettings.PostponedRoutine(appSettings.nCurrentActivityType, true, appSettings.HabitsPostponeActivityType);
+                    appSettings.bEveningHabitsPostponedAfterCutoffTime = AppSettings.PostponedAfterCutoff(
+                        appSettings.bEveningHabitsPostponedAfterCutoffTime, postponedRoutine,
+                        postponedRoutine == CurrentActivityType.EVENING_HABITS && appSettings.DidCutOffTimePassed());
 
                     // Re-persist the new end time so a restart restores the extended postpone (keeps the
                     // existing routine type + flags already stored on the first postpone).
@@ -4592,23 +4912,19 @@ namespace Focus_Bear
                     if (DevFlags.FastTimers)
                         dispatcherTimerPostponeHabits.Interval = new TimeSpan(0, 5, nMinutesToPostpone);
                     else
-                        dispatcherTimerPostponeHabits.Interval = new TimeSpan(0,  nMinutesToPostpone, 0);
+                        dispatcherTimerPostponeHabits.Interval = E2EBuild.PostponeInterval(nMinutesToPostpone);
                     dispatcherTimerPostponeHabits.Start();
 
                     appSettings.bHabitsPostponedState = true;
                     appSettings.bHabitwithAllowedAppsRunning = false; //Reset
                     appSettings.bHabitwithUseFocusModeRunning = false;
                     appSettings.bHabitwithUserActionNonTimerRunning = false;
-                    
+
                     wndFocusBearMainWindow.EnableAllButtons();//Enable all the left menu buttons
 
-                    if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
-                    {
-                        if (appSettings.DidCutOffTimePassed())
-                        {
-                            appSettings.bEveningHabitsPostponedAfterCutoffTime = true;
-                        }
-                    }
+                    appSettings.bEveningHabitsPostponedAfterCutoffTime = AppSettings.PostponedAfterCutoff(
+                        appSettings.bEveningHabitsPostponedAfterCutoffTime, appSettings.nCurrentActivityType,
+                        appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS && appSettings.DidCutOffTimePassed());
 
                     // Persist the postpone so it survives an app restart (restored in StartWorkFlow, capped by
                     // the routine-window guard). Done here while nCurrentActivityType is still the routine type
@@ -4822,7 +5138,7 @@ namespace Focus_Bear
             }
         }
 
-          
+
         private void dispatcherTimer_Postpone(object sender, EventArgs e)
         {
             LogWriter.LogWrite("dispatcherTimer_Postpone()");
@@ -4836,6 +5152,14 @@ namespace Focus_Bear
             }
         }
 
+
+        /// <summary>Ends the routine postpone: see <see cref="HabitsPostponeEnd.Clear"/>.</summary>
+        private void EndHabitsPostpone()
+        {
+            HabitsPostponeEnd.Clear(appSettings, dispatcherTimerPostponeHabits, dispatcherTimerResumeHabitsAfterPostpone,
+                () => wndHabitsResumeInPopup?.HideHabitsResumeInPopupAndStopTimer(),
+                RegistryManager.RemoveHabitsPostponeEndTime);
+        }
 
         public void ResumeAfterPostponeFinished()
         {
@@ -4943,7 +5267,7 @@ namespace Focus_Bear
 
                     ShowBlankWindowOnOtherScreens();
                 }
-                
+
             }
             catch (Exception ex)
             {
@@ -4971,16 +5295,16 @@ namespace Focus_Bear
                     {
                         wndFocusSummary.SimulateNeedOneMinute_Click();
                     }
-                    else 
+                    else
                     {
-                      
+
                         //Show habits view it it was elsewhere
                         if (!wndFocusBearMainWindow.IsLeafSelected(LeftButtonType.Habits))
                             wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.Habits);
-                        
+
                         wndFocusBearMainWindow.PageHabits.SimulatePleaseSpareMeClick();
                     }
-                    
+
                 }
                 else if (appSettings.nCurrentActivityType == CurrentActivityType.SHUT_OFF)
                 {
@@ -5028,6 +5352,13 @@ namespace Focus_Bear
         {
             LogWriter.LogWrite("CheckForUpdate()");
 
+            // The E2E test build is never updated: an update would install over the real app.
+            if (!E2EBuild.MachineIntegrationAllowed)
+            {
+                LogWriter.LogWrite("CheckForUpdate() skipped - E2E test build");
+                return;
+            }
+
             await Task.Factory.StartNew(async () =>
             {
                 try
@@ -5068,7 +5399,7 @@ namespace Focus_Bear
                         {
                             await Dispatcher.BeginInvoke((Action)(() =>
                             {
-                                string displayMsg = appSettings.ConfigFileStrings["WindowsSpecific"]["alreadyRunningLatestVersion"].ToString();//"You are already running the latest version of Focus Bear.";  
+                                string displayMsg = appSettings.ConfigFileStrings["WindowsSpecific"]["alreadyRunningLatestVersion"].ToString();//"You are already running the latest version of Focus Bear.";
                                 FBMessageBox ff = new FBMessageBox(displayMsg, appSettings.ConfigFileStrings["WindowsSpecific"]["noNewUpdateAvailable"].ToString());
                                 ff.ShowDialog();
 
@@ -5105,7 +5436,7 @@ namespace Focus_Bear
                 {
                     wndFocusProgress = new FocusProgress();
                 }
-                
+
                 wndFocusProgress.StartTimer(int.Parse(appSettings.sRunningFocusModeMinutes) * 60);
                 wndFocusProgress.Show();
                 wndFocusProgress.BringIntoView();
@@ -5131,7 +5462,16 @@ namespace Focus_Bear
             try
             {
                 var track = appSettings.arrFocusMusicTracks?.FirstOrDefault(t => t.IsPlaying);
-                if (track == null) return;
+                if (track == null)
+                {
+                    // An added YouTube Music / Spotify link, rather than a library track.
+                    if (wndFocusBearMainWindow?.PageFocusMusic?.PauseLinkMusicForRoutine() == true)
+                    {
+                        appSettings.bFocusMusicPausedAutomatically = true;
+                        LogWriter.LogWrite("PauseFocusMusicForRoutine() - paused an added music link");
+                    }
+                    return;
+                }
                 wndFocusBearMainWindow?.PageFocusMusic?.PauseTrack(track);
                 appSettings.bFocusMusicPausedAutomatically = true;
                 wndTrayMenu?.UpdateTrayMenu();
@@ -5152,7 +5492,11 @@ namespace Focus_Bear
                 appSettings.bFocusMusicPausedAutomatically = false;
 
                 var track = appSettings.arrFocusMusicTracks?.FirstOrDefault(t => t.IsPaused);
-                if (track == null) return;
+                if (track == null)
+                {
+                    wndFocusBearMainWindow?.PageFocusMusic?.ResumeLinkMusicAfterRoutine();
+                    return;
+                }
                 wndFocusBearMainWindow?.PageFocusMusic?.ResumeTrack(track);
                 wndTrayMenu?.UpdateTrayMenu();
                 LogWriter.LogWrite("ResumeFocusMusicAfterRoutine() - resumed: " + track.Name);
@@ -5172,6 +5516,35 @@ namespace Focus_Bear
             wndFocusProgress?.Hide();
         }
 
+        /// <summary>
+        /// E2E build only (<see cref="E2EBuild.RestartRoutineEventName"/>): the morning routine from its first habit again,
+        /// as a relaunch with FOCUSBEAR_E2E_START_ROUTINE=morning would start it. The routine on screen (or a postpone,
+        /// or a buddy-approved session) is ended the way the app ends them, then <see cref="ShowMorningRoutine"/> runs.
+        /// </summary>
+        private void RestartMorningRoutineForE2E()
+        {
+            if (!E2EBuild.IsActive) return;
+            LogWriter.LogWrite("E2E: restarting the morning routine (test seam)");
+            try
+            {
+                if (appSettings.isFocusModeRunning) StopFocusSessionFromEvents();
+                EndHabitsPostpone();
+                if (wndEasyPostpone != null) { wndEasyPostpone.Close(); wndEasyPostpone = null; }
+                appSettings.arraySkipped.Clear();
+                appSettings.arrayCompletedActivities.Clear();
+                appSettings.nHabitIndex = 0;
+                appSettings.nTotalSecondsAllHabits = 0;
+                appSettings.nHabitCompletedSeconds = 0;
+                appSettings.bShowActivitiesFromMid = false;
+                appSettings.bShowActivitiesFromMidLastSkipped = false;
+                appSettings.nCurrentActivityType = CurrentActivityType.NONE;
+                RegistryManager.RemoveMorningHabitsShownTillDate();
+                ShowMorningRoutine();
+                LogWriter.LogWrite("E2E: morning routine restarted");
+            }
+            catch (Exception ex) { LogWriter.LogWrite("E2E restart routine ex - " + ex); }
+        }
+
         public void RestoreFocusUIAfterRoutine()
         {
             // Restore controls after routine
@@ -5183,7 +5556,15 @@ namespace Focus_Bear
 
         private void Application_Exit(object sender, ExitEventArgs e)
         {
+            if (_exitWithoutRunning)
+            {
+                LogWriter.LogWrite("Application_Exit() - this process never became the running app; nothing to save");
+                if (createdNew && appMutex != null) appMutex.ReleaseMutex();
+                return;
+            }
             LogWriter.LogWrite("Application_Exit()");
+            // Every graceful way out comes through here, so the watchdog leaves a deliberate quit alone.
+            AppWatchdog.MarkCleanExit();
 
             //Teacher Mode - best-effort final {in_focus:false} heartbeat so the teacher's roster
             //shows the student as out of focus right away (the server also infers quit from the
@@ -5236,6 +5617,9 @@ namespace Focus_Bear
                 //Remove the hook
                 if (m_hhook != IntPtr.Zero)
                     UnhookWinEvent(m_hhook);
+                foreach (IntPtr hook in m_hhooks)
+                    if (hook != IntPtr.Zero) UnhookWinEvent(hook);
+                m_hhooks.Clear();
                 LogWriter.LogWrite("Application_Exit() 4");
 
                 // Unsubscribe from the events when you're done
@@ -5249,16 +5633,12 @@ namespace Focus_Bear
                     {
                         wndFocusBearMainWindow.PageToDoPlayer.webView.Dispose();
                     }
-                    if (wndFocusBearMainWindow.PageToDoList != null)
-                    {
-                        wndFocusBearMainWindow.PageToDoList.webView.Dispose();
-                    }
                 }
                 catch (Exception ex)
                 {
                     LogWriter.LogWrite("Todo Player webView.Dispose(); - " + ex.Message);
                 }
-                
+
                 FocusButton.Stop();
 
                 LogWriter.LogWrite("Application_Exit() done");
@@ -5501,6 +5881,22 @@ namespace Focus_Bear
             wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.StartFocusSession);
         }
 
+        // Bring the Focus screen up as the first thing a new user sees (after onboarding, or on the first
+        // launch that hasn't seen the pomodoro tour yet) and record that we asked. Until now nothing marked
+        // this moment: start-focus-session-manually says who pressed Start, never who was ever prompted, so
+        // the onboarding funnel could not tell "prompt never appeared" apart from "prompt ignored" (#1517).
+        private void ShowFirstFocusSessionPrompt()
+        {
+            string sSource = bShowFirstFocusPromptAfterOnboarding ? "onboarding" : "first-launch";
+            bShowFirstFocusPromptAfterOnboarding = false;
+
+            LogWriter.LogWrite("ShowFirstFocusSessionPrompt() - source " + sSource);
+
+            ShowSimplePomodoroWindow();
+
+            appSettings.CapturePostHog("first-focus-prompt-shown", string.Format("\"source\":\"{0}\"", sSource));
+        }
+
         public void ShowSimplePomodoroWindow()
         {
             LogWriter.LogWrite("ShowSimplePomodoroWindow()");
@@ -5556,6 +5952,7 @@ namespace Focus_Bear
 
                 LogWriter.LogWrite("CheckAndResumeRunningFocusMode - resuming session " + sFocusModeId + ", remaining seconds: " + (int)remaining.TotalSeconds);
 
+                appSettings.ServerFocusSession.PersonalStarted();   //the account's running session, adopted
                 Application.Current.Dispatcher.Invoke(() =>
                 {
                     StartWorkFocusMode(sFocusModeId, (int)remaining.TotalSeconds, false, true);
@@ -5769,7 +6166,7 @@ namespace Focus_Bear
                     }
                 }
             }
- 
+
             try
             {
                 int TotalMinutes = SessionTotalSeconds / 60;
@@ -5795,6 +6192,13 @@ namespace Focus_Bear
                 //Make the global variable true
                 appSettings.isFocusModeRunning = true;
                 appSettings.isFocusModePaused = false;
+
+                // A focus session is starting — dismiss the break popup if it's still on screen. #1065
+                if (wndTakeABreak != null && wndTakeABreak.IsVisible)
+                {
+                    wndTakeABreak.Close();
+                    wndTakeABreak = null;
+                }
 
                 DateTime dTill = DateTime.Now;
 
@@ -5838,7 +6242,7 @@ namespace Focus_Bear
             {
                 LogWriter.LogWrite("Start WORK focus mode from suggestion window / button Exception - " + ex.Message);
             }
-                
+
         }
 
         // True while a tab-limit alert is visible — prevents repeated alerts per breach.
@@ -5855,6 +6259,9 @@ namespace Focus_Bear
 
         private static string GetTabRuntimeId(AutomationElement tab)
         {
+            // Cached by the scan (no cross-process call), else asked for.
+            try { if (tab.GetCachedPropertyValue(AutomationElement.RuntimeIdProperty, true) is int[] cached) return string.Join("-", cached); }
+            catch { }
             try { return string.Join("-", tab.GetRuntimeId()); }
             catch { return Guid.NewGuid().ToString(); } // unknown → treat as new tab
         }
@@ -5869,7 +6276,7 @@ namespace Focus_Bear
             try
             {
                 await Task.Delay(CHROMIUM_UIA_REGISTRATION_MS);
-                await Dispatcher.InvokeAsync(() => CheckTabLimitAndAlert());
+                await Dispatcher.InvokeAsync(() => CheckTabLimitAndAlert(fromBrowserEvent: true));
                 await Task.Delay(POST_CHECK_COOLDOWN_MS);
             }
             finally
@@ -5890,6 +6297,8 @@ namespace Focus_Bear
         // Called on a background thread — must not touch UI.
         private void CloseExcessTabs(int nLimit)
         {
+            // The E2E test build never closes the person's browser tabs unless the runner opted in to blocking.
+            if (!E2EBuild.BlockingEnforcementAllowed) return;
             // Close new tabs (not in snapshot) first, then fall back to rightmost on screen.
             // This ensures tabs opened before the limit was set are never closed first.
             var snapshot = _tabSnapshotAtLimit;
@@ -5964,29 +6373,41 @@ namespace Focus_Bear
             }
         }
 
-        private async void CheckTabLimitAndAlert()
-        {
-           // LogWriter.LogWrite($"CheckTabLimitAndAlert: limit={appSettings.nMaxTabLimit}, purchased={appSettings.isPurchased}");
+        // One tab read at a time (the 3 s timer used to start another while a slow read was still walking the
+        // browsers), when the last one finished, and when one last found no browser window (the timer backs off).
+        private bool _tabScanInFlight;
+        private DateTime? _lastTabScanUtc, _lastNoBrowserUtc;
 
-            // Nothing needs a browser scan unless the count is being consumed: the tab limiter or the
-            // productivity stats (only recorded during a focus session). Skipping otherwise avoids a full
-            // cross-process UIA scan every 3s on every machine for no reason (#1167).
-            // The limiter enforces only when it's enabled, the subscription/trial hasn't expired, AND we're
-            // in an active Focus Session or an active Blocking Schedule (matches macOS — see the
-            // "Works only during active Focus Sessions or active Blocking Schedules" setting subtitle).
-            bool bLimiterActive = appSettings.bTabLimiterEnabled && !appSettings.isExpired
-                                  && (appSettings.isFocusModeRunning || appSettings.isBlockingScheduleRunning);
-            if (!appSettings.isFocusModeRunning && !bLimiterActive)
-                return;
+        private async void CheckTabLimitAndAlert(bool fromBrowserEvent = false)
+        {
+            if (!E2EBuild.BlockingEnforcementAllowed) return;
+
+            // Which read, if any (Core TabLimitScanPolicy): enforcement only with a limit configured and during a
+            // focus session or blocking schedule (the setting's own rule, as on the Mac); without a limit, a focus
+            // session's productivity stats are refreshed once a minute; never two reads at once (#1167).
+            var scan = FocusBear.Core.Blocking.TabLimitScanPolicy.Decide(appSettings.bTabLimiterEnabled, appSettings.nMaxTabLimit, appSettings.isExpired,
+                appSettings.isFocusModeRunning, appSettings.isBlockingScheduleRunning, _tabScanInFlight, fromBrowserEvent,
+                _lastNoBrowserUtc, _lastTabScanUtc, DateTime.UtcNow);
+            if (scan == FocusBear.Core.Blocking.TabScan.None) return;
+            bool bLimiterActive = scan == FocusBear.Core.Blocking.TabScan.Enforce;
 
             System.Collections.Generic.List<(AutomationElement Tab, AutomationElement CloseBtn, IntPtr Hwnd, string Browser)> currentTabs = null;
+            _tabScanInFlight = true;
             try
             {
-                currentTabs = await Task.Run(() => TabAudit.TabAuditService.CollectBrowserTabs());
+                int windows = 0;
+                // Counting needs no close buttons (a cross-process search per tab); CloseExcessTabs reads its own.
+                currentTabs = await Task.Run(() => TabAudit.TabAuditService.CollectBrowserTabs(false, out windows));
+                _lastNoBrowserUtc = windows == 0 ? DateTime.UtcNow : (DateTime?)null;
             }
             catch (Exception ex)
             {
                 LogWriter.LogWrite($"CheckTabLimitAndAlert Task.Run ex: {ex.Message}");
+            }
+            finally
+            {
+                _tabScanInFlight = false;
+                _lastTabScanUtc = DateTime.UtcNow;
             }
 
             int nTabCount = currentTabs?.Count ?? 0;
@@ -6070,7 +6491,7 @@ namespace Focus_Bear
             {
                 return false;
             }
-            //Check if its 4 hours before the morning time 
+            //Check if its 4 hours before the morning time
             try
             {
                 DateTime MorningHabitsDateTimeNextDay;
@@ -6082,12 +6503,12 @@ namespace Focus_Bear
 
                 if (now > myStartTime) //Same Day like before 12.00 am, so get for next day
                 {
-                    //Get the morning time and prepare a DT  
+                    //Get the morning time and prepare a DT
                     myStartTime = myStartTime.AddDays(1);
                     MorningHabitsDateTimeNextDay = myStartTime;
                     LogWriter.LogWrite(myStartTime.ToString());
                 }
-                else //get for same Day like now is after 12.00 am 
+                else //get for same Day like now is after 12.00 am
                 {
                     MorningHabitsDateTimeNextDay = myStartTime;//Today's Morning time
                     LogWriter.LogWrite(myStartTime.ToString());
@@ -6109,10 +6530,13 @@ namespace Focus_Bear
 
         public void ShowToDoPlayer()
         {
-            if(appSettings.isFocusModeRunning)
+            // The web To Do Player is replaced by the native session screen on the Focus Session row (Mac parity).
+            // A class session shows there too: its teacher checklist is the screen's task list (ClassSessionChecklistStore).
+            if (appSettings.isFocusModeRunning)
             {
-                //change the title of the todo player button
-                wndFocusBearMainWindow.UpdateLeafTitle(LeftButtonType.ToDoList, appSettings.ConfigFileStrings["menuInfo"]["menuItemToDoPlayerTitle"].ToString());
+                BringMainWindowToFront();
+                wndFocusBearMainWindow.HandleLeafSelection(LeftButtonType.StartFocusSession);
+                return;
             }
             BringMainWindowToFront();
 
@@ -6146,8 +6570,6 @@ namespace Focus_Bear
             string toDoTitle = isPaused
                 ? appSettings.ConfigFileStrings["menuInfo"]["menuItemToDoListTitle"].ToString()
                 : appSettings.ConfigFileStrings["menuInfo"]["menuItemToDoPlayerTitle"].ToString();
-
-            wndFocusBearMainWindow?.UpdateLeafTitle(LeftButtonType.ToDoList, toDoTitle);
 
             if (wndFocusBearMainWindow?.IsLeafSelected(LeftButtonType.ToDoList) == true)
             {
@@ -6183,7 +6605,7 @@ namespace Focus_Bear
         public void ShowNaturalBreakDetectionWindow()
         {
             LogWriter.LogWrite("ShowNaturalBreakDetectionWindow()");
-            
+
             if (wndNaturalBreakDetectionWindow == null)
             {
                 wndNaturalBreakDetectionWindow = new NaturalBreakDetectionWindow();
@@ -6196,7 +6618,7 @@ namespace Focus_Bear
         public void FocusModeAddedOrDeleted()
         {
             FocusModeAddedDeletedEvent?.Invoke();
-        } 
+        }
 
         public void ForceStopFocusSessionOnHabitsTime()
         {
@@ -6230,6 +6652,11 @@ namespace Focus_Bear
 
                         appSettings.bUseSuperPomodoroMode = false;
 
+                        //A class session this teacher started ends on the backend too, as Stop does; it used to stay
+                        //live for the students after the teacher's routine took over.
+                        if (!string.IsNullOrWhiteSpace(appSettings.sRunningClassSessionId))
+                            _ = new FocusBearAPIClient().EndClassSession(appSettings.sRunningClassSessionId);
+
                         FinishFocusModeCommonTasks();
 
                         appSettings.bStartingAnotherFocusMode = false; //Resetting
@@ -6249,7 +6676,7 @@ namespace Focus_Bear
             {
                 LogWriter.LogWrite("ForceStopFocusSessionOnHabitsTime ex - " + ex.Message);
             }
-             
+
         }
 
         public async void FinishFocusModeCommonTasks()
@@ -6261,8 +6688,8 @@ namespace Focus_Bear
                 // The focus session is ending - tear down any block popup (and its open goal/task modal)
                 // now, before the focus-end screen appears. Otherwise a goal/task modal that was up when the
                 // session expired lingered over the end screen (the block popup re-shows via async AI
-                // callbacks that outlive the session).
-                appSettings.HideGentleBlockWindow();
+                // callbacks that outlive the session). The AI check-in and its backdrop go with it.
+                appSettings.HideGentleBlockWindow(blockingEnded: true);
 
                 // Sync the todo tasks first
                 try
@@ -6276,7 +6703,7 @@ namespace Focus_Bear
                 Sounds.PlayFocusModeEndSound();
 
                 appSettings.CurrentFocusAlignmentScore = FocusAlignmentScoreManager.CalculateFocusAlignmentScore();//calculate before we empty it
-                
+
                 if (appSettings.focusSessionStartTime != null)
                 {
                     appSettings.CurrentFocusSessionDuration += (int)(DateTime.Now - appSettings.focusSessionStartTime.Value).TotalSeconds;
@@ -6297,6 +6724,12 @@ namespace Focus_Bear
                 //Make the global variables false
                 appSettings.isFocusModeRunning = false;
 
+                // Clear the focus session's intention/task so a later blocking-schedule block popup doesn't
+                // show a stale intention from the just-ended session (#1264). The schedule-start path clears
+                // it too; an AI-enabled schedule sets its own intention fresh via the goal/task popup.
+                appSettings.sRunningFocusModeIntention = "";
+                appSettings.sCurrentTaskPlayingInToDoPlayer = "";
+
                 App.FocusButton.FinishFocusSession();
 
                 //Clear the Gentle block temp arrays
@@ -6305,7 +6738,7 @@ namespace Focus_Bear
 
                 //Close the required windows
                 CloseFocusProgressWindow();
-                
+
                 HideToDoPlayer();
 
                 //change the title of the todo player button
@@ -6318,9 +6751,9 @@ namespace Focus_Bear
                 LogWriter.LogWrite("btnQuit_Click sync: " + ex.Message);
             }
         }
-        
-        /* Invoke Window_Closing to retrieve the latest to-do tasks from the player and store them in appSettings.sRawTasks. 
-            This redundancy helps ensure consistency between the to-do list in the player 
+
+        /* Invoke Window_Closing to retrieve the latest to-do tasks from the player and store them in appSettings.sRawTasks.
+            This redundancy helps ensure consistency between the to-do list in the player
             and the task list displayed in the focus and end WebViews.
         */
         public async Task SyncTodoTasksFromPlayer()
@@ -6331,6 +6764,12 @@ namespace Focus_Bear
                 if (!string.IsNullOrEmpty(appSettings.sClassSessionTodoSessionId))
                 {
                     LogWriter.LogWrite("SyncTodoTasksFromPlayer() skipped — class session TodoPlayer active");
+                    return;
+                }
+                // Outside that mode the native session screen writes sRawTasks itself; a player loaded earlier
+                // holds a stale list that must not overwrite it.
+                if (Pomodoro.FocusSessionQueueWriter.NativeOwnsQueue)
+                {
                     return;
                 }
 
@@ -6382,8 +6821,46 @@ namespace Focus_Bear
             return timestamp?.ToString(UsageTimestampFormat, CultureInfo.InvariantCulture) ?? "";
         }
 
+        // The theme dictionary currently merged into Application.Resources ("Dark"/"Light"), or null.
+        private string _appliedTheme;
+
+        /// <summary>
+        /// Runs every <see cref="ThemeChanged"/> subscriber on its own. Invoked as one multicast delegate, the first
+        /// window whose brush threw (Sentry FOCUS-BEAR-WINDOWS-A7 / -91) skipped every later subscriber, and the
+        /// exception escaped into the WM_SETTINGCHANGE hook. The failure is still logged and reported.
+        /// </summary>
+        private static void NotifyThemeSubscribers()
+        {
+            var subscribers = ThemeChanged;
+            if (subscribers == null)
+            {
+                return;
+            }
+            foreach (Action subscriber in subscribers.GetInvocationList())
+            {
+                try
+                {
+                    subscriber();
+                }
+                catch (Exception ex)
+                {
+                    LogWriter.LogWrite("ChangeTheme() subscriber " + subscriber.Method.DeclaringType?.Name + "." + subscriber.Method.Name + " ex - " + ex.Message);
+                    SentrySdk.CaptureException(ex);
+                }
+            }
+        }
+
         public void ChangeTheme(string theme)
         {
+            // WM_SETTINGCHANGE arrives for many unrelated reasons (and three windows forward it), and swapping the
+            // merged dictionary makes every DynamicResource in every open window re-resolve. With the native To-do,
+            // Projects and Day Plan screens that froze the app for seconds each time, several times a minute. Only
+            // swap when the theme really changes.
+            if (theme == _appliedTheme && Application.Current.Resources.MergedDictionaries.Count > 0)
+            {
+                appSettings.sTheme = theme;
+                return;
+            }
             ResourceDictionary newTheme = new ResourceDictionary();
             if (theme == "Dark")
             {
@@ -6394,16 +6871,18 @@ namespace Focus_Bear
             {
                 newTheme.Source = new Uri("Theme/LightTheme.xaml", UriKind.Relative);
             }
-            ThemeChanged?.Invoke();
-
 
             // Clear old theme and apply new theme
             Application.Current.Resources.MergedDictionaries.Clear();
             //Application.Current.Resources.MergedDictionaries.Add(themeStyle);
 
             Application.Current.Resources.MergedDictionaries.Add(newTheme);
+            _appliedTheme = theme == "Dark" || theme == "Light" ? theme : null;
             // Save theme setting
             appSettings.sTheme = theme;
+            // Last, so listeners see the new theme: they read appSettings.sTheme, and this used to fire before it was
+            // set, so e.g. the light theme kept the dark theme's white-text logo (report 2026-09-26_09-02-53).
+            NotifyThemeSubscribers();
 
         }
         public bool UseImmersiveDarkMode(IntPtr handle, bool enabled)

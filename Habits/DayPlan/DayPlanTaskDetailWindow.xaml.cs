@@ -27,6 +27,8 @@ namespace Focus_Bear.Habits.DayPlan
         public DayPlanTaskDetailWindow(string taskId, DateTime date)
         {
             InitializeComponent();
+            // Never taller than the screen's work area (a 569-px laptop screen at 175%): its buttons stays on it.
+            Focus_Bear.ToDoScreens.DialogFit.Apply(this);
             _taskId = taskId;
             _date = date;
 
@@ -61,12 +63,20 @@ namespace Focus_Bear.Habits.DayPlan
             BuildProjectSuggestions();
             DurationField.Text = _task.DurationMinutes.ToString(CultureInfo.InvariantCulture);
 
-            // Importance: index 0 = unset, 1..10 = outcome.
-            ImportanceField.Items.Add(DayPlanText.TasksImportanceUnset);
-            for (int o = 1; o <= 10; o++)
-                ImportanceField.Items.Add(o + " — " + DayPlanText.OutcomeBandLabel(o));
-            ImportanceField.SelectedIndex = (_task.Outcome.HasValue && _task.Outcome.Value >= 1 && _task.Outcome.Value <= 10)
-                ? _task.Outcome.Value : 0;
+            // Importance, as on the Mac's task modal (report 2026-09-25_20-45-49): "Not set", then 1–5 shown as
+            // "4 / 5 · Can postpone a few days"; each item's Tag keeps the server's /10 value (step × 2). An odd
+            // legacy value (e.g. 7, set on the web) gets its own row so opening the window doesn't change it.
+            var strings = Focus_Bear.ToDoScreens.ToDoStrings.Load();
+            ImportanceField.Items.Add(new ComboBoxItem { Content = DayPlanText.TasksImportanceUnset, Tag = 0 });
+            for (int step = 1; step <= 5; step++)
+                ImportanceField.Items.Add(new ComboBoxItem { Content = strings.OutcomeOptionLabel(step), Tag = step * 2 });
+            int old = _task.Outcome ?? 0;
+            if (old >= 1 && old <= 10 && old % 2 != 0)
+            {
+                string shown = (old / 2.0).ToString("0.#", CultureInfo.CurrentCulture) + " / 5 · " + strings.OutcomeLabel(old);
+                ImportanceField.Items.Add(new ComboBoxItem { Content = shown, Tag = old });
+            }
+            ImportanceField.SelectedIndex = Math.Max(0, ImportanceField.Items.Cast<ComboBoxItem>().ToList().FindIndex(i => (int)i.Tag == old));
             UpdateSwatch();
 
             NotesField.Text = _task.Notes ?? "";
@@ -137,7 +147,7 @@ namespace Focus_Bear.Habits.DayPlan
 
         // ---- importance swatch -------------------------------------------------------------------
 
-        private int SelectedOutcome => ImportanceField.SelectedIndex >= 1 ? ImportanceField.SelectedIndex : 0;
+        private int SelectedOutcome => (ImportanceField.SelectedItem as ComboBoxItem)?.Tag is int wire ? wire : 0;
 
         private void ImportanceField_SelectionChanged(object sender, SelectionChangedEventArgs e) => UpdateSwatch();
 
@@ -216,7 +226,7 @@ namespace Focus_Bear.Habits.DayPlan
             if (string.IsNullOrWhiteSpace(MoveField.Text)) { MovePreview.Text = ""; return; }
             // Anchor relative terms ("today", "tom", "2d"…) to the real current date, NOT the viewed day,
             // so on a future day "today" moves the task back to the actual today.
-            DateTime? target = DayPlanSnooze.Parse(MoveField.Text, DateTime.Today);
+            DateTime? target = FocusBear.Core.Schedule.DayPlanSnoozeParser.Parse(MoveField.Text, DateTime.Today, CultureInfo.CurrentCulture);
             MovePreview.Text = target.HasValue
                 ? DayPlanText.Fmt(DayPlanText.TasksMovesTo, target.Value.ToString("dddd, d MMM", CultureInfo.CurrentCulture))
                 : DayPlanText.TasksMoveUnrecognised;
@@ -224,7 +234,7 @@ namespace Focus_Bear.Habits.DayPlan
 
         private void BtnMove_Click(object sender, RoutedEventArgs e)
         {
-            DateTime? target = DayPlanSnooze.Parse(MoveField.Text, DateTime.Today);
+            DateTime? target = FocusBear.Core.Schedule.DayPlanSnoozeParser.Parse(MoveField.Text, DateTime.Today, CultureInfo.CurrentCulture);
             if (!target.HasValue) { System.Media.SystemSounds.Beep.Play(); return; }
             ApplyEdits();   // keep field edits when moving
             DayPlanTaskStore.Shared.MoveTaskToDay(_taskId, _date, target.Value);
@@ -242,8 +252,8 @@ namespace Focus_Bear.Habits.DayPlan
             string proj = (ProjectField.Text ?? "").Trim();
             _task.Project = string.IsNullOrEmpty(proj) ? null : proj;
 
-            string digits = new string((DurationField.Text ?? "").Where(char.IsDigit).ToArray());
-            if (int.TryParse(digits, out int mins) && mins > 0) _task.DurationMinutes = Math.Min(mins, 24 * 60);
+            int? minutes = DayPlanDurations.FromFieldText(DurationField.Text);
+            if (minutes.HasValue) _task.DurationMinutes = minutes.Value;
 
             string notes = (NotesField.Text ?? "").Trim();
             _task.Notes = string.IsNullOrEmpty(notes) ? null : notes;

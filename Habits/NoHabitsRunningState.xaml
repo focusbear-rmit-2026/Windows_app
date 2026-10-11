@@ -35,6 +35,14 @@
                         </StackPanel>
                     </Button.Content>
                 </Button>
+
+                <!-- Shown only when micro-breaks are disabled during a focus session (#1215): re-enable them. -->
+                <TextBlock x:Name="TxtEnableMicroBreaksForFocusSession" AutomationProperties.AutomationId="lnkEnableMicroBreaks"
+                           HorizontalAlignment="Center" Margin="0,0,0,25" Visibility="Collapsed">
+                    <Hyperlink x:Name="EnableMicroBreaksForFocusSession" Click="EnableMicroBreaksForFocusSession_Click" Foreground="#e88800" FontSize="15" Cursor="Hand">
+                        <Run x:Name="EnableMicroBreaksForFocusSessionTXT" Text="xEnable micro-breaks for this focus session"/>
+                    </Hyperlink>
+                </TextBlock>
             </StackPanel>
 
     </Grid>

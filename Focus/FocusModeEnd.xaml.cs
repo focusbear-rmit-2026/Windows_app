@@ -194,13 +194,43 @@ namespace Focus_Bear.Focus
                 LogWriter.LogWrite("Take5MinsBreak() pre-finish work EX (continuing to dismiss the screen) - " + exPre.Message);
             }
 
+            // Show the break UI up-front, BEFORE the FinishFocusMode / UpdateAllFocusModes calls below, so
+            // the popup appears immediately instead of waiting on two network round-trips (that delay was
+            // the "break popup shows late" issue). Nothing here depends on those API results (they're only
+            // logged), and sRunningFocusModeID is still current at the call site because showing the popup
+            // doesn't start a new session. The force-close / start-another-mode guards that used to be the
+            // early-returns after the awaits now wrap this whole break-UI block. #1065
+
+            if (!appSettings.bForceClosingFocusMode && !appSettings.bStartingAnotherFocusMode)
+            {
+                //Since the user is taking a few minutes break, we need to push back the micro breaks
+                //Only if morning habits have been done
+                if (((App)(Application.Current)).isMorningHabitsAlreadyShown)
+                    ((App)(Application.Current)).StartBreakActivityTimer();
+
+                if (!bDoNotShowBreak) 
+                {
+                    appSettings.bHabitwithAllowedAppsRunning = false; //reset
+                    appSettings.bHabitwithUserActionNonTimerRunning = false; //reset
+                                                                             //Show the Break Window
+                    ((App)(Application.Current)).ShowBreakWindow();
+                }
+            }
+
             //Call api to finish focus mode
             FocusBearAPIClient client = new FocusBearAPIClient();
             try
             {
-                LogWriter.LogWrite($"Take5MinsBreak() - calling FinishFocusMode with id: {appSettings.sRunningFocusModeID}");
-                var xResponse = await client.FinishFocusMode(appSettings.sRunningFocusModeID, sAchieve, sDistractions);
-                LogWriter.LogWrite($"Take5MinsBreak() - FinishFocusMode returned: {xResponse}");
+                // Only a personal session the server knows about is finished: a class session ends through
+                // class-management, and one finished from another device (or already finished here) is gone.
+                if (appSettings.ServerFocusSession.HasSessionToFinish)
+                {
+                    LogWriter.LogWrite($"Take5MinsBreak() - calling FinishFocusMode with id: {appSettings.sRunningFocusModeID}");
+                    appSettings.ServerFocusSession.Finished();
+                    var xResponse = await client.FinishFocusMode(appSettings.sRunningFocusModeID, sAchieve, sDistractions);
+                    LogWriter.LogWrite($"Take5MinsBreak() - FinishFocusMode returned: {xResponse}");
+                }
+                else LogWriter.LogWrite("Take5MinsBreak() - no personal session on the server to finish (class session, or finished already)");
 
                 var response = await client.UpdateAllFocusModes();
                 LogWriter.LogWrite($"Take5MinsBreak() - UpdateAllFocusModes returned: {response}");
@@ -223,19 +253,7 @@ namespace Focus_Bear.Focus
             if (appSettings.bStartingAnotherFocusMode)
                 return;
 
-            //Since the user is taking a few minutes break, we need to push back the micro breaks
-            //Only if morning habits have been done
-            if(((App)(Application.Current)).isMorningHabitsAlreadyShown)
-                ((App)(Application.Current)).StartBreakActivityTimer();
-
-            if (!bDoNotShowBreak)
-            {
-                appSettings.bHabitwithAllowedAppsRunning = false; //reset
-                appSettings.bHabitwithUserActionNonTimerRunning = false; //reset
-                //Show the Break Window
-                ((App)(Application.Current)).ShowBreakWindow();
-            }
-
+            
             //Ask the user for adding temp apps / urls but should not be Super distracting URLs focus mode
             bool bRunningDefaultFocusMode = false;
             var listItemsDefault = appSettings.arrFocusModes.Where(i => i.id.ToLower() == appSettings.sRunningFocusModeID.ToLower());
@@ -608,17 +626,38 @@ namespace Focus_Bear.Focus
                     int.TryParse(selectedItem.Content.ToString(), out nMinutesToExtend);
                 }
 
+                // A session that covered a postponed routine can't be restarted past the cutoff (Mac cutoffLimitedMinutes,
+                // from now: the finished session has no end to add to).
+                DateTime now = DateTime.Now;
+                int granted = FocusBear.Core.Stats.FocusExtensionCutoffLimit.GrantedMinutes(nMinutesToExtend, now, null,
+                    Focus_Bear.Habits.DayPlan.DayPlanDataSource.TimeToday(appSettings.sDayCutOffTime, now), appSettings.DidCutOffTimePassed(),
+                    appSettings.bPasswordRequireInPostponeEveningAfterCutOff, ((App)Application.Current).SessionProtectsRoutine);
+                if (granted <= 0)
+                {
+                    LogWriter.LogWrite("btnExtendSession_Click - refused: the cutoff leaves no room for " + nMinutesToExtend + " minutes");
+                    SetActionButtonsEnabled(true);
+                    ((App)Application.Current).ShowCutoffExtensionRefused();
+                    return;
+                }
+                if (granted < nMinutesToExtend) LogWriter.LogWrite("btnExtendSession_Click - the cutoff limits " + nMinutesToExtend + " minutes to " + granted);
+                nMinutesToExtend = granted;
+
                 LogWriter.LogWrite("Extending focus session by " + nMinutesToExtend + " minutes");
 
                 appSettings.CapturePostHog("extend-focus-session-from-complete-screen", string.Format("\"extendMinutes\":{0}", nMinutesToExtend));
 
-                DateTime newEndTime = DateTime.Now.AddMinutes(nMinutesToExtend);
+                DateTime newEndTime = now.AddMinutes(nMinutesToExtend);
                 appSettings.sRunningFocusModeMinutes = nMinutesToExtend.ToString();
                 appSettings.sRunningFocusModeEndTime = newEndTime.ToString();
                 appSettings.focusSessionStartTime = DateTime.Now;
 
-                FocusBearAPIClient client = new FocusBearAPIClient();
-                var response = await client.ExtendFocusMode(appSettings.sRunningFocusModeID, nMinutesToExtend);
+                // A session finished from another device is gone on the server: extending it there only earns a
+                // "not current" 400 (26 Sep 13:44:15), so the extension is local.
+                int response = 0;
+                if (appSettings.ServerFocusSession.HasSessionToFinish)
+                    response = await new FocusBearAPIClient().ExtendFocusMode(appSettings.sRunningFocusModeID, nMinutesToExtend);
+                else
+                    LogWriter.LogWrite("ExtendFocusMode skipped - no personal session on the server (finished elsewhere, or a class session)");
 
                 if (response == 1)
                 {

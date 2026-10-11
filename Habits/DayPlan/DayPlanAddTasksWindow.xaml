@@ -30,7 +30,7 @@
                        Foreground="{DynamicResource ForegroundColor}"/>
 
             <!-- Search -->
-            <TextBox Grid.Row="1" x:Name="SearchBox" Height="30" Margin="20,10,20,6"
+            <TextBox Grid.Row="1" x:Name="SearchBox" AutomationProperties.AutomationId="SearchBox" Height="30" Margin="20,10,20,6"
                      VerticalContentAlignment="Center" Padding="6,0,6,0"
                      FontSize="13" TextChanged="SearchBox_TextChanged"/>
 

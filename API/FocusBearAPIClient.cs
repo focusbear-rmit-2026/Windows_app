@@ -1,5 +1,6 @@
 ﻿
 using Focus_Bear.Models;
+using Focus_Bear.Services.VoiceCommand;
 using Focus_Bear.Utils;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -29,7 +30,7 @@ namespace Focus_Bear.API
             return client.SendAsync(request);
         }
     }
-    class FocusBearAPIClient
+    partial class FocusBearAPIClient
     {
 
         AppSettings appSettings = AppSettings.GetInstance;
@@ -67,6 +68,10 @@ namespace Focus_Bear.API
         public static string DeleteAccountUrl { get { return "https://api.focusbear.io/user-data"; } }
 
         public static string OccupationSpecificRelevantSites { get { return "https://api.focusbear.io/user/generate-occupation-specific-relevant-sites"; } }
+
+        // Voice commands go through the backend so no OpenAI key ships in the app.
+        public static string VoiceTranscribe { get { return "https://api.focusbear.io/voice/transcribe"; } }
+        public static string VoiceIntent { get { return "https://api.focusbear.io/voice/intent"; } }
 
         public static string AllTasks { get { return "https://api.focusbear.io/to-do"; } }
 
@@ -113,172 +118,149 @@ namespace Focus_Bear.API
             return client;
         }
 
-        internal async Task <bool> IsInternetOn()
+        // One probe shared by every caller, and its answer reused briefly (FocusBear.Core.ReachabilityCache): each API
+        // call used to enumerate the network adapters on its own thread and send its own GET /api on a new HttpClient.
+        private static readonly FocusBear.Core.ReachabilityCache _reachability = new FocusBear.Core.ReachabilityCache();
+        private static readonly HttpClient _probeClient = new HttpClient { Timeout = TimeSpan.FromSeconds(4) };
+        private static readonly object _probeLock = new object();
+        private static Task<bool> _probeInFlight;
+
+        internal Task<bool> IsInternetOn()
         {
-            if (NetworkInterface.GetIsNetworkAvailable())
+            bool? cached = _reachability.Cached(DateTime.UtcNow);
+            if (cached.HasValue) return Task.FromResult(cached.Value);
+            lock (_probeLock)
             {
-                try
-                {
-                    HttpClient client = new HttpClient();
-                    client.Timeout = TimeSpan.FromSeconds(4);
-                    var response =  await client.GetAsync("https://api.focusbear.io/api").ConfigureAwait(false);
-                    if (response.StatusCode == System.Net.HttpStatusCode.OK) //200
-                    {
-                        return true;
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-                catch (HttpRequestException e)
-                {
-                    LogWriter.LogWrite("\nInternet Exception Caught! - " + e.Message);
-                }
-                catch (WebException ex)
-                {
-                    LogWriter.LogWrite("IsInternetOn WebException" + ex.Message);
-                }
-                catch (Exception ex)
-                {
-                    LogWriter.LogWrite("IsInternetOn - Exception" + ex.Message);
-                }
-                return false;
-            }
-            else
-            {
-                return false;
+                if (_probeInFlight == null || _probeInFlight.IsCompleted)
+                    _probeInFlight = Task.Run(ProbeAsync);
+                return _probeInFlight;
             }
         }
 
-        internal async Task<int> PostActivityCompleted(string activity_id, string activity_sequence_id, DateTime start_time, int duration_logged, string choice_id, /*Double quantity_logged = -1*/ List<QuantityQuestion> logQuantityQuestions = null, bool is_skipped = false)
+        private static async Task<bool> ProbeAsync()
         {
-            LogWriter.LogWrite("PostActivityCompleted() = " + activity_id);
+            bool ok = false;
             try
             {
-                bool nInternetOn = await IsInternetOn();
-
-                if (nInternetOn)
+                if (NetworkInterface.GetIsNetworkAvailable())
                 {
-                    if (!appSettings.ValidateTokenValidBeforeAPICall())
-                    {
-                        var xRenwTokenStatus = await RenewToken();
-                        if (xRenwTokenStatus == 0)
-                        {
-                            return 0;
-                        }
-                    }
-
-                    HttpClient client = GetClientWithHeaders();
-
-                    DateTime finish_time = start_time;
-
-                    bool bTrue = true;
-                    string metadata = $"{{}}"; ;
-
-                    if (is_skipped) //if activity is skipped just add one second to finish time
-                    {
-                        metadata = $"{{\"skipped_did_complete\":{JsonConvert.SerializeObject(bTrue)}}}";
-                        finish_time = finish_time.AddSeconds(1);
-                    }
-                    else
-                    {
-                        finish_time = finish_time.AddSeconds(duration_logged);
-                    }
-                   
-                   
-                    string addItemJsonString = $"{{\"activity_id\":\"{activity_id}\"," +
-                        $"\"duration_logged\":{duration_logged}," +
-                        $"\"device_id\":\"{appSettings.sDeviceID}\"," +
-                        $"\"activity_sequence_id\":\"{activity_sequence_id}\"," +
-                        $"\"start_time\":\"{start_time.ToString("o")}\"," +
-                        $"\"finish_time\":\"{finish_time.ToString("o")}\"," +
-                         $"\"metadata\":{metadata},";
-
-                    if ( choice_id.Length > 0)
-                    {
-                        addItemJsonString = addItemJsonString + $"\"choice_id\":\"{choice_id}\",";
-                    }
-
-                    if (logQuantityQuestions != null)
-                    {
-                        string LogQuantityAnswers = $"[";
-                        foreach (QuantityQuestion question in logQuantityQuestions)
-                        {
-                            LogQuantityAnswers += $"{{\"question_id\":\"{question.id}\"," +
-                            $"\"logged_value\":{question.quantity}}},";
-                        }
-                        LogQuantityAnswers = LogQuantityAnswers.Remove(LogQuantityAnswers.Length - 1, 1);
-                        LogQuantityAnswers = LogQuantityAnswers + "]";
-
-                        addItemJsonString = addItemJsonString + $"\"log_quantity_answers\":{LogQuantityAnswers},";
-                    }
-
-                    //Remove last comma -  we have 100% added above
-                    addItemJsonString = addItemJsonString.Remove(addItemJsonString.Length - 1, 1);
-                    Console.WriteLine(addItemJsonString);
-
-                    addItemJsonString = addItemJsonString + "}";
-
-                    
-
-                    if (!string.IsNullOrEmpty(addItemJsonString))
-                    {
-                        StringContent content = new StringContent(addItemJsonString, Encoding.UTF8, "application/json");
-
-                        var response = await client.PostAsync(CompletedActivity, content);
-                        if (response.StatusCode == System.Net.HttpStatusCode.Created) //201
-                        {
-                            LogWriter.LogWrite("PostActivityCompleted() SUCCESS");
-
-                            if (response.Content != null)
-                            {
-                                var responseCode = await response.Content.ReadAsStringAsync();
-                                JObject resJson = JObject.Parse(responseCode);
-
-                                return 1;
-                            }
-                        }
-                        else
-                        {
-                            if (response.StatusCode == System.Net.HttpStatusCode.InternalServerError) //500
-                            {
-                                SaveEntryInOfflineActivitiesCSV(activity_id, activity_sequence_id, choice_id, start_time, duration_logged, logQuantityQuestions, is_skipped);
-                            }
-                            
-                            if (response.Content != null)
-                            {
-                                var responseCode = await response.Content.ReadAsStringAsync();
-                                JObject resJson = JObject.Parse(responseCode);
-                                string sErrorMessage = resJson["message"].ToString();
-                                LogWriter.LogWrite("PostActivityCompleted() FAILED - " + sErrorMessage);
-                                return 0;
-                            }
-                            return 0;
-                        }
-                    }
-                    else
-                    {
-                        return 0;
-                    }
+                    using (var response = await _probeClient.GetAsync("https://api.focusbear.io/api").ConfigureAwait(false))
+                        ok = response.StatusCode == System.Net.HttpStatusCode.OK; //200
                 }
-                else
-                {
-                    SaveEntryInOfflineActivitiesCSV(activity_id, activity_sequence_id, choice_id, start_time, duration_logged, logQuantityQuestions, is_skipped);
-                }
+            }
+            catch (HttpRequestException e)
+            {
+                LogWriter.LogWrite("Internet Exception Caught! - " + e.Message);
             }
             catch (WebException ex)
             {
-                LogWriter.LogWrite("PostActivityCompleted WebException" + ex.Message);
+                LogWriter.LogWrite("IsInternetOn WebException" + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("IsInternetOn - Exception" + ex.Message);
+            }
+            _reachability.Record(ok, DateTime.UtcNow);
+            return ok;
+        }
 
-                Debug.WriteLine(ex.Message);
+        /// <summary>
+        /// A request that never got an answer: no connection, the connection dropped, or the request timed out. The
+        /// cached "reachable" (<see cref="IsInternetOn"/> reuses a good probe for 30 s) is then known to be wrong.
+        /// </summary>
+        private static bool IsNetworkFailure(Exception ex) =>
+            ex is HttpRequestException || ex is WebException || ex is TaskCanceledException || ex is IOException;
+
+        /// <summary>
+        /// Whether a habit completion or skip the server did not store should go to the offline queue: the same
+        /// "try again later" answers the queue's own sync retries (5xx, 408, 401/403, 429). Any other 4xx is the
+        /// server refusing the entry, which a retry would not change.
+        /// </summary>
+        private static bool ShouldQueueForLater(HttpStatusCode status) =>
+            FocusBear.Core.Sync.OfflineQueueSync.Classify((int)status) == FocusBear.Core.Sync.OfflineBatchResult.Unavailable;
+
+        /// <summary>
+        /// The completion is queued whenever it was not stored and a retry could store it. Only the "no internet"
+        /// branch and HTTP 500 used to queue it: a request that failed on the network (Wi-Fi dropped within the 30 s
+        /// the last good probe is trusted), a failed token renewal or a 502/503 was logged and lost.
+        /// </summary>
+        internal async Task<int> PostActivityCompleted(string activity_id, string activity_sequence_id, DateTime start_time, int duration_logged, string choice_id, /*Double quantity_logged = -1*/ List<QuantityQuestion> logQuantityQuestions = null, bool is_skipped = false)
+        {
+            LogWriter.LogWrite("PostActivityCompleted() = " + activity_id);
+            bool answered = false;
+            try
+            {
+                if (!await IsInternetOn())
+                {
+                    SaveEntryInOfflineActivitiesCSV(activity_id, activity_sequence_id, choice_id, start_time, duration_logged, logQuantityQuestions, is_skipped);
+                    return 0;
+                }
+
+                if (!appSettings.ValidateTokenValidBeforeAPICall() && await RenewToken() == 0)
+                {
+                    LogWriter.LogWrite("PostActivityCompleted() token renewal failed - queued offline");
+                    SaveEntryInOfflineActivitiesCSV(activity_id, activity_sequence_id, choice_id, start_time, duration_logged, logQuantityQuestions, is_skipped);
+                    return 0;
+                }
+
+                HttpClient client = GetClientWithHeaders();
+
+                // A skipped activity is logged as one second long.
+                DateTime finish_time = start_time.AddSeconds(is_skipped ? 1 : duration_logged);
+
+                //Built as JSON: an empty question list (every break activity without questions) used to
+                //come out as "log_quantity_answers":] and the server refused the completion.
+                string addItemJsonString = ActivityCompletedBody.Build(activity_id, duration_logged, appSettings.sDeviceID,
+                    activity_sequence_id, start_time, finish_time, is_skipped, choice_id, logQuantityQuestions);
+                // E2E build only: the tests read the logged answers (log quantity) from here.
+                if (Focus_Bear.Utils.E2EBuild.IsActive) LogWriter.LogWrite("E2E activity completed body: " + addItemJsonString);
+
+                if (string.IsNullOrEmpty(addItemJsonString))
+                {
+                    return 0;
+                }
+
+                StringContent content = new StringContent(addItemJsonString, Encoding.UTF8, "application/json");
+                var response = await client.PostAsync(CompletedActivity, content);
+                answered = true;
+                if (response.StatusCode == System.Net.HttpStatusCode.Created) //201
+                {
+                    LogWriter.LogWrite("PostActivityCompleted() SUCCESS");
+                    return 1;
+                }
+
+                if (ShouldQueueForLater(response.StatusCode))
+                {
+                    SaveEntryInOfflineActivitiesCSV(activity_id, activity_sequence_id, choice_id, start_time, duration_logged, logQuantityQuestions, is_skipped);
+                }
+                LogWriter.LogWrite("PostActivityCompleted() FAILED - " + (int)response.StatusCode + " " + await ErrorMessageOf(response));
+            }
+            catch (Exception ex) when (!answered && IsNetworkFailure(ex))
+            {
+                LogWriter.LogWrite("PostActivityCompleted network failure - queued offline: " + ex.Message);
+                _reachability.Forget();
+                SaveEntryInOfflineActivitiesCSV(activity_id, activity_sequence_id, choice_id, start_time, duration_logged, logQuantityQuestions, is_skipped);
             }
             catch (Exception ex)
             {
                 LogWriter.LogWrite("PostActivityCompleted Exception" + ex.Message);
- 
             }
             return 0;
+        }
+
+        /// <summary>The server's "message" from an error answer, or "" when the body has none (an HTML 502 page, say).</summary>
+        private static async Task<string> ErrorMessageOf(HttpResponseMessage response)
+        {
+            try
+            {
+                if (response.Content == null) return "";
+                string body = await response.Content.ReadAsStringAsync();
+                return JObject.Parse(body)["message"]?.ToString() ?? "";
+            }
+            catch (Exception)
+            {
+                return "";
+            }
         }
 
         internal void SaveEntryInOfflineActivitiesCSV(string activity_id, string activity_sequence_id, string choice_id, DateTime start_time, int duration_logged, List<QuantityQuestion> logQuantityQuestions, bool is_skipped)
@@ -293,100 +275,67 @@ namespace Focus_Bear.API
                 finish_time = finish_time.AddSeconds(duration_logged);
             }
 
-            string LogQuantityAnswers = "";
-            if (logQuantityQuestions != null)
-            {
-                LogQuantityAnswers = $"[";
-                foreach (QuantityQuestion question in logQuantityQuestions)
-                {
-                    LogQuantityAnswers += $"{{\"question_id\":\"{question.id}\";" +
-                    $"\"logged_value\":{question.quantity}}};";
-                }
-                LogQuantityAnswers = LogQuantityAnswers.Remove(LogQuantityAnswers.Length - 1, 1);
-                LogQuantityAnswers = LogQuantityAnswers + "]";
-            }
+            //An empty list is stored as nothing (it used to be "]", which failed every later offline batch).
+            string LogQuantityAnswers = ActivityCompletedBody.OfflineAnswers(logQuantityQuestions);
 
             appSettings.AddEntryInOfflineActivitiesCSV(activity_id, duration_logged.ToString(), activity_sequence_id, start_time.ToString("o"), finish_time.ToString("o"), (is_skipped ? "true" : ""), choice_id, LogQuantityAnswers, "", "");
 
         }
+
+        /// <summary>A skip goes to the offline queue as a one-second activity marked skipped, starting now.</summary>
+        private void SaveSkipInOfflineActivitiesCSV(string activity_id, string activity_sequence_id)
+        {
+            DateTime start_time = DateTime.UtcNow;
+            DateTime finish_time = start_time.AddSeconds(1);
+            appSettings.AddEntryInOfflineActivitiesCSV(activity_id, "", activity_sequence_id, start_time.ToString("o"), finish_time.ToString("o"), "true", "", "", "", "");
+        }
+
+        /// <summary>Queued under the same rules as <see cref="PostActivityCompleted"/>.</summary>
         internal async Task<int> PostActivitySkipped(string activity_id, string activity_sequence_id)
         {
             LogWriter.LogWrite("PostActivitySkipped() = " + activity_id);
+            bool answered = false;
             try
             {
-                bool nInternetOn = await IsInternetOn();
-
-                if (nInternetOn)
+                if (!await IsInternetOn())
                 {
-                    if (!appSettings.ValidateTokenValidBeforeAPICall())
-                    {
-                        var xRenwTokenStatus = await RenewToken();
-                        if (xRenwTokenStatus == 0)
-                        {
-                            return 0;
-                        }
-                    }
-
-                    HttpClient client = GetClientWithHeaders();
-
-                    string addItemJsonString = $"{{\"activity_id\":\"{activity_id}\"," +
-                        $"\"device_id\":\"{appSettings.sDeviceID}\"," +
-                        $"\"activity_sequence_id\":\"{activity_sequence_id}\"}}";
-
-                    if (!string.IsNullOrEmpty(addItemJsonString))
-                    {
-                        StringContent content = new StringContent(addItemJsonString, Encoding.UTF8, "application/json");
-
-                        var response = await client.PostAsync(SkipActivity, content);
-                        if (response.StatusCode == System.Net.HttpStatusCode.Created) //201
-                        {
-                            LogWriter.LogWrite("PostActivitySkipped() SUCCESS");
-
-                            if (response.Content != null)
-                            {
-                                var responseCode = await response.Content.ReadAsStringAsync();
-                                JObject resJson = JObject.Parse(responseCode);
-
-                                return 1;
-                            }
-                        }
-                        else
-                        {
-                            if (response.StatusCode == System.Net.HttpStatusCode.InternalServerError) //500
-                            {
-                                DateTime start_time = DateTime.UtcNow;
-                                DateTime finish_time = start_time.AddSeconds(1);
-
-                                appSettings.AddEntryInOfflineActivitiesCSV(activity_id, "", activity_sequence_id, start_time.ToString("o"), finish_time.ToString("o"), "true", "", "", "", "");
-                            }
-                            //Get Device ID Failed
-                            if (response.Content != null)
-                            {
-                                var responseCode = await response.Content.ReadAsStringAsync();
-                                JObject resJson = JObject.Parse(responseCode);
-                                string sErrorMessage = resJson["message"].ToString();
-                                LogWriter.LogWrite("PostActivitySkipped() FAILED - " + sErrorMessage);
-                                return 0;
-                            }
-                            return 0;
-                        }
-                    }
-                    else
-                    {
-                        return 0;
-                    }
+                    SaveSkipInOfflineActivitiesCSV(activity_id, activity_sequence_id);
+                    return 0;
                 }
-                else
+
+                if (!appSettings.ValidateTokenValidBeforeAPICall() && await RenewToken() == 0)
                 {
-                    DateTime start_time = DateTime.UtcNow;
-                    DateTime finish_time = start_time.AddSeconds(1);
-
-                    appSettings.AddEntryInOfflineActivitiesCSV(activity_id, "", activity_sequence_id, start_time.ToString("o"), finish_time.ToString("o"), "true", "", "", "", "");
+                    LogWriter.LogWrite("PostActivitySkipped() token renewal failed - queued offline");
+                    SaveSkipInOfflineActivitiesCSV(activity_id, activity_sequence_id);
+                    return 0;
                 }
+
+                HttpClient client = GetClientWithHeaders();
+
+                string addItemJsonString = $"{{\"activity_id\":\"{activity_id}\"," +
+                    $"\"device_id\":\"{appSettings.sDeviceID}\"," +
+                    $"\"activity_sequence_id\":\"{activity_sequence_id}\"}}";
+
+                StringContent content = new StringContent(addItemJsonString, Encoding.UTF8, "application/json");
+                var response = await client.PostAsync(SkipActivity, content);
+                answered = true;
+                if (response.StatusCode == System.Net.HttpStatusCode.Created) //201
+                {
+                    LogWriter.LogWrite("PostActivitySkipped() SUCCESS");
+                    return 1;
+                }
+
+                if (ShouldQueueForLater(response.StatusCode))
+                {
+                    SaveSkipInOfflineActivitiesCSV(activity_id, activity_sequence_id);
+                }
+                LogWriter.LogWrite("PostActivitySkipped() FAILED - " + (int)response.StatusCode + " " + await ErrorMessageOf(response));
             }
-            catch (WebException ex)
+            catch (Exception ex) when (!answered && IsNetworkFailure(ex))
             {
-                LogWriter.LogWrite("PostActivitySkipped WebException" + ex.Message);
+                LogWriter.LogWrite("PostActivitySkipped network failure - queued offline: " + ex.Message);
+                _reachability.Forget();
+                SaveSkipInOfflineActivitiesCSV(activity_id, activity_sequence_id);
             }
             catch (Exception ex)
             {
@@ -643,27 +592,7 @@ namespace Focus_Bear.API
 
                     HttpClient client = GetClientWithHeaders();
  
-                   //Remove # from color
-                   string color = FF.color.Replace("#", "");
-
-                   string metadata = $"{{\"blockUrlsArray\":{JsonConvert.SerializeObject(FF.arrBlockedUrls.ToArray<string>())}," +
-                   $"\"allowed_apps_win\":{JsonConvert.SerializeObject(FF.arrAllowedAppsWin.ToArray<AppDetails>())}," +
-                   $"\"color\":\"{color}\"," +
-                   $"\"isDefault\":{JsonConvert.SerializeObject(FF.isDefault)}," +
-                   $"\"isMeetings\":{JsonConvert.SerializeObject(FF.isMeetings)}," +
-                   $"\"isLockedFocus\":{JsonConvert.SerializeObject(FF.isLockedFocus)}," +
-                   $"\"isRelaxFocus\":{JsonConvert.SerializeObject(FF.isRelaxFocus)}," +
-                   $"\"isDeepWorkFocus\":{JsonConvert.SerializeObject(FF.isDeepWorkFocus)}," +
-                   $"\"isWorkFocus\":{JsonConvert.SerializeObject(FF.isWorkFocus)}," +
-                   $"\"autoSuggestFocusModeOnAllowedURL\":{JsonConvert.SerializeObject(FF.AutoSuggestFocusModeOnAllowedURL)}," +
-                   $"\"focusAlignmentScoreThreshold\":{JsonConvert.SerializeObject(FF.AlignmentScoreThreshold)}," +
-                   $"\"isAllowedAllApps\":{JsonConvert.SerializeObject(FF.isAllowedAllApps)}," +
-                   $"\"isAllowedListApproach\":{JsonConvert.SerializeObject(FF.isAllowedListApproach)}}}";
-
-                    string addFocusJsonString = $"{{\"id\":\"{FF.id}\"," +
-                        $"\"name\":\"{FF.name}\"," +
-                        $"\"allowed_urls\":{JsonConvert.SerializeObject(FF.arrAllowedUrls.ToArray<string>())}," +
-                        $"\"metadata\":{metadata}}}" ;
+                    string addFocusJsonString = FocusModeMetadata.RequestBody(FF).ToString(Formatting.None);
 
                     if (!string.IsNullOrEmpty(addFocusJsonString))
                     {
@@ -735,7 +664,8 @@ namespace Focus_Bear.API
                     string path = FocusMode + "?id=" + sFocusModeId;
 
                     var response = await client.DeleteAsync(path);
-                    if (response.StatusCode == System.Net.HttpStatusCode.NoContent) //204
+                    // 404: another device deleted it already - gone is what was asked for.
+                    if (response.StatusCode == System.Net.HttpStatusCode.NoContent || response.StatusCode == System.Net.HttpStatusCode.NotFound) //204
                     {
                         LogWriter.LogWrite("DeleteFocusMode() GOT Success");
                         return 1;
@@ -789,42 +719,7 @@ namespace Focus_Bear.API
 
                     HttpClient client = GetClientWithHeaders();
 
-                    string arrAllFocusModesArray = $"[";
- 
-                    foreach (FocusMode FF in appSettings.arrFocusModes)
-                    {
-                        //Remove # from color
-                        string color = FF.color.Replace("#", "");
-
-                        string metadata = $"{{\"blockUrlsArray\":{JsonConvert.SerializeObject(FF.arrBlockedUrls.ToArray<string>())}," +
-                        $"\"allowed_apps_win\":{JsonConvert.SerializeObject(FF.arrAllowedAppsWin.ToArray<AppDetails>())}," +
-                        $"\"color\":\"{color}\"," +
-                        $"\"lastTaskUsed\":{JsonConvert.SerializeObject(FF.lastTaskUsed)}," +
-                        $"\"focusAlignmentScoreThreshold\":{JsonConvert.SerializeObject(FF.AlignmentScoreThreshold)}," +
-                        $"\"isAllowedAllApps\":{JsonConvert.SerializeObject(FF.isAllowedAllApps)}," +
-                        $"\"isAllowedListApproach\":{JsonConvert.SerializeObject(FF.isAllowedListApproach)}," +
-                        $"\"isDefault\":{JsonConvert.SerializeObject(FF.isDefault)}," +
-                        $"\"isMeetings\":{JsonConvert.SerializeObject(FF.isMeetings)}," +
-                        $"\"isLockedFocus\":{JsonConvert.SerializeObject(FF.isLockedFocus)}," +
-                        $"\"isRelaxFocus\":{JsonConvert.SerializeObject(FF.isRelaxFocus)}," +
-                        $"\"isDeepWorkFocus\":{JsonConvert.SerializeObject(FF.isDeepWorkFocus)}," +
-                        $"\"isWorkFocus\":{JsonConvert.SerializeObject(FF.isWorkFocus)}," +
-                        $"\"autoSuggestFocusModeOnAllowedURL\":{JsonConvert.SerializeObject(FF.AutoSuggestFocusModeOnAllowedURL)}," +
-                        $"\"isAllowedAllApps\":{JsonConvert.SerializeObject(FF.isAllowedAllApps)}," +
-                        $"\"isAllowedListApproach\":{JsonConvert.SerializeObject(FF.isAllowedListApproach)}}}";
-
-                        string addFocusJsonString = $"{{\"id\":\"{FF.id}\"," +
-                            $"\"name\":\"{FF.name}\"," +
-                            $"\"allowed_urls\":{JsonConvert.SerializeObject(FF.arrAllowedUrls.ToArray<string>())}," +
-                            $"\"metadata\":{metadata}}},";
-
-                        arrAllFocusModesArray = arrAllFocusModesArray + addFocusJsonString;
-                    }
-
-                    //Remove last comma -  we have 100% added above
-                    arrAllFocusModesArray = arrAllFocusModesArray.Remove(arrAllFocusModesArray.Length - 1, 1);
-
-                    arrAllFocusModesArray = arrAllFocusModesArray + "]";
+                    string arrAllFocusModesArray = FocusModeMetadata.BulkUpdateBody(appSettings.arrFocusModes);
 
                     if (!string.IsNullOrEmpty(arrAllFocusModesArray))
                     {
@@ -848,10 +743,9 @@ namespace Focus_Bear.API
                             //Get Device ID Failed
                             if (response.Content != null)
                             {
+                                // The error body is not always JSON ("Bad Request"): log it as it came.
                                 var responseCode = await response.Content.ReadAsStringAsync();
-                                JObject resJson = JObject.Parse(responseCode);
-                                string sErrorMessage = resJson["message"].ToString();
-                                LogWriter.LogWrite("UpdateAllFocusModes() FAILED" + sErrorMessage);
+                                LogWriter.LogWrite("UpdateAllFocusModes() FAILED - HTTP " + (int)response.StatusCode + " " + responseCode);
                                 return 0;
                             }
                             return 0;
@@ -874,6 +768,18 @@ namespace Focus_Bear.API
  
             }
             return 0;
+        }
+
+        /// <summary>
+        /// The accountability buddy's temporary focus mode exists only here and the server rejects its id, so its
+        /// session is started, extended and finished against the user's default focus mode, as on the Mac.
+        /// </summary>
+        private string BackendFocusModeId(string sId)
+        {
+            var modes = appSettings.arrFocusModes;
+            string fallback = modes?.FirstOrDefault(m => m.isDefault && !FocusBear.Core.Postpone.PostponeFocusSession.IsPostponeMode(m.id))?.id
+                ?? modes?.FirstOrDefault(m => !FocusBear.Core.Postpone.PostponeFocusSession.IsPostponeMode(m.id))?.id;
+            return FocusBear.Core.Postpone.FocusSessionSync.BackendFocusModeId(sId, fallback);
         }
 
         internal async Task<int> StartFocusMode(string sId) 
@@ -901,7 +807,8 @@ namespace Focus_Bear.API
 
                     string sTasksArray = (appSettings.sRawTasks != null && appSettings.sRawTasks.Length > 0) ? appSettings.sRawTasks : "[]";
 
-                    string addFocusJsonString = $"{{\"intention\":\"{ appSettings.sRunningFocusModeIntention}\"," +
+                    // The intention can be a meeting title (Late No More): quote it as JSON, or a quote in the title breaks the body.
+                    string addFocusJsonString = $"{{\"intention\":{Newtonsoft.Json.JsonConvert.ToString(appSettings.sRunningFocusModeIntention ?? "")}," +
                         $"\"finish_time\":\"{end.ToString("o")}\"," +
                         $"\"start_time\":\"{start.ToString("o")}\"," +
                         $"\"to_dos\":{sTasksArray}}}";
@@ -911,9 +818,9 @@ namespace Focus_Bear.API
                         StringContent content = new StringContent(addFocusJsonString, Encoding.UTF8, "application/json");
 
                         //Make the data for Focus Mode
-                        string apiPath = string.Format("https://api.focusbear.io/focus-mode/{0}/start", sId);
+                        string apiPath = string.Format("https://api.focusbear.io/focus-mode/{0}/start", BackendFocusModeId(sId));
 
-                        LogWriter.LogWrite("StartFocusMode() JSON: = " + addFocusJsonString);
+                        LogWriter.LogWrite("StartFocusMode() JSON: " + FocusBear.Core.Reports.LogSafe.Keys(addFocusJsonString));
 
                         var response = await client.PostAsync(apiPath, content);
                         if (response.StatusCode == System.Net.HttpStatusCode.Created) //201
@@ -923,6 +830,7 @@ namespace Focus_Bear.API
                                 var responseCode = await response.Content.ReadAsStringAsync();
                                 JObject resJson = JObject.Parse(responseCode);
                                 LogWriter.LogWrite("StartFocusMode() GOT Success");
+                                appSettings.ServerFocusSession.PersonalStarted();
                                 return 1;
                             }
                         }
@@ -1114,6 +1022,7 @@ namespace Focus_Bear.API
                             string ok = await response.Content.ReadAsStringAsync();
                             JObject resJson = JObject.Parse(ok);
                             appSettings.sRunningClassSessionId = (resJson["id"] ?? resJson["session_id"] ?? resJson["sessionId"] ?? "").ToString();
+                            appSettings.ServerFocusSession.ClassSessionStarted();
                         }
                         catch (Exception exId)
                         {
@@ -1212,6 +1121,51 @@ namespace Focus_Bear.API
             return 0;
         }
 
+        /// <summary>
+        /// <c>POST /focus-mode/:id/finish</c>. Built as JSON: the "distractions" the user typed at the end of the
+        /// session used to be spliced in as text, so a quote, a backslash or a new line in it made the body
+        /// unreadable and the session was never finished on the server. Achievements stay URL-encoded, as they
+        /// always went.
+        /// </summary>
+        internal static JObject FinishFocusModeBody(string achievements, string distractions, DateTime finishUtc, string metadataJson, string toDosJson)
+        {
+            JToken metadata, toDos;
+            try { metadata = JToken.Parse(string.IsNullOrWhiteSpace(metadataJson) ? "{}" : metadataJson); } catch (JsonException) { metadata = new JObject(); }
+            try { toDos = JToken.Parse(string.IsNullOrWhiteSpace(toDosJson) ? "[]" : toDosJson); } catch (JsonException) { toDos = new JArray(); }
+            return new JObject
+            {
+                // FinishFocusModeDto caps both at 255: longer was refused and the session never finished.
+                ["achievements"] = FocusBear.Core.Stats.FocusSessionText.EncodedWithin(achievements, HttpUtility.UrlEncode),
+                ["distractions"] = FocusBear.Core.Stats.FocusSessionText.Within(distractions),
+                ["finish_time"] = finishUtc.ToString("o"),
+                ["metadata"] = metadata,
+                ["to_dos"] = toDos,
+            };
+        }
+
+        /// <summary><c>POST</c> an unlock request to a buddy; the typed reason is data, whatever it contains.</summary>
+        /// <summary>{"email": ...} built as JSON - the email was spliced into the string.</summary>
+        internal static string EmailBody(string email)
+        {
+            return new JObject { ["email"] = email ?? "" }.ToString(Formatting.None);
+        }
+
+        /// <summary>{"user_occupation": ...} built as JSON - a typed occupation with a quote broke the request.</summary>
+        internal static string OccupationBody(string occupation)
+        {
+            return new JObject { ["user_occupation"] = occupation ?? "" }.ToString(Formatting.None);
+        }
+
+        internal static JObject UnlockRequestBody(string buddyUserId, string reason, int minutes)
+        {
+            return new JObject
+            {
+                ["accountability_buddy_user_id"] = buddyUserId ?? "",
+                ["reason"] = reason ?? "",
+                ["unlock_duration_minutes"] = minutes,
+            };
+        }
+
         internal async Task<int> FinishFocusMode(string sId, string achievements, string distractions)
         {
             LogWriter.LogWrite("FinishFocusMode()");
@@ -1241,11 +1195,7 @@ namespace Focus_Bear.API
                     {
                         metadata = $"{{\"focus_alignment_score\":{appSettings.CurrentFocusAlignmentScore},\"focus_duration_seconds\":{appSettings.CurrentFocusSessionDuration}}}";
                     }
-                    string addFocusJsonString = $"{{\"achievements\":\"{ HttpUtility.UrlEncode(achievements)}\"," +
-                        $"\"distractions\":\"{distractions}\"," +
-                        $"\"finish_time\":\"{end.ToString("o")}\"," + 
-                        $"\"metadata\":{metadata}," +
-                        $"\"to_dos\":{sTasksArray}}}";
+                    string addFocusJsonString = FinishFocusModeBody(achievements, distractions, end, metadata, sTasksArray).ToString(Formatting.None);
 
 
                     if (!string.IsNullOrEmpty(addFocusJsonString))
@@ -1253,9 +1203,9 @@ namespace Focus_Bear.API
                         StringContent content = new StringContent(addFocusJsonString, Encoding.UTF8, "application/json");
 
                         //Make the data for Focus Mode
-                        string apiPath = string.Format("https://api.focusbear.io/focus-mode/{0}/finish", sId);
+                        string apiPath = string.Format("https://api.focusbear.io/focus-mode/{0}/finish", BackendFocusModeId(sId));
 
-                        LogWriter.LogWrite("FinishFocusMode() JSON: = " + addFocusJsonString);
+                        LogWriter.LogWrite("FinishFocusMode() JSON: " + FocusBear.Core.Reports.LogSafe.Keys(addFocusJsonString));
 
                         var response = await client.PostAsync(apiPath, content);
 
@@ -1327,9 +1277,9 @@ namespace Focus_Bear.API
                     {
                         StringContent content = new StringContent(extendFocusJsonString, Encoding.UTF8, "application/json");
 
-                        string apiPath = string.Format("https://api.focusbear.io/focus-mode/{0}/update_scheduled_finish", sId); 
+                        string apiPath = string.Format("https://api.focusbear.io/focus-mode/{0}/update_scheduled_finish", BackendFocusModeId(sId)); 
 
-                        LogWriter.LogWrite("ExtendFocusMode() JSON: = " + extendFocusJsonString);
+                        LogWriter.LogWrite("ExtendFocusMode() JSON: " + FocusBear.Core.Reports.LogSafe.Keys(extendFocusJsonString));
 
                         var response = await client.PatchAsync(apiPath, content);
                         if (response.StatusCode == System.Net.HttpStatusCode.OK || response.StatusCode == System.Net.HttpStatusCode.Created)
@@ -1450,6 +1400,18 @@ namespace Focus_Bear.API
             return 0;
         }
 
+        /// <summary>
+        /// <c>GET /user/settings</c> as it stands on the server right now, or null — nothing stored, nothing
+        /// parsed. An edit that PUTs the whole settings document starts from this, not from the copy fetched at
+        /// launch, so it does not undo a change made meanwhile on another device.
+        /// </summary>
+        internal async Task<string> GetLatestUserSettingsRaw()
+        {
+            var response = await SendJsonRequest("GET", UserSettings + "?language=" + appSettings.sLangCode, null, "GetLatestUserSettingsRaw");
+            if (!response.IsSuccess || string.IsNullOrWhiteSpace(response.Body)) return null;
+            return response.Body;
+        }
+
         internal async Task<int> GetUserSettings(string sCustomHabitPackID = "") //OK
         {
             LogWriter.LogWrite("GetUserSettings()");
@@ -1493,10 +1455,13 @@ namespace Focus_Bear.API
                         if (response.Content != null)
                         {
                             var responseCode = await response.Content.ReadAsStringAsync();
+                            string previousSettings = appSettings.sRawUserSettings;
                             appSettings.sRawUserSettings = responseCode.ToString();
                             appSettings.dSettingsFetchedTime = DateTime.UtcNow;
 
-                            LogWriter.LogWrite("UserSettings - " + appSettings.sRawUserSettings);
+                            //The log goes out with problem reports: say what changed, not the whole document.
+                            LogWriter.LogWrite("UserSettings - " + FocusBear.Core.Reports.LogSafe.Describe(appSettings.sRawUserSettings)
+                                + "; changed: " + FocusBear.Core.Reports.LogSafe.ChangedKeys(previousSettings, appSettings.sRawUserSettings));
 
                             RegistryManager.SaveUserSettings();
                             return 1;
@@ -2411,8 +2376,19 @@ namespace Focus_Bear.API
             return 0;
         }
 
+        private JObject PostHogContext(string osVersion) => new JObject
+        {
+            ["os"] = "windows",
+            ["osVersion"] = osVersion ?? "",
+            ["appVersion"] = appSettings.AppVersion.ToString(),
+        };
+
         internal async Task<int> PostHogIdentify(string sAliasID) // OK
         {
+            if (AppSettings.IsRunningInCIOrAutomatedTest)
+            {
+                return 0; //no telemetry in CI/E2E/test builds (analytics#33) - don't create fake PostHog users
+            }
             LogWriter.LogWrite("PostHogIdentify() - " + sAliasID);
             try
             {
@@ -2425,26 +2401,27 @@ namespace Focus_Bear.API
                     string sOSVersion = appSettings.sOSVersion;
                     bool bUsesWindowsApp = true;
                     string sID = (appSettings.userAccount.userID != null && appSettings.userAccount.userID.Length > 0) ? appSettings.userAccount.userID : appSettings.sGlobalUUID;
-                    string context = $"{{\"os\":\"windows\"," +
-                                     $"\"osVersion\":\"{sOSVersion}\"," +
-                                     $"\"appVersion\":\"{appSettings.AppVersion.ToString()}\"}}";
-
-                    string sGeekMode = "geek-mode";
-                    string sSimpleMode = "simple-mode";
-
-                    string properties = $"{{\"distinct_id\":\"{sID}\"," +
-                    $"\"alias\":\"{sAliasID}\"," +
-                    $"\"$set\":{{\"USES_WINDOWS_APP\":{JsonConvert.SerializeObject(bUsesWindowsApp)}," +
-                                $"\"mode\":\"{(appSettings.bIsGeekModeEnabled ? sGeekMode : sSimpleMode)}\"," +
-                                $"\"occupation\":\"{appSettings.sSavedOccupationForPosthog}\"," +
-                                $"\"reason-for-using-focus-bear\":\"{appSettings.sCustomGoalSelected}\"," +
-                                $"\"care-factor-habits\":\"{appSettings.sCareFactorString}\"," +
-                                $"\"isPayingUser\":{JsonConvert.SerializeObject(appSettings.isPurchased)}}}}}"; 
-                  
-                    string sJsonString = $"{{\"api_key\":\"phc_Y6hD2dvO1zylm7CLij5CuNt6S5gTxe7EVXoxZcb2xUm\"," +
-                        $"\"event\":\"$create_alias\"," +
-                        $"\"context\":{context}," +
-                        $"\"properties\":{properties}}}";
+                    string sJsonString = new JObject
+                    {
+                        ["api_key"] = "phc_Y6hD2dvO1zylm7CLij5CuNt6S5gTxe7EVXoxZcb2xUm",
+                        ["event"] = "$create_alias",
+                        ["context"] = PostHogContext(sOSVersion),
+                        ["properties"] = new JObject
+                        {
+                            ["distinct_id"] = sID,
+                            ["alias"] = sAliasID,
+                            // Built as JSON: the typed occupation and goal used to be spliced in, and a quote dropped the event.
+                            ["$set"] = new JObject
+                            {
+                                ["USES_WINDOWS_APP"] = bUsesWindowsApp,
+                                ["mode"] = appSettings.bIsGeekModeEnabled ? "geek-mode" : "simple-mode",
+                                ["occupation"] = appSettings.sSavedOccupationForPosthog ?? "",
+                                ["reason-for-using-focus-bear"] = appSettings.sCustomGoalSelected ?? "",
+                                ["care-factor-habits"] = appSettings.sCareFactorString ?? "",
+                                ["isPayingUser"] = appSettings.isPurchased,
+                            },
+                        },
+                    }.ToString(Formatting.None);
 
 
                     if (!string.IsNullOrEmpty(sJsonString))
@@ -2509,29 +2486,26 @@ namespace Focus_Bear.API
                     string sOSVersion = appSettings.sOSVersion;
                     bool bUsesWindowsApp = true;
                     string sID = (appSettings.userAccount.userID != null && appSettings.userAccount.userID.Length > 0) ? appSettings.userAccount.userID : appSettings.sGlobalUUID;
-                    string context = $"{{\"os\":\"windows\"," +
-                                     $"\"osVersion\":\"{sOSVersion}\"," +
-                                     $"\"appVersion\":\"{appSettings.AppVersion.ToString()}\"}}";
-                 
-
-                    string properties = $"{{\"distinct_id\":\"{sID}\"," +
-                    $"\"osVersion\":\"{sOSVersion}\"," +
-                    $"\"$set\":{{\"mode\":\"{(appSettings.bIsGeekModeEnabled ? "geek-mode" : "simple-mode")}\"}}," +
-                    $"\"appVersion\":\"{appSettings.AppVersion.ToString()}\"," +
-                    $"\"USES_WINDOWS_APP\":{JsonConvert.SerializeObject(bUsesWindowsApp)}";
-
-                    if (sMetadata.Length > 0)
+                    var properties = new JObject
                     {
-                        properties += ",";
-                        properties += sMetadata;
-                    }
-                    properties += "}";
-
-                    string sJsonString = $"{{\"api_key\":\"phc_Y6hD2dvO1zylm7CLij5CuNt6S5gTxe7EVXoxZcb2xUm\"," +
-                        $"\"event\":\"{sEvent}\"," +
-                        $"\"context\":{context}," +
-                        $"\"isPayingUser\":{JsonConvert.SerializeObject(appSettings.isPurchased)}," +
-                        $"\"properties\":{properties}}}";
+                        ["distinct_id"] = sID,
+                        ["osVersion"] = sOSVersion,
+                        ["$set"] = new JObject { ["mode"] = appSettings.bIsGeekModeEnabled ? "geek-mode" : "simple-mode" },
+                        ["appVersion"] = appSettings.AppVersion.ToString(),
+                        ["USES_WINDOWS_APP"] = bUsesWindowsApp,
+                    };
+                    // The caller's members; a fragment that does not parse costs the event its extras, not the event.
+                    JObject extra = FocusBear.Core.Analytics.EventPayload.Properties(sMetadata);
+                    if (extra == null) LogWriter.LogWrite("CapturePostHog() - unreadable metadata for " + sEvent);
+                    FocusBear.Core.Analytics.EventPayload.Merge(properties, extra);
+                    string sJsonString = new JObject
+                    {
+                        ["api_key"] = "phc_Y6hD2dvO1zylm7CLij5CuNt6S5gTxe7EVXoxZcb2xUm",
+                        ["event"] = sEvent ?? "",
+                        ["context"] = PostHogContext(sOSVersion),
+                        ["isPayingUser"] = appSettings.isPurchased,
+                        ["properties"] = properties,
+                    }.ToString(Formatting.None);
 
 
                     if (!string.IsNullOrEmpty(sJsonString))
@@ -2606,22 +2580,21 @@ namespace Focus_Bear.API
                     bool bUsesWindowsApp = true;
                     string sID = (appSettings.userAccount.userID != null && appSettings.userAccount.userID.Length > 0) ? appSettings.userAccount.userID : appSettings.sGlobalUUID;
 
-                    string event_data = "{\"data\":{";
-                    if (sMetadata.Length > 0)
+                    JObject data = FocusBear.Core.Analytics.EventPayload.Properties(sMetadata);
+                    if (data == null) { LogWriter.LogWrite("CaptureEventEndpoint() - unreadable metadata for " + sEvent); data = new JObject(); }
+                    // Built as JSON: the user name used to be spliced in, and a quote in it dropped every event.
+                    string sJsonString = new JObject
                     {
-                        event_data += sMetadata;
-                    }
-                    event_data += "}}";
-
-                    string properties = $"{{\"distinct_id\":\"{sID}\"," +
-                         $"\"USERNAME\":\"{appSettings.sUser_name}\"," +
-                         $"\"APPVERSION\":\"{appSettings.AppVersion.ToString()}\","+
-                         $"\"USES_WINDOWS_APP\":{JsonConvert.SerializeObject(bUsesWindowsApp)}}}";
-
-
-                    string sJsonString = $"{{\"event_type\":\"{sEvent}\"," +
-                        $"\"event_data\":{event_data}," +
-                        $"\"user_properties\":{properties}}}";
+                        ["event_type"] = sEvent ?? "",
+                        ["event_data"] = new JObject { ["data"] = data },
+                        ["user_properties"] = new JObject
+                        {
+                            ["distinct_id"] = sID,
+                            ["USERNAME"] = appSettings.sUser_name ?? "",
+                            ["APPVERSION"] = appSettings.AppVersion.ToString(),
+                            ["USES_WINDOWS_APP"] = bUsesWindowsApp,
+                        },
+                    }.ToString(Formatting.None);
 
                     if (!string.IsNullOrEmpty(sJsonString))
                     {
@@ -2666,9 +2639,52 @@ namespace Focus_Bear.API
             return 0;
         }
 
+        /// <summary>
+        /// The <c>POST</c> body of the URL safety check. Built as JSON: it used to be spliced together as text, and
+        /// a tab title, page description, intention or "convince the AI" justification with a quote or backslash
+        /// in it - most page titles, and anything a person types - made the body unreadable, so the check failed
+        /// and the page was judged without the AI.
+        /// </summary>
+        internal static JObject UrlSafetyRequest(string url, string tabTitle, string metaDescription, string focusMode, string intention,
+                                                 JArray currentTasks, string currentTaskInToDoPlayer, string extraJustification,
+                                                 string[] lastFiveJustifications, string language, bool taskMustAlignToFocusIntention)
+        {
+            var payload = new JObject
+            {
+                ["url"] = url ?? "",
+                ["tab_title"] = tabTitle ?? "",
+                ["meta_description"] = metaDescription ?? "",
+                ["focus_mode"] = focusMode ?? "",
+                ["intention"] = intention ?? "",
+                ["current_tasks"] = currentTasks ?? new JArray(),
+                ["currentTaskInToDoPlayer"] = currentTaskInToDoPlayer ?? "",
+                ["extraJustificationForThisSite"] = extraJustification ?? "",
+                ["lastFiveJustificationsInThisFocusSession"] = new JArray((lastFiveJustifications ?? new string[0]).Cast<object>().ToArray()),
+                ["language"] = language ?? "",
+            };
+            if (taskMustAlignToFocusIntention) payload["task_must_align_to_focus_intention"] = true;
+            return payload;
+        }
+
+        /// <summary>
+        /// E2E test seam (E2EBuild.FakeAiVariable): the answer the backend would give, set the same way, without the
+        /// request. False (and nothing set) in every other build, or when the variable isn't set.
+        /// </summary>
+        private bool TryFakeAiAnswer(string item, out double probability)
+        {
+            if (!Utils.E2EBuild.TryFakeAi(item, out probability, out string reason)) return false;
+            var res = new JObject { ["allowed_probability"] = probability, ["reason"] = reason };
+            appSettings.sChatGPTResponse = res.ToString(Formatting.None);
+            appSettings.sChatGPTReasonForCurrentURL = reason;
+            appSettings.dProbablity = probability;
+            LogWriter.LogWrite("E2E fake AI: " + item + " -> " + probability.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            return true;
+        }
+
         internal async Task<double> ChatGPTIsURLSafe(string url, string tab_title, string meta_description, string focus_mode, string intention, string language)
         {
             LogWriter.LogWrite("ChatGPTIsURLSafe() = " + url);
+            if (TryFakeAiAnswer(url, out double fakeUrl)) return fakeUrl;
             try
             {
                 bool nInternetOn = await IsInternetOn();
@@ -2722,18 +2738,9 @@ namespace Focus_Bear.API
                     // Pass task_must_align_to_focus_intention=true when a blocking schedule is running in super strict mode
                     bool isSuperStrictMode = appSettings.isBlockingScheduleRunning &&
                         appSettings.ActiveSchedule?.BlockLevel == FOCUSMODESTRICTNESS.IRON_FOCUS;
-                    string taskMustAlignParam = isSuperStrictMode ? ",\"task_must_align_to_focus_intention\":true" : "";
-
-                    string addItemJsonString = $"{{\"url\":\"{url}\"," +
-                        $"\"tab_title\":\"{tab_title}\"," +
-                        $"\"meta_description\":\"{meta_description}\"," +
-                        $"\"focus_mode\":\"{focus_mode}\"," +
-                        $"\"intention\":\"{intention}\"," +
-                        $"\"current_tasks\":{sRawTasksToPassInSafeAPI.ToString(Formatting.None)}," +
-                        $"\"currentTaskInToDoPlayer\":\"{appSettings.sCurrentTaskPlayingInToDoPlayer}\"," +
-                        $"\"extraJustificationForThisSite\":\"{appSettings.sExtraJustificationForThisSite}\"," +
-                        $"\"lastFiveJustificationsInThisFocusSession\":{JsonConvert.SerializeObject(appSettings._last5Justifications.ToArray())}," +
-                        $"\"language\":\"{lang}\"{taskMustAlignParam}}}";
+                    string addItemJsonString = UrlSafetyRequest(url, tab_title, meta_description, focus_mode, intention, sRawTasksToPassInSafeAPI,
+                                                                appSettings.sCurrentTaskPlayingInToDoPlayer, appSettings.sExtraJustificationForThisSite,
+                                                                appSettings._last5Justifications.ToArray(), lang, isSuperStrictMode).ToString(Formatting.None);
 
                     //"lastFiveJustificationsInThisFocusSession": other_explanations_including_domains,
                     //if let currentHabitName = currentHabitName{
@@ -2753,7 +2760,7 @@ namespace Focus_Bear.API
                         if (response.StatusCode == System.Net.HttpStatusCode.Created) //201
                         {
                             LogWriter.LogWrite("ChatGPTIsURLSafe() SUCCESS");
-                            LogWriter.LogWrite("response = " + response.ToString());
+                            LogWriter.LogWrite("response = " + (int)response.StatusCode);
                             if (response.Content != null)
                             {
                                 var responseCode = await response.Content.ReadAsStringAsync();
@@ -2775,7 +2782,9 @@ namespace Focus_Bear.API
 
                                 if (resJson.ContainsKey("allowed_probability"))
                                 {
-                                    double dProbability = double.Parse( resJson["allowed_probability"].ToString());
+                                    double? read = FocusBear.Core.Blocking.AiProbability.Read(resJson["allowed_probability"]);
+                                    if (!read.HasValue) { LogWriter.LogWrite("ChatGPTIsURLSafe - unreadable allowed_probability: " + resJson["allowed_probability"]); return -1; }
+                                    double dProbability = read.Value;
                                     appSettings.dProbablity = dProbability;
 
                                     return appSettings.dProbablity;
@@ -2825,6 +2834,7 @@ namespace Focus_Bear.API
         internal async Task<double> ChatGPTIsAppSafe(string appName, string focus_mode, string intention, string language)
         {
             LogWriter.LogWrite("ChatGPTIsAppSafe() = " + appName);
+            if (TryFakeAiAnswer(appName, out double fakeApp)) return fakeApp;
             try
             {
                 bool nInternetOn = await IsInternetOn();
@@ -2935,7 +2945,9 @@ namespace Focus_Bear.API
 
                             if (resJson.ContainsKey("allowed_probability"))
                             {
-                                double dProbability = double.Parse(resJson["allowed_probability"].ToString());
+                                double? read = FocusBear.Core.Blocking.AiProbability.Read(resJson["allowed_probability"]);
+                                if (!read.HasValue) { LogWriter.LogWrite("ChatGPTIsAppSafe - unreadable allowed_probability: " + resJson["allowed_probability"]); return -1; }
+                                double dProbability = read.Value;
                                 appSettings.dProbablity = dProbability;
                                 return appSettings.dProbablity;
                             }
@@ -3169,10 +3181,12 @@ namespace Focus_Bear.API
         /// Calendar events for a connected account (<c>GET /calendar/{platform}/events?account=…</c>).
         /// Returns the raw platform events (Google or Microsoft shape) as a JSON body, or null. Read-only —
         /// the backend syncs from Google/Outlook; there is no create-event endpoint here.
+        /// <paramref name="range"/> is the extra query: <c>days=N</c> (today .. today+N-1, N ≤ 90) or
+        /// <c>day=yyyy-MM-dd</c> (one day); without it the backend returns today only.
         /// </summary>
-        internal async Task<string> GetCalendarEvents(string platform, string account)
+        internal async Task<string> GetCalendarEvents(string platform, string account, string range = null)
         {
-            LogWriter.LogWrite("GetCalendarEvents(" + platform + ", " + account + ")");
+            LogWriter.LogWrite("GetCalendarEvents(" + platform + ", " + account + (range != null ? ", " + range : "") + ")");
             try
             {
                 if (!await IsInternetOn()) return null;
@@ -3182,7 +3196,8 @@ namespace Focus_Bear.API
                     if (renew == 0) return null;
                 }
                 HttpClient client = GetClientWithHeaders();
-                string sPath = "https://api.focusbear.io/calendar/" + platform + "/events?account=" + Uri.EscapeDataString(account ?? "");
+                string sPath = "https://api.focusbear.io/calendar/" + platform + "/events?account=" + Uri.EscapeDataString(account ?? "")
+                    + (string.IsNullOrEmpty(range) ? "" : "&" + range);
                 var response = await client.GetAsync(sPath);
                 if (response.StatusCode == System.Net.HttpStatusCode.OK && response.Content != null)
                 {
@@ -3201,6 +3216,53 @@ namespace Focus_Bear.API
             DayPlanEventDismiss(dayKey, eventId, dismiss: true);
 
         /// <summary>Un-hide a previously dismissed meeting (<c>DELETE</c> the same path).</summary>
+        /// <summary>
+        /// <c>GET /to-do/by-ids?ids=a,b,…</c> (at most 100 per call) — the current rows for exactly these
+        /// to-dos, completed ones included. Returns one merged JSON array, or null when any call fails,
+        /// so a partial answer is never mistaken for the whole picture.
+        /// </summary>
+        internal async Task<string> GetToDosByIds(IEnumerable<string> ids)
+        {
+            try
+            {
+                List<string> all = ids.Where(id => Guid.TryParse(id, out _)).Distinct().ToList();
+                var merged = new JArray();
+                if (all.Count == 0) return merged.ToString(Formatting.None);
+                if (!await IsInternetOn()) return null;
+                if (!appSettings.ValidateTokenValidBeforeAPICall())
+                {
+                    if (await RenewToken() == 0) return null;
+                }
+                HttpClient client = GetClientWithHeaders();
+                for (int i = 0; i < all.Count; i += 100)
+                {
+                    string path = AllTasks + "/by-ids?ids=" + string.Join(",", all.Skip(i).Take(100));
+                    var response = await client.GetAsync(path);
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        LogWriter.LogWrite("GetToDosByIds http " + (int)response.StatusCode);
+                        return null;
+                    }
+                    AppendByIdsRows(merged, await response.Content.ReadAsStringAsync());
+                }
+                return merged.ToString(Formatting.None);
+            }
+            catch (Exception ex) { LogWriter.LogWrite("GetToDosByIds - " + ex.Message); return null; }
+        }
+
+        /// <summary>
+        /// One <c>/to-do/by-ids</c> page into the merged array, its values exactly as the server spelled
+        /// them. Read with <see cref="ToDoJson.Parse"/> (no date parsing), never <c>JToken.Parse</c>: Json.NET's
+        /// default turns <c>"2026-09-27T00:00:00.000Z"</c> into a DateTime and writes it back as
+        /// <c>"2026-09-27T00:00:00Z"</c>, and a row that no longer reads like the catalogue's own looks
+        /// edited elsewhere (the reschedule plan's "Saved 0 date changes", 2026-09-25).
+        /// </summary>
+        internal static void AppendByIdsRows(JArray merged, string body)
+        {
+            if (FocusBear.Core.ToDo.ToDoJson.Parse(body) is JArray rows)
+                foreach (JToken row in rows) merged.Add(row);
+        }
+
         internal Task<bool> UndismissEvent(string dayKey, string eventId) =>
             DayPlanEventDismiss(dayKey, eventId, dismiss: false);
 
@@ -3306,6 +3368,19 @@ namespace Focus_Bear.API
         /// </summary>
         internal async Task<List<string>> GetProjects()
         {
+            Dictionary<string, string> byId = await GetProjectsById();
+            if (byId == null) return null;
+            return byId.Values.Distinct().ToList();
+        }
+
+        /// <summary>
+        /// Every project of the user's, id -> name, across all pages of <c>/projects</c> (the Mac's
+        /// fetchProjectsPage: <c>?page=N</c>, deduped by id, stopping at the reported total, an empty
+        /// page or 50 pages). Used to name a to-do by its <c>project_id</c>
+        /// (<see cref="FocusBear.Core.Schedule.TodoProjects"/>). Null when nothing could be fetched.
+        /// </summary>
+        internal async Task<Dictionary<string, string>> GetProjectsById()
+        {
             try
             {
                 if (!await IsInternetOn()) return null;
@@ -3315,37 +3390,37 @@ namespace Focus_Bear.API
                     if (renew == 0) return null;
                 }
                 HttpClient client = GetClientWithHeaders();
-                var response = await client.GetAsync("https://api.focusbear.io/projects");
-                if (response.StatusCode != System.Net.HttpStatusCode.OK || response.Content == null)
+                var byId = new Dictionary<string, string>();
+                var unnamedIds = 0;
+                for (int page = 1; page <= 50; page++)
                 {
-                    LogWriter.LogWrite("GetProjects: status " + (int)response.StatusCode);
-                    return null;
-                }
-                string body = await response.Content.ReadAsStringAsync();
-                JToken root = JToken.Parse(body);
-                JArray arr = root as JArray;
-                if (arr == null && root is JObject o)
-                {
-                    JArray dataArr = o["data"] as JArray ?? new JArray();
-                    JArray projArr = o["projects"] as JArray ?? new JArray();
-                    arr = projArr.Count > dataArr.Count ? projArr : dataArr;
-                }
-                var names = new List<string>();
-                if (arr != null)
-                {
-                    foreach (JToken t in arr)
+                    string url = page == 1 ? "https://api.focusbear.io/projects" : "https://api.focusbear.io/projects?page=" + page;
+                    var response = await client.GetAsync(url);
+                    if (response.StatusCode != System.Net.HttpStatusCode.OK || response.Content == null)
                     {
-                        if (!(t is JObject po)) continue;
-                        string n = po.Value<string>("name") ?? po.Value<string>("title");
-                        if (!string.IsNullOrWhiteSpace(n) && !names.Contains(n)) names.Add(n);
+                        LogWriter.LogWrite("GetProjectsById: page " + page + " status " + (int)response.StatusCode);
+                        if (page == 1) return null;
+                        break;
                     }
+                    string body = await response.Content.ReadAsStringAsync();
+                    int total;
+                    var items = FocusBear.Core.Schedule.TodoProjects.ParseProjectsPage(JToken.Parse(body), out total);
+                    int added = 0;
+                    foreach (var item in items)
+                    {
+                        string key = string.IsNullOrEmpty(item.Key) ? "noid:" + (unnamedIds++) : item.Key;
+                        if (byId.ContainsKey(key)) continue;   // ?page= ignored -> the same set repeats: stop
+                        byId[key] = item.Value;
+                        added++;
+                    }
+                    if (added == 0 || (total > 0 && byId.Count >= total)) break;
                 }
-                LogWriter.LogWrite("GetProjects got " + names.Count);
-                return names;
+                LogWriter.LogWrite("GetProjectsById got " + byId.Count);
+                return byId;
             }
             catch (Exception ex)
             {
-                LogWriter.LogWrite("GetProjects Exception - " + ex.Message);
+                LogWriter.LogWrite("GetProjectsById Exception - " + ex.Message);
                 return null;
             }
         }
@@ -3407,6 +3482,10 @@ namespace Focus_Bear.API
             };
             if (blockKey != null) body["planned_block_key"] = blockKey;
             if (order.HasValue) body["planned_order"] = order.Value;
+            // The Day Plan files synced tasks by DUE DATE (planned_date is the legacy pointer), so planning a
+            // to-do onto a day moves its due date there and removing it clears it — the Mac's setTodoPlanned
+            // (report 2026-09-25_19-54-42). Without this the next due-date refresh would move it straight back.
+            body["due_date"] = plannedDate.HasValue ? (JToken)plannedDate.Value.ToString("yyyy-MM-dd") : JValue.CreateNull();
             return PutTodoUpsert(body, "setTodoPlanned");
         }
 
@@ -3517,6 +3596,7 @@ namespace Focus_Bear.API
                     HttpClient client = GetClientWithHeaders();
 
                     var filePath = Path.Combine(AppSettings.AppDataDirLogsPath, "Debug_Logs.txt");
+                    LogWriter.Flush();
 
                     using (var multipartFormContent = new MultipartFormDataContent())
                     {
@@ -4048,76 +4128,40 @@ namespace Focus_Bear.API
             return 0;
         }
 
-        internal async Task<int> SyncOfflineData(string addItemJsonString)
+        /// <summary>
+        /// Posts one batch of the offline queue. Returns the HTTP status, or null when there was no answer (offline,
+        /// token renewal failed, exception). OfflineQueueSync.Classify decides what the status means for the queue -
+        /// this used to report any 4xx as success, so one bad entry discarded its whole batch.
+        /// </summary>
+        internal async Task<int?> PostOfflineBatch(string addItemJsonString)
         {
-            LogWriter.LogWrite("SyncOfflineData()");
+            LogWriter.LogWrite("PostOfflineBatch()");
             try
             {
-                bool nInternetOn = await IsInternetOn();
+                if (string.IsNullOrEmpty(addItemJsonString) || !await IsInternetOn())
+                    return null;
 
-                if (nInternetOn)
+                if (!appSettings.ValidateTokenValidBeforeAPICall())
                 {
-                    if (!appSettings.ValidateTokenValidBeforeAPICall())
-                    {
-                        var xRenwTokenStatus = await RenewToken();
-                        if (xRenwTokenStatus == 0)
-                        {
-                            return 0;
-                        }
-                    }
-
-                    HttpClient client = GetClientWithHeaders();
-
-                    if (!string.IsNullOrEmpty(addItemJsonString))
-                    {
-                        LogWriter.LogWrite(addItemJsonString);
-
-                        StringContent content = new StringContent(addItemJsonString, Encoding.UTF8, "application/json");
-
-                        var response = await client.PostAsync("https://api.focusbear.io/completed-activity/sync", content);
-                        if (response.StatusCode == System.Net.HttpStatusCode.Created) //201
-                        {
-                            LogWriter.LogWrite("SyncOfflineData() SUCCESS");
-
-                            if (response.Content != null)
-                            {
-                                var responseCode = await response.Content.ReadAsStringAsync();
-                                return 1;
-                            }
-                        }
-                        else
-                        {
-                            LogWriter.LogWrite("SyncOfflineData() FAILED code = " + response.StatusCode.ToString());
-
-                            if (response.StatusCode != System.Net.HttpStatusCode.RequestTimeout && ( response.StatusCode >= System.Net.HttpStatusCode.BadRequest && response.StatusCode <= System.Net.HttpStatusCode.UpgradeRequired )) //400 to 426 except 408
-                            {
-                                //Deon asked that if the request fails with a 400 error, we should not try again
-                                //So we will return 1 here so that the entries are removed from the offline csv file
-                                return 1;
-                            }
-                            if (response.Content != null)
-                            {
-                                var responseCode = await response.Content.ReadAsStringAsync();
-                                return 0;
-                            }
-                            return 0;
-                        }
-                    }
-                    else
-                    {
-                        return 0;
-                    }
+                    var xRenwTokenStatus = await RenewToken();
+                    if (xRenwTokenStatus == 0)
+                        return null;
                 }
-            }
-            catch (WebException ex)
-            {
-                LogWriter.LogWrite("SyncOfflineData WebException" + ex.Message);
+
+                HttpClient client = GetClientWithHeaders();
+                LogWriter.LogWrite("PostOfflineBatch() body " + FocusBear.Core.Reports.LogSafe.Describe(addItemJsonString));
+
+                StringContent content = new StringContent(addItemJsonString, Encoding.UTF8, "application/json");
+                var response = await client.PostAsync("https://api.focusbear.io/completed-activity/sync", content);
+                LogWriter.LogWrite("PostOfflineBatch() status " + (int)response.StatusCode);
+                return (int)response.StatusCode;
             }
             catch (Exception ex)
             {
-                LogWriter.LogWrite("SyncOfflineData Exception" + ex.Message);
+                LogWriter.LogWrite("PostOfflineBatch Exception " + ex.Message);
+                if (IsNetworkFailure(ex)) _reachability.Forget();
+                return null;
             }
-            return 0;
         }
 
 
@@ -4193,6 +4237,124 @@ namespace Focus_Bear.API
             return 0;
         }
 
+        // One-time migration of the local Brain Dump text to the backend note store (matches the mac
+        // app's PUT {baseUrl}/note - is_brain_dump identifies it, title is just a required label since
+        // the create path 400s without one). Not idempotent server-side (no id in the payload always
+        // creates a new note), so the caller must only call this once per user - see
+        // AppSettings.MigrateBrainDumpToBackendIfNeeded.
+        internal async Task<bool> UpsertBrainDumpNote(string body)
+        {
+            LogWriter.LogWrite("UpsertBrainDumpNote()");
+            try
+            {
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
+                {
+                    if (!appSettings.ValidateTokenValidBeforeAPICall())
+                    {
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
+                        {
+                            return false;
+                        }
+                    }
+
+                    HttpClient client = GetClientWithHeaders();
+
+                    JObject payload = new JObject
+                    {
+                        ["title"] = "Brain dump",
+                        ["body"] = body ?? "",
+                        ["is_brain_dump"] = true
+                    };
+                    StringContent content = new StringContent(payload.ToString(), Encoding.UTF8, "application/json");
+
+                    var response = await client.PutAsync("https://api.focusbear.io/note", content);
+                    if (response.StatusCode == System.Net.HttpStatusCode.OK) //200
+                    {
+                        LogWriter.LogWrite("UpsertBrainDumpNote() GOT Success");
+                        return true;
+                    }
+                    else
+                    {
+                        if (response.Content != null)
+                        {
+                            var responseCode = await response.Content.ReadAsStringAsync();
+                            LogWriter.LogWrite("UpsertBrainDumpNote() FAILED - " + responseCode);
+                        }
+                        return false;
+                    }
+                }
+            }
+            catch (WebException ex)
+            {
+                LogWriter.LogWrite("UpsertBrainDumpNote WebException - " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("UpsertBrainDumpNote Exception - " + ex.Message);
+            }
+            return false;
+        }
+
+        // Resolves a habit Instructions image's R2 object key (ActivityImage.FilePath) to an actual
+        // downloadable URL (web_dashboard#2184). The returned URL is only valid for the response's
+        // expiresInSeconds (currently 1 hour server-side) - fine here since the ongoing-activity screen
+        // that calls this is never open anywhere near that long. url-only images never need this call.
+        internal async Task<string> GetActivityImageReadUrl(string activityId, string fileKey)
+        {
+            LogWriter.LogWrite("GetActivityImageReadUrl()");
+            try
+            {
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
+                {
+                    if (!appSettings.ValidateTokenValidBeforeAPICall())
+                    {
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
+                        {
+                            return null;
+                        }
+                    }
+
+                    HttpClient client = GetClientWithHeaders();
+
+                    string apiPath = string.Format("https://api.focusbear.io/activity/{0}/images?file_key={1}", activityId, HttpUtility.UrlEncode(fileKey));
+
+                    var response = await client.GetAsync(apiPath);
+                    if (response.StatusCode == System.Net.HttpStatusCode.OK && response.Content != null) //200
+                    {
+                        var responseCode = await response.Content.ReadAsStringAsync();
+                        JObject resJson = JObject.Parse(responseCode);
+                        string readUrl = resJson["readUrl"]?.ToString();
+                        LogWriter.LogWrite("GetActivityImageReadUrl() GOT Success");
+                        return readUrl;
+                    }
+                    else
+                    {
+                        if (response.Content != null)
+                        {
+                            var responseCode = await response.Content.ReadAsStringAsync();
+                            LogWriter.LogWrite("GetActivityImageReadUrl() FAILED - " + responseCode);
+                        }
+                        return null;
+                    }
+                }
+            }
+            catch (WebException ex)
+            {
+                LogWriter.LogWrite("GetActivityImageReadUrl WebException - " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("GetActivityImageReadUrl Exception - " + ex.Message);
+            }
+            return null;
+        }
+
         internal async Task<int> ResetPassword() // OK
         {
             LogWriter.LogWrite("ResetPassword()");
@@ -4213,11 +4375,13 @@ namespace Focus_Bear.API
 
                     HttpClient client = GetClientWithHeaders();
 
-                    string addItemJsonString = $"{{\"email\":\"{appSettings.userAccount.email}\"}}";
+                    //Built as JSON (an email is user text), and not logged: the log goes out with problem reports.
+                    string addItemJsonString = new Newtonsoft.Json.Linq.JObject { ["email"] = appSettings.userAccount.email ?? "" }
+                        .ToString(Newtonsoft.Json.Formatting.None);
 
                     if (!string.IsNullOrEmpty(addItemJsonString))
                     {
-                        LogWriter.LogWrite("ResetPassword() addItemJsonString - " + addItemJsonString);
+                        LogWriter.LogWrite("ResetPassword() request built");
 
                         StringContent content = new StringContent(addItemJsonString, Encoding.UTF8, "application/json");
 
@@ -4280,7 +4444,7 @@ namespace Focus_Bear.API
                 if (nInternetOn)
                 {
                     HttpClient client = new HttpClient();
-                    string json = $"{{\"email\":\"{email}\"}}";
+                    string json = EmailBody(email);
                     StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
                     var response = await client.PostAsync("https://api.focusbear.io/auth/reset-password", content);
                     if (response.StatusCode == System.Net.HttpStatusCode.Created) //201
@@ -4331,7 +4495,7 @@ namespace Focus_Bear.API
 
                     HttpClient client = GetClientWithHeaders();
 
-                    string addItemJsonString = $"{{\"email\":\"{appSettings.userAccount.email}\"}}";
+                    string addItemJsonString = EmailBody(appSettings.userAccount.email);
 
                     if (!string.IsNullOrEmpty(addItemJsonString))
                     {
@@ -4377,6 +4541,69 @@ namespace Focus_Bear.API
             {
                 LogWriter.LogWrite("ResendConfirmationEmail Exception - " + ex.Message);
 
+            }
+            return 0;
+        }
+
+        // Converts the current guest (anonymous) account into a real account by setting the user's email
+        // and password. Sends the current access token (via GetClientWithHeaders) so the backend links the
+        // new credentials to the existing user id, preserving all their data. Returns 1 on success; on
+        // failure returns 0 and stores the server message in appSettings.sConvertGuestError for display. #643
+        internal async Task<int> ConvertGuestAccount(string sEmail, string sPassword)
+        {
+            LogWriter.LogWrite("ConvertGuestAccount()");
+            appSettings.sConvertGuestError = "";
+            try
+            {
+                bool nInternetOn = await IsInternetOn();
+
+                if (nInternetOn)
+                {
+                    if (!appSettings.ValidateTokenValidBeforeAPICall())
+                    {
+                        var xRenwTokenStatus = await RenewToken();
+                        if (xRenwTokenStatus == 0)
+                        {
+                            return 0;
+                        }
+                    }
+
+                    HttpClient client = GetClientWithHeaders();
+
+                    // Backend expects the new password under "newPassword" (not "password"). #643
+                    string addItemJsonString = $"{{\"email\":{JsonConvert.SerializeObject(sEmail)},\"newPassword\":{JsonConvert.SerializeObject(sPassword)}}}";
+                    StringContent content = new StringContent(addItemJsonString, Encoding.UTF8, "application/json");
+
+                    var response = await client.PostAsync("https://api.focusbear.io/auth/convert-guest", content);
+                    if (response.StatusCode == System.Net.HttpStatusCode.Created || response.StatusCode == System.Net.HttpStatusCode.OK)
+                    {
+                        LogWriter.LogWrite("ConvertGuestAccount() GOT Success");
+                        return 1;
+                    }
+                    else
+                    {
+                        if (response.Content != null)
+                        {
+                            var responseCode = await response.Content.ReadAsStringAsync();
+                            try
+                            {
+                                JObject resJson = JObject.Parse(responseCode);
+                                appSettings.sConvertGuestError = resJson["message"]?.ToString() ?? "";
+                            }
+                            catch { }
+                            LogWriter.LogWrite("ConvertGuestAccount() FAILED - " + appSettings.sConvertGuestError);
+                        }
+                        return 0;
+                    }
+                }
+            }
+            catch (WebException ex)
+            {
+                LogWriter.LogWrite("ConvertGuestAccount WebException - " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("ConvertGuestAccount Exception - " + ex.Message);
             }
             return 0;
         }
@@ -4470,10 +4697,13 @@ namespace Focus_Bear.API
                     // no explanation and no screenshot (#1399). Send a default when it's empty.
                     string sFeedbackToSend = string.IsNullOrWhiteSpace(sFeedback) ? "No Feedback" : sFeedback;
 
-                    string addItemJsonString = $"{{\"feedback_message\":\"{HttpUtility.UrlEncode(sFeedbackToSend)}\"," +
-                        $"\"app_platform\":\"windows\"," +
-                         $"\"uploaded_file_url\":\"{sUploadURL}\"," +
-                        $"\"app_version\":\"{ appSettings.AppVersion.ToString()}\"}}";
+                    string addItemJsonString = new JObject
+                    {
+                        ["feedback_message"] = HttpUtility.UrlEncode(sFeedbackToSend),
+                        ["app_platform"] = "windows",
+                        ["uploaded_file_url"] = (sUploadURL ?? "").Trim().Trim('"'),
+                        ["app_version"] = appSettings.AppVersion.ToString(),
+                    }.ToString(Formatting.None);
 
                     if (!string.IsNullOrEmpty(addItemJsonString))
                     {
@@ -4559,7 +4789,7 @@ namespace Focus_Bear.API
                             var responseCode = await response.Content.ReadAsStringAsync();
                             appSettings.sRawBlockingSchedules = responseCode.ToString();
 
-                            LogWriter.LogWrite("GetAllBlockingSchedules() - " + appSettings.sRawBlockingSchedules);
+                            LogWriter.LogWrite("GetAllBlockingSchedules() - " + FocusBear.Core.Reports.LogSafe.Describe(appSettings.sRawBlockingSchedules));
 
                             RegistryManager.SaveBlockingSchedules();
                             return 1;
@@ -4620,7 +4850,10 @@ namespace Focus_Bear.API
                         StringContent content = new StringContent(addJsonString, Encoding.UTF8, "application/json");
 
                         //Make the data for Focus Mode
-                        var response = await client.PostAsync(BlockingSchedules, content);
+                        // Pass device_id so the backend can skip re-notifying this device once the
+                        // blocking-schedule-updated Pusher event ships (avoids a redundant self-refresh). #1114
+                        string postPath = BlockingSchedules + "?device_id=" + appSettings.sDeviceID;
+                        var response = await client.PostAsync(postPath, content);
                         if (response.StatusCode == System.Net.HttpStatusCode.Created) //201
                         {
                             if (response.Content != null)
@@ -4685,7 +4918,7 @@ namespace Focus_Bear.API
                     {
                         StringContent content = new StringContent(addJsonString, Encoding.UTF8, "application/json");
 
-                        string path = BlockingSchedules + "/" + sBlockingScheduleID;
+                        string path = BlockingSchedules + "/" + sBlockingScheduleID + "?device_id=" + appSettings.sDeviceID;
 
                         //Make the data for Focus Mode
                         var response = await client.PutAsync(path, content);
@@ -4750,7 +4983,7 @@ namespace Focus_Bear.API
 
                     HttpClient client = GetClientWithHeaders();
 
-                    string path = BlockingSchedules + "/" + sBlockingScheduleID;
+                    string path = BlockingSchedules + "/" + sBlockingScheduleID + "?device_id=" + appSettings.sDeviceID;
 
                     var response = await client.DeleteAsync(path);
                     if (response.StatusCode == System.Net.HttpStatusCode.NoContent) //204
@@ -4883,7 +5116,7 @@ namespace Focus_Bear.API
                             var responseCode = await response.Content.ReadAsStringAsync();
                             appSettings.sRawBuddiesList = responseCode.ToString();
 
-                            LogWriter.LogWrite("GetAllBuddies() - " + appSettings.sRawBuddiesList);
+                            LogWriter.LogWrite("GetAllBuddies() - " + FocusBear.Core.Reports.LogSafe.Describe(appSettings.sRawBuddiesList));
 
                             RegistryManager.SaveBuddyList();
                             return 1;
@@ -5169,7 +5402,7 @@ namespace Focus_Bear.API
             return null;
         }
 
-        internal async Task<int> DeclineClassSession(string sSessionId) //POST /class-session/{id}/decline
+        internal async Task<int> DeclineClassSession(string sSessionId, string sReason = "") //POST /class-session/{id}/decline
         {
             LogWriter.LogWrite("DeclineClassSession()");
             try
@@ -5189,7 +5422,14 @@ namespace Focus_Bear.API
 
                     HttpClient client = GetClientWithHeaders();
 
-                    StringContent content = new StringContent("{}", Encoding.UTF8, "application/json");
+                    //optional free-text decline reason the teacher sees in their report; empty stays "{}"
+                    //for back-compatibility (the server rejects an empty body sent as application/json)
+                    JObject payload = new JObject();
+                    if (!string.IsNullOrWhiteSpace(sReason))
+                    {
+                        payload["reason"] = sReason.Trim();
+                    }
+                    StringContent content = new StringContent(payload.ToString(Formatting.None), Encoding.UTF8, "application/json");
 
                     string sPath = ClassSession + "/" + sSessionId + "/decline";
 
@@ -5302,10 +5542,24 @@ namespace Focus_Bear.API
             return null;
         }
 
-        //POST /class-session/{id}/heartbeat with the canonical body {in_focus, device_id}.
-        //Best effort every 25s - no IsInternetOn probe (it would double the request volume) and no
-        //retry (the next beat is 25 seconds away; the server tolerates gaps of up to ~90s).
-        internal async Task<int> ClassSessionHeartbeat(string sSessionId, bool bInFocus)
+        /// <summary>
+        /// Ticks (<c>POST</c>) or unticks (<c>DELETE</c>) a teacher-assigned task:
+        /// <c>/class-session/{id}/tasks/{taskId}/complete</c>. Both are idempotent on the server, so a repeat
+        /// counts as success.
+        /// </summary>
+        internal async Task<bool> SetClassSessionTaskCompleted(string sSessionId, string sTaskId, bool completed)
+        {
+            string url = ClassSession + "/" + Uri.EscapeDataString(sSessionId) + "/tasks/" + Uri.EscapeDataString(sTaskId) + "/complete";
+            var response = await SendJsonRequest(completed ? "POST" : "DELETE", url, completed ? new JObject() : null, "SetClassSessionTaskCompleted");
+            return response.IsSuccess;
+        }
+
+        //POST /class-session/{id}/heartbeat with the canonical body {in_focus, device_id, idle_seconds,
+        //alignment_score?}. idle_seconds (seconds since last user input) lets the teacher report derive
+        //Engagement server-side; alignment_score (0-100 site-relevance) is sent only when AI URL checking
+        //is on (null omits it). Best effort every 25s - no IsInternetOn probe (it would double the request
+        //volume) and no retry (the next beat is 25 seconds away; the server tolerates gaps of up to ~90s).
+        internal async Task<int> ClassSessionHeartbeat(string sSessionId, bool bInFocus, int idleSeconds, int? alignmentScore = null)
         {
             try
             {
@@ -5320,7 +5574,11 @@ namespace Focus_Bear.API
 
                 HttpClient client = GetClientWithHeaders();
 
-                string addJsonString = "{\"in_focus\":" + (bInFocus ? "true" : "false") + ",\"device_id\":\"" + appSettings.sDeviceID + "\"}";
+                string addJsonString = "{\"in_focus\":" + (bInFocus ? "true" : "false")
+                    + ",\"device_id\":\"" + appSettings.sDeviceID + "\""
+                    + ",\"idle_seconds\":" + idleSeconds
+                    + (alignmentScore.HasValue ? ",\"alignment_score\":" + alignmentScore.Value : "")
+                    + "}";
                 StringContent content = new StringContent(addJsonString, Encoding.UTF8, "application/json");
 
                 string sPath = ClassSession + "/" + sSessionId + "/heartbeat";
@@ -5442,7 +5700,7 @@ namespace Focus_Bear.API
 
                     HttpClient client = GetClientWithHeaders();
 
-                    string addItemJsonString = $"{{\"user_occupation\":\"{sOccupation}\"}}";
+                    string addItemJsonString = OccupationBody(sOccupation);
 
                     if (!string.IsNullOrEmpty(addItemJsonString))
                     {
@@ -5562,6 +5820,114 @@ namespace Focus_Bear.API
                 LogWriter.LogWrite("GetFocusModes Exception - " + ex.Message);
             }
             return 0;
+        }
+
+        // ── Voice commands ────────────────────────────────────────────────────
+        // Unlike the int-status calls above, these throw VoiceCommandException so the voice UI can
+        // tell the user why a command failed (offline, signed out, too long, rate-limited, failed).
+
+        // .NET Framework's HttpStatusCode has no members for these.
+        private const HttpStatusCode HttpStatusPayloadTooLarge = (HttpStatusCode)413;
+        private const HttpStatusCode HttpStatusTooManyRequests = (HttpStatusCode)429;
+
+        // A little above the backend's own route timeouts (60 s transcribe, 45 s intent), so the
+        // server's answer arrives before the client gives up.
+        private static readonly TimeSpan VoiceTranscribeTimeout = TimeSpan.FromSeconds(65);
+        private static readonly TimeSpan VoiceIntentTimeout = TimeSpan.FromSeconds(50);
+
+        private const string VoiceRecordingPartName = "file";
+        private const string VoiceRecordingContentType = "audio/wav";
+
+        internal Task<VoiceTranscription> TranscribeVoice(string wavFile)
+        {
+            var recording = new ByteArrayContent(File.ReadAllBytes(wavFile));
+            recording.Headers.ContentType = new MediaTypeHeaderValue(VoiceRecordingContentType);
+            var form = new MultipartFormDataContent();
+            form.Add(recording, VoiceRecordingPartName, Path.GetFileName(wavFile));
+            return SendVoiceRequest<VoiceTranscription>(VoiceTranscribe, form, VoiceTranscribeTimeout);
+        }
+
+        internal Task<IntentResponse> ClassifyVoiceIntent(VoiceIntentRequest request)
+        {
+            var body = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
+            return SendVoiceRequest<IntentResponse>(VoiceIntent, body, VoiceIntentTimeout);
+        }
+
+        private async Task<T> SendVoiceRequest<T>(string url, HttpContent body, TimeSpan timeout) where T : class
+        {
+            using (body)
+            {
+                await EnsureVoiceSession();
+
+                string responseText;
+                HttpStatusCode status;
+                try
+                {
+                    using (HttpClient client = GetClientWithHeaders())
+                    {
+                        client.Timeout = timeout;
+                        using (HttpResponseMessage response = await client.PostAsync(url, body))
+                        {
+                            status = response.StatusCode;
+                            responseText = await response.Content.ReadAsStringAsync();
+                        }
+                    }
+                }
+                catch (TaskCanceledException ex)
+                {
+                    throw new VoiceCommandException(VoiceCommandFailure.TimedOut, "Voice request timed out: " + url, ex);
+                }
+                catch (HttpRequestException ex)
+                {
+                    throw new VoiceCommandException(VoiceCommandFailure.Offline, "Voice request failed to send: " + url, ex);
+                }
+
+                ThrowForVoiceErrorStatus(status, url);
+
+                T result = JsonConvert.DeserializeObject<T>(responseText);
+                if (result == null)
+                {
+                    throw new VoiceCommandException(VoiceCommandFailure.Failed, "Empty voice response from " + url);
+                }
+                return result;
+            }
+        }
+
+        private async Task EnsureVoiceSession()
+        {
+            if (!await IsInternetOn())
+            {
+                throw new VoiceCommandException(VoiceCommandFailure.Offline, "No internet connection for voice command");
+            }
+            if (!appSettings.ValidateTokenValidBeforeAPICall() && await RenewToken() == 0)
+            {
+                throw new VoiceCommandException(VoiceCommandFailure.NotSignedIn, "Access token could not be renewed for voice command");
+            }
+        }
+
+        // Branches on the status alone: the voice routes' error bodies have no stable shape (a 502
+        // is an HTML page, most others a bare string).
+        private static void ThrowForVoiceErrorStatus(HttpStatusCode status, string url)
+        {
+            if ((int)status >= 200 && (int)status < 300)
+            {
+                return;
+            }
+
+            string detail = "Voice request " + url + " returned " + (int)status;
+            LogWriter.LogWrite(detail);
+
+            switch (status)
+            {
+                case HttpStatusCode.Unauthorized:
+                    throw new VoiceCommandException(VoiceCommandFailure.NotSignedIn, detail);
+                case HttpStatusPayloadTooLarge:
+                    throw new VoiceCommandException(VoiceCommandFailure.TooLong, detail);
+                case HttpStatusTooManyRequests:
+                    throw new VoiceCommandException(VoiceCommandFailure.RateLimited, detail);
+                default:
+                    throw new VoiceCommandException(VoiceCommandFailure.Failed, detail);
+            }
         }
 
     }

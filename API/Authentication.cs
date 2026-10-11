@@ -301,7 +301,24 @@ namespace Focus_Bear.API
  
         }
 
-        public async Task<bool> RefreshToken(String sRefreshToken)
+        /// <summary>One refresh at a time per refresh token, however many API calls find the token expired at once.</summary>
+        private static readonly FocusBear.Core.Auth.TokenRefreshGate RefreshGate = new FocusBear.Core.Auth.TokenRefreshGate();
+
+        public Task<bool> RefreshToken(String sRefreshToken)
+        {
+            return RefreshGate.RunAsync(sRefreshToken, () => RefreshTokenOnce(sRefreshToken));
+        }
+
+        /// <summary>
+        /// A new refresh (after a purchase, for the claims it changed), never one already under way: that one was
+        /// fetched before the purchase. Waits for it, then refreshes with the token it left.
+        /// </summary>
+        public Task<bool> RefreshTokenForced()
+        {
+            return RefreshGate.RunForcedAsync(() => appSettings.userAccount.refreshToken, token => RefreshTokenOnce(token));
+        }
+
+        private async Task<bool> RefreshTokenOnce(String sRefreshToken)
         {
             try
             {
@@ -318,7 +335,8 @@ namespace Focus_Bear.API
 
                 //Proceed after login
                 appSettings.userAccount.accessToken = authenticationResponse.AccessToken;
-                appSettings.userAccount.refreshToken = authenticationResponse.RefreshToken;
+                // Auth0 only sends a refresh token when it rotates them; otherwise the one used is still good.
+                appSettings.userAccount.refreshToken = FocusBear.Core.Auth.TokenRefreshGate.RefreshTokenToKeep(sRefreshToken, authenticationResponse.RefreshToken);
 
                 appSettings.SaveTokens();
 

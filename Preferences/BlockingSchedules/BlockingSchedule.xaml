@@ -1,85 +1,113 @@
-﻿<UserControl x:Class="Focus_Bear.Preferences.BlockingSchedule"
+<UserControl x:Class="Focus_Bear.Preferences.BlockingSchedule"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:Focus_Bear.Preferences"
+             xmlns:emoji="clr-namespace:Emoji.Wpf;assembly=Emoji.Wpf"
              mc:Ignorable="d"
+             UseLayoutRounding="True" SnapsToDevicePixels="True"
              d:DesignHeight="450" d:DesignWidth="800" AutomationProperties.AutomationId="BlockingSchedule">
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
-        
+        <local:ScheduleAccentColorConverter x:Key="ScheduleAccentColorConverter" />
+
+        <!-- Card-shaped ListViewItem: the card border/background lives on the item template itself,
+             so this just needs to be a plain, non-hit-testable-chrome wrapper. -->
         <Style x:Key="ListViewItemStyle" TargetType="{x:Type ListViewItem}">
             <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-            <Setter Property="Background" Value="{DynamicResource SoftCreamColor}"/>
-            <Setter Property="ContextMenu" Value="{DynamicResource rowContextMenu}" />
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Margin" Value="0,0,0,12"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type ListViewItem}">
-                        <Border  x:Name="IconBorder" Background="{x:Null}" CornerRadius="5" Margin="0,1" BorderThickness="1" BorderBrush="LightGray" >
-                            <ContentPresenter />
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <!--<Trigger Property="IsSelected" Value="true">
-                                <Setter TargetName="IconBorder" Property="Background">
-                                    <Setter.Value>
-                                        <SolidColorBrush Color="#e9912c" Opacity="1" />
-
-                                    </Setter.Value>
-                                </Setter>
-                            </Trigger>-->
-
-                            <Trigger Property="IsMouseOver" Value="true">
-                                <Setter TargetName="IconBorder" Property="Background">
-                                    <Setter.Value>
-                                        <SolidColorBrush Color="#e9912c" Opacity="1"/>
-                                    </Setter.Value>
-                                </Setter>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
+                        <ContentPresenter/>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
             <Setter Property="Visibility" Value="{Binding isShowAbleInList, Converter={StaticResource BoolToVis}}" />
+        </Style>
+
+        <!-- Pill badge (Days / Block list / Strictness) -->
+        <Style x:Key="SchedulePillStyle" TargetType="Border">
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="12,5"/>
+            <Setter Property="Margin" Value="0,0,8,0"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="UseLayoutRounding" Value="True"/>
+        </Style>
+        <Style x:Key="SchedulePillTextStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
         </Style>
     </UserControl.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="40"/>
-
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <ListView   Grid.Row="0"   x:Name="ListBlockingSchedules" AutomationProperties.AutomationId="lvListBlockingSchedules" SelectionMode="Single" ItemContainerStyle="{StaticResource ListViewItemStyle}"  Margin="10,10,10,10" VirtualizingPanel.IsVirtualizing="True"  VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.HorizontalScrollBarVisibility="Disabled"  BorderBrush="{x:Null}" BorderThickness="0" Background="{DynamicResource BackgroundColor}" Foreground="{DynamicResource ForegroundColor}" SelectionChanged="ListBlockingSchedules_SelectionChanged" >
+
+        <ListView Grid.Row="0" x:Name="ListBlockingSchedules" AutomationProperties.AutomationId="lvListBlockingSchedules" SelectionMode="Single" ItemContainerStyle="{StaticResource ListViewItemStyle}" AlternationCount="8" Margin="10,10,10,10" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling" ScrollViewer.HorizontalScrollBarVisibility="Disabled" BorderBrush="{x:Null}" BorderThickness="0" Background="{DynamicResource BackgroundColor}" Foreground="{DynamicResource ForegroundColor}" SelectionChanged="ListBlockingSchedules_SelectionChanged" >
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <Grid x:Name="ItemHeader"  Height="60" Background="Transparent"  Margin="10,0,10,0" IsHitTestVisible="True" Cursor="Hand" >
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="2*"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Grid.Column="0" Orientation="Vertical"  >
-                            <TextBlock Grid.Column="0" x:Name="BlockingScheduleName" Text="{Binding name, StringFormat=\{0\}}"  FontSize="13" Cursor="Hand" FontWeight="Bold" VerticalAlignment="Center" Margin="5,10,0,0" HorizontalAlignment="Left" Foreground="{DynamicResource PreferenceFocusListItemForegroundColor}"/>
-                            <TextBlock Grid.Column="0" x:Name="BlockingScheduleDays" Text="{Binding BlockingScheduleDaysTime, StringFormat=\{0\}}"  FontSize="13" Cursor="Hand"  VerticalAlignment="Center" Margin="5,10,0,0" HorizontalAlignment="Left" Foreground="{DynamicResource PreferenceFocusListItemForegroundColor}"/>
-                        </StackPanel>
-                        
-                        <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Border Background="{DynamicResource SoftCreamColor}"
+                            BorderBrush="#FFF2E1C1"
+                            BorderThickness="1"
+                            CornerRadius="12"
+                            Padding="16"
+                            Cursor="Hand"
+                            SnapsToDevicePixels="True"
+                            UseLayoutRounding="True">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Top">
+                            <Border Width="5" CornerRadius="3" Margin="0,2,0,0" SnapsToDevicePixels="True" UseLayoutRounding="True"
+                                    Background="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource ScheduleAccentColorConverter}}"/>
+                            <emoji:TextBlock Text="{Binding CardEmoji}" FontSize="22" Margin="12,0,12,0" VerticalAlignment="Top"/>
 
-                            <Border Background="#ffdcb3" Margin="0,0,10,0" CornerRadius="13" MinWidth="125" Height="25">
-                                <TextBlock Text="{Binding StrictnessLevelDisplay, StringFormat=\{0\}}" Foreground="#e9912c"  Margin="20,0,20,0" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="SemiBold"/>
-                            </Border>
-                            <Border Background="White" BorderBrush="Gray" BorderThickness="1" CornerRadius="13" Height="25">
-                                <TextBlock Text="{Binding FocusModeName, StringFormat=\{0\}}" Margin="20,0,20,0" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="Black" FontWeight="SemiBold"/>
-                            </Border>
+                            <StackPanel Orientation="Vertical">
+                                <TextBlock Text="{Binding name}" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource ForegroundColor}" TextTrimming="CharacterEllipsis"/>
+                                <TextBlock Text="{Binding TimeRangeCompact}" FontSize="13" FontWeight="Medium" Foreground="#e88800" Margin="0,4,0,10"/>
+
+                                <StackPanel Orientation="Horizontal">
+                                    <Border Style="{StaticResource SchedulePillStyle}" Background="{DynamicResource TextBoxBackgroundColor}" BorderBrush="LightGray">
+                                        <TextBlock Text="{Binding DaysCompact}" Style="{StaticResource SchedulePillTextStyle}" Foreground="{DynamicResource ForegroundColor}"/>
+                                    </Border>
+                                    <Border Style="{StaticResource SchedulePillStyle}" Background="#ffdcb3" BorderBrush="#f0c48a">
+                                        <!-- Fixed dark text: this pill's background is a fixed light peach in both
+                                             themes (not DynamicResource), so ForegroundColor (light in dark mode)
+                                             was unreadable against it. -->
+                                        <TextBlock Text="{Binding FocusModeName}" Style="{StaticResource SchedulePillTextStyle}" Foreground="#7a4a10"/>
+                                    </Border>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                                    <Border Style="{StaticResource SchedulePillStyle}" Background="#e88800" BorderThickness="0">
+                                        <TextBlock Text="{Binding StrictnessLevelDisplay}" Style="{StaticResource SchedulePillTextStyle}" Foreground="White"/>
+                                    </Border>
+                                </StackPanel>
+                            </StackPanel>
                         </StackPanel>
-                    </Grid>
+                    </Border>
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
-        <Button Grid.Row="1"  IsDefault="True" x:Name="btnNewBlockingSchedule" AutomationProperties.AutomationId="btnNewBlockingSchedule"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"  Height="40" MinWidth="400"  HorizontalAlignment="Center" VerticalAlignment="Bottom" Padding="0" Margin="0,0,0,0" FontSize="17" Cursor="Hand" FontWeight="Semibold" Click="btnNewBlockingSchedule_Click" >
+
+        <!-- Dashed "Add new" card, matching mac's outline style -->
+        <Button Grid.Row="1" IsDefault="True" x:Name="btnNewBlockingSchedule" AutomationProperties.AutomationId="btnNewBlockingSchedule" IsEnabled="True" Height="56" Margin="10,0,10,10" Cursor="Hand" Click="btnNewBlockingSchedule_Click" >
+            <Button.Template>
+                <ControlTemplate TargetType="Button">
+                    <Grid SnapsToDevicePixels="True" UseLayoutRounding="True">
+                        <!-- Border has no dashed-stroke support - a Rectangle does. -->
+                        <Rectangle RadiusX="12" RadiusY="12" Fill="Transparent" Stroke="#e88800" StrokeThickness="1.5" StrokeDashArray="4,3"/>
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Grid>
+                </ControlTemplate>
+            </Button.Template>
             <Button.Content>
-                <StackPanel  Orientation="Horizontal" Margin="20,0,20,0" >
-                    <TextBlock x:Name="btnNewBlockingScheduleTXT" Text="xAdd new Block" Style="{DynamicResource ButtonTextBlockStyle}"/>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="+" FontSize="16" FontWeight="Bold" Foreground="#e88800" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="btnNewBlockingScheduleTXT" Text="xAdd new Block" FontSize="15" FontWeight="SemiBold" Foreground="#e88800" VerticalAlignment="Center"/>
                 </StackPanel>
             </Button.Content>
         </Button>

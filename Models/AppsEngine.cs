@@ -75,9 +75,9 @@ namespace Focus_Bear.Models
 
         public async void GetData()
         {
-            List<AppDetails> StartMenuApps = new List<AppDetails>();
-
-            StartMenuApps =  GetStartMenuItems();
+            // Off the UI thread (it resolves every Start menu shortcut, ~0.4 s, and ran inside the start-up chain), on an
+            // STA thread of its own because Shell32's shortcut objects need one.
+            List<AppDetails> StartMenuApps = await OnStaThread(GetStartMenuItems);
 
             LogWriter.LogWrite("GetStartMenuItems() found items - " + StartMenuApps.Count().ToString());
             
@@ -100,6 +100,19 @@ namespace Focus_Bear.Models
             await DetectIF_ChromeInstalled();
 
         }
+        private static Task<T> OnStaThread<T>(Func<T> work)
+        {
+            var done = new TaskCompletionSource<T>();
+            var thread = new System.Threading.Thread(() =>
+            {
+                try { done.SetResult(work()); }
+                catch (Exception ex) { done.SetException(ex); }
+            }) { IsBackground = true, Name = "Start menu apps" };
+            thread.SetApartmentState(System.Threading.ApartmentState.STA);
+            thread.Start();
+            return done.Task;
+        }
+
         private Task DetectIF_ChromeInstalled()
         {
             return Task.Run(() =>

@@ -28,7 +28,7 @@
         <StackPanel  Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
             <TextBlock  Margin="0,0,0,0" Name="PostponeMinsText" TextWrapping="Wrap" Text="xSelect minutes to postpone:" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center"/>
 
-            <ComboBox Name="ComboBoxMinutes" AutomationProperties.AutomationId="cmbMinutes" Width="50" MinHeight="24" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0"  SelectedIndex="0">
+            <ComboBox Name="ComboBoxMinutes" AutomationProperties.AutomationId="cmbMinutes" Width="60" MinHeight="24" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0"  SelectedIndex="0" IsEditable="True" PreviewTextInput="ComboBoxMinutes_PreviewTextInput" LostFocus="ComboBoxMinutes_LostFocus">
                 <ComboBoxItem Content="5"></ComboBoxItem>
                 <ComboBoxItem Content="10"></ComboBoxItem>
                 <ComboBoxItem Content="15"></ComboBoxItem>

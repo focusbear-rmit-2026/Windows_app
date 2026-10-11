@@ -1,5 +1,8 @@
 using Focus_Bear.API;
+using FocusBear.Core.Reports;
+using FocusBear.Core.Sync;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -7,219 +10,204 @@ using System.Linq;
 using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Input;
 
 namespace Focus_Bear.Utils
 {
+    /// <summary>
+    /// The offline queue of completed activities (FocusBearOfflineData.CSV) and its sync to the server.
+    ///
+    /// The old sync read at most 500 entries, then deleted the file whatever happened: after five failed
+    /// batches (an outage lost the whole queue), after any exception, and after a 4xx, which it counted as
+    /// "sent" (one bad entry threw away nine good ones). Now a refused batch is retried one entry at a time and
+    /// only the entry the server refuses on its own is dropped (and logged); when the server can't be reached
+    /// everything not yet sent is kept and the next attempt waits (doubling, up to 30 minutes); entries added
+    /// while a sync runs are kept; and the queue is capped at <see cref="OfflineQueueSync.MaxQueue"/> entries.
+    /// </summary>
     public static class OfflineActivities
     {
+        internal const string Header = "activity_id,duration_logged,activity_sequence_id,start_time,finish_time,skipped_did_complete,choice_id,quantity_logged,skipped_did_not_complete,note_logged";
+        private const int BatchSize = 10;
+
+        /// <summary>Guards every read and write of the queue file (the sync runs off the UI thread).</summary>
+        internal static readonly object FileLock = new object();
 
         private static bool bIsProcesssingOfflineData = false;
-        private static int nBatchCount = 10;
-        private const int MaxOfflineEntries = 500;
-        private const int MaxRetries = 5;
+        // The queue is empty nearly always: it is read again only once it changes (FocusBear.Core.UnchangedFileGate).
+        // Every write-back forgets the gate, so an entry is never skipped because the file looked unchanged.
+        private static readonly FocusBear.Core.UnchangedFileGate EmptyQueue = new FocusBear.Core.UnchangedFileGate();
+        private static readonly OfflineSyncBackoff Backoff = new OfflineSyncBackoff(TimeSpan.FromSeconds(30), TimeSpan.FromMinutes(30));
 
         public static void ProcessOfflineData()
         {
-            if(!bIsProcesssingOfflineData)
+            if (bIsProcesssingOfflineData || !Backoff.CanAttempt(DateTime.Now))
+                return;
+
+            // The file check first: it is one stat and nearly always says "still empty". GetIsNetworkAvailable
+            // enumerates every adapter's IP configuration (~18 ms) and this runs on the UI thread every 5 s.
+            AppSettings appSettings = AppSettings.GetInstance;
+            if (!ShouldSync(appSettings.sOfflineDataCSVPath, EmptyQueue))
+                return;
+            if (!NetworkInterface.GetIsNetworkAvailable())
+                return;
+            bIsProcesssingOfflineData = true;
+
+            // Task.Run rather than new Thread(): avoids a Win32Exception when the OS cannot allocate a thread stack.
+            _ = Task.Run(async () =>
             {
-                if (NetworkInterface.GetIsNetworkAvailable())
+                try
                 {
-                    AppSettings appSettings = AppSettings.GetInstance;
+                    FocusBearAPIClient client = new FocusBearAPIClient();
+                    OfflineSyncResult<string> result = await SyncFileAsync(appSettings.sOfflineDataCSVPath, appSettings.sDeviceID, client.PostOfflineBatch, EmptyQueue);
+                    if (result == null)
+                        return;
+                    if (result.StoppedUnavailable)
+                        Backoff.Failed(DateTime.Now);
+                    else
+                        Backoff.Succeeded();
+                }
+                catch (Exception ex)
+                {
+                    LogWriter.LogWrite("ProcessOfflineData() ex - " + ex.Message);
+                }
+                finally
+                {
+                    bIsProcesssingOfflineData = false;
+                }
+            });
+        }
 
-                    bIsProcesssingOfflineData = true;
+        /// <summary>
+        /// One sync of the queue file at <paramref name="path"/>: sends it, then writes back what was not sent
+        /// plus anything appended meanwhile. Null when the queue was empty. The seam the tests drive with a fake post.
+        /// </summary>
+        internal static async Task<OfflineSyncResult<string>> SyncFileAsync(string path, string deviceId, Func<string, Task<int?>> post,
+                                                                           FocusBear.Core.UnchangedFileGate emptyQueue = null)
+        {
+            string[] snapshot;
+            long? stampLength;
+            DateTime? stampWrite;
+            lock (FileLock)
+            {
+                //Stamped under the lock, before the read: an append after it changes the stamp, so it is never skipped.
+                QueueFileStamp(path, out stampLength, out stampWrite);
+                snapshot = File.Exists(path) ? File.ReadAllLines(path) : new string[0];
+            }
 
-                    // Use Task.Run instead of new Thread() to avoid Win32Exception when
-                    // the OS cannot allocate a new thread stack under memory pressure.
-                    _ = Task.Run(async () =>
-                    {
-                        try
-                        {
-                            CommandManager.InvalidateRequerySuggested();
+            var entries = new List<string>();
+            foreach (string line in snapshot.Skip(1))
+            {
+                if (string.IsNullOrWhiteSpace(line))
+                    continue;
+                if (TryParse(line, out _))
+                    entries.Add(line);
+                else
+                    LogWriter.LogWrite("Offline queue: dropped an unreadable entry " + LogSafe.Describe(line));
+            }
+            if (entries.Count == 0)
+            {
+                if (snapshot.Length > 1)
+                {
+                    WriteBack(path, snapshot.Length, new List<string>()); //dropped unreadable lines: the file changed
+                    emptyQueue?.Forget();
+                }
+                else
+                {
+                    emptyQueue?.RememberEmpty(stampLength, stampWrite);
+                }
+                return null;
+            }
 
-                            //Read from the CSV file
-                            List<OfflineEntry> sOfflineData = new List<OfflineEntry>();
-                            //Seperate try catch block so that if csv reading fails somehow, it should work further
-                            try
-                            {
-                                //Get data from CSV
-                                sOfflineData = ReadOfflineDataCSV().ToList<OfflineEntry>();
+            LogWriter.LogWrite("Offline queue: " + entries.Count + " entries to sync");
+            OfflineSyncResult<string> result = await OfflineQueueSync.RunAsync(entries, BatchSize, async batch =>
+            {
+                var activities = new JArray();
+                foreach (string line in batch)
+                {
+                    TryParse(line, out OfflineEntry entry);
+                    activities.Add(ActivityCompletedBody.FromOffline(entry, deviceId));
+                }
+                string body = new JObject { ["completed_activities"] = activities }.ToString(Formatting.None);
+                return OfflineQueueSync.Classify(await post(body).ConfigureAwait(false));
+            }).ConfigureAwait(false);
 
-                                //Remove the first entry as it's just hearders
-                                sOfflineData.RemoveAt(0);
+            foreach (string line in result.Dropped)
+            {
+                TryParse(line, out OfflineEntry entry);
+                LogWriter.LogWrite("Offline queue: the server refused activity " + entry.activity_id + " (" + LogSafe.Describe(line) + "), dropped");
+            }
+            LogWriter.LogWrite("Offline queue: sent " + result.Sent + ", dropped " + result.Dropped.Count + ", kept " + result.Kept.Count
+                               + (result.StoppedUnavailable ? " (server unavailable, will retry)" : ""));
 
-                                // Cap queue size to prevent unbounded memory growth
-                                if (sOfflineData.Count > MaxOfflineEntries)
-                                {
-                                    LogWriter.LogWrite($"ProcessOfflineData() - Offline queue has {sOfflineData.Count} entries, capping at {MaxOfflineEntries}");
-                                    sOfflineData = sOfflineData.Take(MaxOfflineEntries).ToList();
-                                }
+            WriteBack(path, snapshot.Length, result.Kept);
+            emptyQueue?.Forget(); //the file was rewritten; the next tick reads it again
+            return result;
+        }
 
-                                if (sOfflineData.Count > 0)
-                                {
-                                    LogWriter.LogWrite("ProcessOfflineData() - Offline Data Found to be processed");
+        /// <summary>Whether the queue file may hold something new since the read that last found it empty.</summary>
+        internal static bool ShouldSync(string path, FocusBear.Core.UnchangedFileGate emptyQueue)
+        {
+            QueueFileStamp(path, out long? length, out DateTime? lastWriteUtc);
+            return emptyQueue.ShouldRead(length, lastWriteUtc);
+        }
 
-                                    int nBaseDelayMs = 10000; // Initial delay in milliseconds
-                                    Random random = new Random();
-                                    int nRetry = 0;
-
-                                    while (sOfflineData.Count > 0)
-                                    {
-                                        if (nRetry >= MaxRetries)
-                                        {
-                                            LogWriter.LogWrite($"ProcessOfflineData() - Max retries ({MaxRetries}) reached, aborting batch sync");
-                                            break;
-                                        }
-
-                                        var firstBatchItems = sOfflineData.Take(nBatchCount).ToList();
-
-                                        var sb = new StringBuilder("{\"completed_activities\":[");
-                                        bool firstEntry = true;
-
-                                        //Now we need to create chunks, Push to the API, wait for it, and then push next chunk and so on
-                                        foreach (OfflineEntry Entry in firstBatchItems)
-                                        {
-                                            if (!firstEntry) sb.Append(',');
-                                            firstEntry = false;
-
-                                            DateTime finish_time = DateTime.Parse(Entry.finish_time);
-                                            int duration_logged = int.Parse(Entry.duration_logged);
-
-                                            bool bTrue = true;
-                                            string metadata = $"{{}}"; ;
-
-                                            if (Entry.skipped_did_complete == "true") //if activity is skipped just add one second to finish time
-                                            {
-                                                metadata = $"{{\"skipped_did_complete\":{JsonConvert.SerializeObject(bTrue)}}}";
-                                                finish_time = finish_time.AddSeconds(1);
-                                            }
-                                            else
-                                            {
-                                                finish_time = finish_time.AddSeconds(duration_logged);
-                                            }
-
-                                            sb.Append($"{{\"activity_id\":\"{Entry.activity_id}\"," +
-                                                $"\"duration_logged\":{duration_logged}," +
-                                                $"\"device_id\":\"{appSettings.sDeviceID}\"," +
-                                                $"\"activity_sequence_id\":\"{Entry.activity_sequence_id}\"," +
-                                                $"\"start_time\":\"{Entry.start_time}\"," +
-                                                $"\"finish_time\":\"{finish_time.ToString("o")}\"," +
-                                                $"\"metadata\":{metadata},");
-
-                                            if (Entry.choice_id.Length > 0)
-                                            {
-                                                sb.Append($"\"choice_id\":\"{Entry.choice_id}\",");
-                                            }
-
-                                            if (Entry.quantity_logged != null)
-                                            {
-                                                string LogQuantityAnswers = Entry.quantity_logged;
-                                                LogQuantityAnswers = LogQuantityAnswers.Replace(";", ",");
-                                                if(LogQuantityAnswers.Length < 1)
-                                                {
-                                                    LogQuantityAnswers = "[]";
-                                                }
-                                                sb.Append($"\"log_quantity_answers\":{LogQuantityAnswers}");
-                                            }
-                                            sb.Append('}');
-                                        }
-
-                                        sb.Append("]}");
-                                        string addItemJsonString = sb.ToString();
-
-                                        FocusBearAPIClient client = new FocusBearAPIClient();
-                                        var xResponse = await client.SyncOfflineData(addItemJsonString);
-
-                                        if (xResponse == 1)
-                                        {
-                                            //Delete the entries from the array
-                                            sOfflineData.RemoveRange(0, firstBatchItems.Count);
-                                            nRetry = 0;//reinitialize
-                                        }
-                                        else
-                                        {
-                                            //we need to wait here for some time before trying again
-                                            // Calculate delay with jitter
-                                            int nDelayMs = CalculateBackoffWithJitter(nBaseDelayMs, nRetry, random);
-                                            Console.WriteLine($"Waiting for {nDelayMs} ms before retrying...");
-                                            await Task.Delay(nDelayMs);
-                                            nRetry++;
-                                        }
-                                    }
-                                    //We need to write this to the CSV file
-                                    //Simply delete the file and write default file again
-                                    if (File.Exists(appSettings.sOfflineDataCSVPath))
-                                    {
-                                        Global.DeleteFile(appSettings.sOfflineDataCSVPath, false);
-                                    }
-                                    //Write back the default file
-                                    appSettings.WriteDefaultOffilineCSVFile();
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                LogWriter.LogWrite("appSettings.ReadCSV().ToList<OfflineEntry>() FAILED" + ex.Message);
-                                //In this case it is best to delete the file so it is written again
-                                if (File.Exists(appSettings.sOfflineDataCSVPath))
-                                {
-                                    Global.DeleteFile(appSettings.sOfflineDataCSVPath, false);
-                                }
-                                //Write back the default file
-                                appSettings.WriteDefaultOffilineCSVFile();
-                            }
-                        }
-                        finally
-                        {
-                            bIsProcesssingOfflineData = false;
-                        }
-                    });
+        private static void QueueFileStamp(string path, out long? length, out DateTime? lastWriteUtc)
+        {
+            length = null;
+            lastWriteUtc = null;
+            try
+            {
+                var info = new FileInfo(path);
+                if (info.Exists)
+                {
+                    length = info.Length;
+                    lastWriteUtc = info.LastWriteTimeUtc;
                 }
             }
-
-        }
-
-        static int CalculateBackoffWithJitter(int baseDelayMs, int retry, Random random)
-        {
-            LogWriter.LogWrite("CalculateBackoffWithJitter()");
-
-            try
+            catch (Exception)
             {
-                // Calculate exponential backoff with jitter
-                int maxDelayMs = 120000; // Maximum delay in milliseconds
-                int exponentialDelay = (int)Math.Pow(2, retry) * baseDelayMs;
-                int jitter = random.Next(0, baseDelayMs / 2); // Adding jitter within half of the base delay
-                int delayMs = Math.Min(exponentialDelay + jitter, maxDelayMs);
-                return delayMs;
-            }
-            catch (Exception ex)
-            {
-                LogWriter.LogWrite("CalculateBackoffWithJitter()" + ex.Message);
-                return 1000;
+                //unknown: read it, then
             }
         }
 
-        private static IEnumerable<OfflineEntry> ReadOfflineDataCSV()
+        /// <summary>Appends one entry, trimming the oldest when the queue is over its cap.</summary>
+        internal static void Append(string path, string line)
         {
-            //LogWriter.LogWrite("ReadOfflineDataCSV()");
-            AppSettings appSettings = AppSettings.GetInstance;
-            try
+            lock (FileLock)
             {
-                string[] lines = File.ReadAllLines(appSettings.sOfflineDataCSVPath);
+                if (!File.Exists(path))
+                    File.WriteAllLines(path, new[] { Header });
+                File.AppendAllLines(path, new[] { line });
 
-                // lines.Select allows me to project each line as a OfflineEntry.
-                // This will give me an IEnumerable<OfflineEntry> back.
-                return lines.Select(line =>
+                string[] all = File.ReadAllLines(path);
+                if (all.Length - 1 > OfflineQueueSync.MaxQueue)
                 {
-                    string[] data = line.Split(',');
-                    // We return a OfflineEntry with the data in order.
-                    return new OfflineEntry(data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7], data[8], data[9] );
-                });
+                    IReadOnlyList<string> capped = OfflineQueueSync.Cap(all.Skip(1).ToList(), OfflineQueueSync.MaxQueue);
+                    LogWriter.LogWrite("Offline queue: over " + OfflineQueueSync.MaxQueue + " entries, dropped the oldest " + (all.Length - 1 - capped.Count));
+                    File.WriteAllLines(path, new[] { Header }.Concat(capped));
+                }
             }
-            catch (Exception ex)
+        }
+
+        /// <summary>Rewrites the file as the kept entries plus whatever was appended after the snapshot was read.</summary>
+        private static void WriteBack(string path, int snapshotLength, IReadOnlyList<string> kept)
+        {
+            lock (FileLock)
             {
-                LogWriter.LogWrite("ReadOfflineDataCSV() ex - " + ex.Message);
+                string[] now = File.Exists(path) ? File.ReadAllLines(path) : new string[0];
+                var appended = now.Skip(Math.Max(snapshotLength, 1)).Where(l => !string.IsNullOrWhiteSpace(l));
+                IReadOnlyList<string> queue = OfflineQueueSync.Cap(kept.Concat(appended).ToList(), OfflineQueueSync.MaxQueue);
+                File.WriteAllLines(path, new[] { Header }.Concat(queue));
             }
-            return Enumerable.Empty<OfflineEntry>();
+        }
+
+        internal static bool TryParse(string line, out OfflineEntry entry)
+        {
+            entry = default(OfflineEntry);
+            string[] data = (line ?? "").Split(',');
+            if (data.Length < 10 || string.IsNullOrEmpty(data[0]))
+                return false;
+            entry = new OfflineEntry(data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7], data[8], data[9]);
+            return true;
         }
     }
 }

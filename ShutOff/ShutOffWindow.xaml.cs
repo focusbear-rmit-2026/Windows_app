@@ -73,7 +73,11 @@ namespace Focus_Bear.ShutOff
 
             dispatcherTimerShowDateTime.Tick += new EventHandler(dispatcherTimerShowDateTime_Tick);
             dispatcherTimerShowDateTime.Interval = new TimeSpan(0, 0, 1);
-            dispatcherTimerShowDateTime.Start();
+            // The clock ticks only while the screen is shown. Started here, it ran (with an app-wide command
+            // re-query every second) from start-up for the page built with the main window, and for every page
+            // ShowShutOffView replaced - a running DispatcherTimer also keeps its page alive.
+            Loaded += (s, e) => { dispatcherTimerShowDateTime_Tick(s, e); dispatcherTimerShowDateTime.Start(); };
+            Unloaded += (s, e) => dispatcherTimerShowDateTime.Stop();
 
             string imagePath = ("pack://application:,,,/Focus Bear;component/images/gifs/Yawn_small.gif" );
             var image = new BitmapImage();
@@ -84,25 +88,14 @@ namespace Focus_Bear.ShutOff
  
             try
             {
-                TimeSpan tsStartTime = TimeSpan.Parse(appSettings.sDayStartTime);
                 // The shut-off screen represents the CUTOFF (sleep) time — sDayShutOffTime is only the evening
                 // routine start, not the actual shut-off. Fall back to the shut-off time if no cutoff is set.
                 string sCutOff = !string.IsNullOrEmpty(appSettings.sDayCutOffTime) ? appSettings.sDayCutOffTime : appSettings.sDayShutOffTime;
-                TimeSpan tsCutOffTime = TimeSpan.Parse(sCutOff);
-
-                DateTime now = DateTime.Now;
-
-                DateTime myStartTime = new DateTime(now.Year, now.Month, now.Day, tsStartTime.Hours, tsStartTime.Minutes, 00);
-                Console.WriteLine("{0}", myStartTime.ToString(CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern));
-
-                DateTime myCutOffTime = new DateTime(now.Year, now.Month, now.Day, tsCutOffTime.Hours, tsCutOffTime.Minutes, 00);
-                Console.WriteLine("{0}", myCutOffTime.ToString(CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern));
-
 
                 Heading.Text = appSettings.ConfigFileStrings["shutOffTimeInfo"]["title"].ToString();
                 string sSubTitle = appSettings.ConfigFileStrings["shutOffTimeInfo"]["subTitle"].ToString();
-                sSubTitle = sSubTitle.Replace("<SHUTOFFTIME>", myCutOffTime.ToString(CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern));
-                sSubTitle = sSubTitle.Replace("<STARTTIME>", myStartTime.ToString(CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern));
+                sSubTitle = sSubTitle.Replace("<SHUTOFFTIME>", ClockText(sCutOff));
+                sSubTitle = sSubTitle.Replace("<STARTTIME>", ClockText(appSettings.sDayStartTime));
                 Description.Text = sSubTitle;
                 btnActionText.Text = appSettings.ConfigFileStrings["shutOffTimeInfo"]["buttonAbortText"].ToString();
 
@@ -286,25 +279,14 @@ namespace Focus_Bear.ShutOff
 
             try
             {
-                TimeSpan tsStartTime = TimeSpan.Parse(appSettings.sDayStartTime);
                 // The shut-off screen represents the CUTOFF (sleep) time — sDayShutOffTime is only the evening
                 // routine start, not the actual shut-off. Fall back to the shut-off time if no cutoff is set.
                 string sCutOff = !string.IsNullOrEmpty(appSettings.sDayCutOffTime) ? appSettings.sDayCutOffTime : appSettings.sDayShutOffTime;
-                TimeSpan tsCutOffTime = TimeSpan.Parse(sCutOff);
-
-                DateTime now = DateTime.Now;
-
-                DateTime myStartTime = new DateTime(now.Year, now.Month, now.Day, tsStartTime.Hours, tsStartTime.Minutes, 00);
-                Console.WriteLine("{0}", myStartTime.ToString(CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern));
-
-                DateTime myCutOffTime = new DateTime(now.Year, now.Month, now.Day, tsCutOffTime.Hours, tsCutOffTime.Minutes, 00);
-                Console.WriteLine("{0}", myCutOffTime.ToString(CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern));
-
 
                 Heading.Text = appSettings.ConfigFileStrings["shutOffTimeInfo"]["title"].ToString();
                 string sSubTitle = appSettings.ConfigFileStrings["shutOffTimeInfo"]["subTitle"].ToString();
-                sSubTitle = sSubTitle.Replace("<SHUTOFFTIME>", myCutOffTime.ToString(CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern));
-                sSubTitle = sSubTitle.Replace("<STARTTIME>", myStartTime.ToString(CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern));
+                sSubTitle = sSubTitle.Replace("<SHUTOFFTIME>", ClockText(sCutOff));
+                sSubTitle = sSubTitle.Replace("<STARTTIME>", ClockText(appSettings.sDayStartTime));
                 Description.Text = sSubTitle;
                 btnActionText.Text = appSettings.ConfigFileStrings["shutOffTimeInfo"]["buttonAbortText"].ToString();
 
@@ -339,6 +321,19 @@ namespace Focus_Bear.ShutOff
                 }
             }
         }
+        /// <summary>
+        /// "7:00:00 AM" for a stored "07:00". An unset or unreadable time (the view is first built before the
+        /// settings are read, and an account may have no cutoff) used to throw out of TimeSpan.Parse and skip the
+        /// rest of the setup - the labels, and the unlock durations the "unlock for" picker needs - so it now shows
+        /// what is stored instead.
+        /// </summary>
+        private static string ClockText(string stored)
+        {
+            if (string.IsNullOrWhiteSpace(stored) || !TimeSpan.TryParse(stored, CultureInfo.InvariantCulture, out TimeSpan time)) return stored ?? "";
+            DateTime today = DateTime.Today;
+            return new DateTime(today.Year, today.Month, today.Day, time.Hours, time.Minutes, 0).ToString(CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern);
+        }
+
         private void Unlock()
         {
             LogWriter.LogWrite("SHutoffWindow - Unlock()");
@@ -362,7 +357,7 @@ namespace Focus_Bear.ShutOff
                 if (DurationUnlockView.IsVisible)
                 {
                     //Abort shutoff for selected minutes only    
-                    AbortShutoffForMinutes(nDurationUnlockMins[ComboBoxDuration.SelectedIndex]);
+                    AbortShutoffForMinutes(nDurationUnlockMins[Math.Min(Math.Max(ComboBoxDuration.SelectedIndex, 0), nDurationUnlockMins.Length - 1)]);
                 }
                 else
                 {

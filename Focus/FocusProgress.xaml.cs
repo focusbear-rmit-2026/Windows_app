@@ -58,6 +58,8 @@ namespace Focus_Bear.Focus
 
             Page_Theme();
             App.ThemeChanged += Page_Theme;
+            // A new window per session: without this every closed one stayed reachable from the static event.
+            Closed += (s, e) => { App.ThemeChanged -= Page_Theme; dispatcherTimer.Stop(); };
         }
 
         public void StartTimer(int nDuration)
@@ -78,7 +80,8 @@ namespace Focus_Bear.Focus
             }
 
             UpdateUI();
-            dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
+            dispatcherTimer.Tick -= dispatcherTimer_Tick;   // StartTimer can run again on a reused window: one handler, one tick a second
+            dispatcherTimer.Tick += dispatcherTimer_Tick;
             dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
             dispatcherTimer.Start();
             CommandManager.InvalidateRequerySuggested();

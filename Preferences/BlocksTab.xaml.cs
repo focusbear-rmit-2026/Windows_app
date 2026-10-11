@@ -29,7 +29,7 @@ namespace Focus_Bear.Preferences
     {
         AppSettings appSettings = AppSettings.GetInstance;
         FocusBearMainWindow _ParentWindow = null;
-        FocusPage PageFocusModes = null;
+        BlockListsView PageFocusModes = null;
         bool bBlockingScheduleDetailsPageVisible = false;
         public BlocksTab()
         {
@@ -116,7 +116,8 @@ namespace Focus_Bear.Preferences
 
             SubViewHeading.Text = appSettings.ConfigFileStrings["settingsNew"]["titleBlockLists"].ToString();
             // Load yourFocus modes page here
-            PageFocusModes = new FocusPage(_ParentWindow);
+            // The native block-list screen (the Mac's redesign); it edits exactly what FocusPage edited.
+            PageFocusModes = new BlockListsView(_ParentWindow);
             ContentArea.Content = PageFocusModes;
 
         }

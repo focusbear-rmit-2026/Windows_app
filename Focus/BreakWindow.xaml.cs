@@ -68,17 +68,14 @@ namespace Focus_Bear.Focus
         {
             InitializeComponent();
 
+            // Height is driven by SizeToContent="Height" (the popup gains a row for the extend/end
+            // links), so no fixed heights are set here. #1065
             if (appSettings.sSelectedAppFont == "Poppins" || appSettings.sSelectedAppFont == "IntelOne Mono" || appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
             {
                 this.FontFamily = new FontFamily(new Uri("pack://application:,,,/Focus Bear"), string.Format("./fonts/#{0}", appSettings.sSelectedAppFont));
-                if (appSettings.sSelectedAppFont == "OpenDyslexic3 Regular")
-                {
-                    this.Height = 151;
-                }
             }
             else
             {
-                this.Height = 145;
                 this.FontFamily = new FontFamily(appSettings.sSelectedAppFont);
             }
 
@@ -89,6 +86,8 @@ namespace Focus_Bear.Focus
 
                 btnSkipTXT.Text = appSettings.ConfigFileStrings["customRoutineTimeVcInfo"]["buttonSkipText"].ToString();
                 btnPostponeTXT.Text = appSettings.ConfigFileStrings["customRoutineTimeVcInfo"]["buttonPostponeText"].ToString();
+                btnExtendBreakTXT.Text = appSettings.ConfigFileStrings["breakWarningVcInfo"]["buttonExtendBreakText"].ToString();
+                btnEndBreakTXT.Text = appSettings.ConfigFileStrings["breakWarningVcInfo"]["buttonEndBreakText"].ToString();
             }
             catch (Exception ex)
             {
@@ -116,7 +115,7 @@ namespace Focus_Bear.Focus
                 bIamDoneTypeActivity = true;
 
                 TxtTimer.Visibility = Visibility.Collapsed;
-                
+                ExtendEndBreakSection.Visibility = Visibility.Collapsed;   // no timer to extend/end
                 UseTimerRelated.Visibility = Visibility.Collapsed;
                 DoNotUseTimerRelated.Visibility = Visibility.Visible;
 
@@ -127,6 +126,10 @@ namespace Focus_Bear.Focus
             {
                 UseTimerRelated.Visibility = Visibility.Visible;
                 DoNotUseTimerRelated.Visibility = Visibility.Collapsed;
+                // Extend/End only apply to a real break. An allowed-app morning/evening habit is also shown in
+                // this window with a timer, but it always passes a title (a real break passes none) — so keep
+                // the extend/end links hidden for habits, otherwise a habit shows break controls. #1065
+                ExtendEndBreakSection.Visibility = (sTitle.Length == 0) ? Visibility.Visible : Visibility.Collapsed;
             }
 
             if (sTitle.Length > 0) //Set the activity title if thelength is > 0
@@ -187,26 +190,7 @@ namespace Focus_Bear.Focus
                     TxtTimer.Text = "00:00";
                     dispatcherTimer.Stop();
                     Hide();
-
-                    //if (appSettings.bUseSuperPomodoroMode)
-                    //We will need to start the focus mode again after the focus session and X min break is over
-                    if(!appSettings.bHabitwithAllowedAppsRunning && !bIamDoneTypeActivity ) //make sure break window is not shown for habits with allowed apps
-                    {
-
-                        if (appSettings.bUseSuperPomodoroMode) //If super pomodoro is still running we keep the title as Stop Super focus session
-                            ((App)Application.Current).wndFocusBearMainWindow.UpdateLeafTitle(LeftButtonType.StartFocusSession, appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuStopSuperFocusSession"].ToString());
-                        else
-                            ((App)Application.Current).wndFocusBearMainWindow.UpdateLeafTitle(LeftButtonType.StartFocusSession, appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuStartFocusSession"].ToString());
-             
-                        //Removing the super pomodoro check, we need to show start focus mode window after the break ends.
-                        //(The tray Start button now opens an inline picker, so open the focus window directly.)
-                        {
-                            if (appSettings.bIsGeekModeEnabled)
-                                ((App)(Application.Current)).ShowPomodoroWindow();
-                            else
-                                ((App)(Application.Current)).ShowSimplePomodoroWindow();
-                        }
-                    }
+                    ResumeFocusSessionAfterBreak();
                 }
             }
             catch (Exception ex)
@@ -214,6 +198,45 @@ namespace Focus_Bear.Focus
                 LogWriter.LogWrite("Break Window = " + ex.Message);
             }
 
+        }
+
+        // Resumes the focus session once a break is over — shared by the natural timer expiry and the
+        // "End break early" link so the two can't drift apart. The tray Start button now opens an inline
+        // picker, so we open the focus window directly here. #1065
+        private void ResumeFocusSessionAfterBreak()
+        {
+            //make sure break window is not shown for habits with allowed apps / I'm-Done activities
+            if (appSettings.bHabitwithAllowedAppsRunning || bIamDoneTypeActivity)
+                return;
+
+            if (appSettings.bUseSuperPomodoroMode) //If super pomodoro is still running we keep the title as Stop Super focus session
+                ((App)Application.Current).wndFocusBearMainWindow.UpdateLeafTitle(LeftButtonType.StartFocusSession, appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuStopSuperFocusSession"].ToString());
+            else
+                ((App)Application.Current).wndFocusBearMainWindow.UpdateLeafTitle(LeftButtonType.StartFocusSession, appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuStartFocusSession"].ToString());
+
+            if (appSettings.bIsGeekModeEnabled)
+                ((App)(Application.Current)).ShowPomodoroWindow();
+            else
+                ((App)(Application.Current)).ShowSimplePomodoroWindow();
+        }
+
+        // Extend the running break by 5 minutes. #1065
+        private void btnExtendBreak_Click(object sender, RoutedEventArgs e)
+        {
+            LogWriter.LogWrite("btnExtendBreak_Click - adding 5 minutes to break timer");
+            nTimer += 5 * 60; // 5 minutes
+            TxtTimer.Text = appSettings.SecondsToTimerText(nTimer);
+            appSettings.CapturePostHog("break-extended-5min");
+        }
+
+        // End the break now — resumes the focus session exactly like the timer expiring naturally. #1065
+        private void btnEndBreak_Click(object sender, RoutedEventArgs e)
+        {
+            LogWriter.LogWrite("btnEndBreak_Click - ending break early");
+            appSettings.CapturePostHog("break-ended-early");
+            dispatcherTimer.Stop();
+            Hide();
+            ResumeFocusSessionAfterBreak();
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)

@@ -42,6 +42,7 @@ using Focus_Bear.API;
 using Focus_Bear.ShutOff;
 using Focus_Bear.Onboarding;
 using static Focus_Bear.Onboarding.OnboardingViewController;
+using FocusBear.Core.Navigation;
 
 namespace Focus_Bear
 {
@@ -91,6 +92,12 @@ namespace Focus_Bear
         public ObservableCollection<NavLeaf> Items { get; }
                 = new ObservableCollection<NavLeaf>();
 
+        /// <summary>TOOLS shows a cog beside its chevron that lists the rows the user hid.</summary>
+        public bool ShowsHiddenToolsCog { get; set; }
+
+        /// <summary>Categories are never hidden; present so the shared container style binds cleanly.</summary>
+        public bool IsHiddenByUser => false;
+
         public event PropertyChangedEventHandler PropertyChanged;
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
@@ -132,6 +139,22 @@ namespace Focus_Bear
                 OnPropertyChanged(nameof(IsEnabled));
             }
         }
+
+        /// <summary>A TOOLS row: hovering it reveals an X that hides it (Mac showsHideButton).</summary>
+        public bool IsHideable { get; set; }
+
+        private bool _isHiddenByUser;
+        /// <summary>The user hid this row; its TreeViewItem collapses. Restored from the TOOLS cog.</summary>
+        public bool IsHiddenByUser
+        {
+            get => _isHiddenByUser;
+            set
+            {
+                if (_isHiddenByUser == value) return;
+                _isHiddenByUser = value;
+                OnPropertyChanged(nameof(IsHiddenByUser));
+            }
+        }
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged(string name)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
@@ -149,6 +172,7 @@ namespace Focus_Bear
         FocusMusic,
         Motivation,
         TabAudit,
+        LateNoMore,
         Blocking,
         Settings,
         EditHabits,
@@ -203,10 +227,15 @@ namespace Focus_Bear
         public BrainDumpWindow PageBrainDump;
         public Stats PageStats;
         public TabAudit.TabAuditView PageTabAudit;
+        public LateNoMore.LateNoMoreView PageLateNoMore;
         public StartSimplePomodoro PageSimplePomodoro;
         public StartPomodoro PagePomodoro;
+        // The redesigned start screens (Mac FocusStart). The old pages stay constructed for code that still reaches them.
+        public FocusStartSimpleScreen PageFocusStartSimple;
+        public FocusStartAdvancedScreen PageFocusStartAdvanced;
         public HabitWindow PageHabits;
         public StopFocusMode PageStopFocusMode;
+        public FocusSessionScreen PageFocusSession;
         public FocusModeEnd PageFocusModeEnd;
         public FocusActivitySummary PageFocusSummary;
         public ShutOffWindow PageShutOffWindow;
@@ -229,6 +258,7 @@ namespace Focus_Bear
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
             
             ChangeTheme();
+            App.ThemeChanged += () => Dispatcher.BeginInvoke(new Action(ChangeTheme));   // logo + background follow later theme switches
 
             CreateViews();
 
@@ -249,13 +279,15 @@ namespace Focus_Bear
                 {
                     Title = appSettings.ConfigFileStrings["leftMenuVcInfo"]["titleTools"].ToString(),
                     IsExpanded = true,
+                    ShowsHiddenToolsCog = true,
                     Items =
                     {
                         new NavLeaf { Title = appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuTodoList"].ToString(), IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/validIcon.png")), ButtonType = LeftButtonType.ToDoList },
-                        new NavLeaf { Title = appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuBrainDump"].ToString(), IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/brainDump.png")), ButtonType = LeftButtonType.BrainDump },
+                        new NavLeaf { Title = appSettings.GetConfigStringSafe("Notes", "leftMenuVcInfo", "menuNotes"), IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/brainDump.png")), ButtonType = LeftButtonType.BrainDump },
                         new NavLeaf { Title = appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuFocusMusic"].ToString(), IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/music_albums_fill.png")), ButtonType = LeftButtonType.FocusMusic },
-                        new NavLeaf { Title = appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuMotivation"].ToString(), IconSource = new BitmapImage(new Uri("pack://application:,,,/Images/motivation.png")), ButtonType = LeftButtonType.Motivation },
-                        new NavLeaf { Title = (appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuTabAudit"]?.ToString()) ?? "Tab Audit", IconSource = (ImageSource)Application.Current.FindResource("TabAuditIcon"), ButtonType = LeftButtonType.TabAudit }
+                        new NavLeaf { Title = appSettings.GetConfigStringSafe("Stats", "leftMenuVcInfo", "menuStats"), IconSource = (ImageSource)Application.Current.FindResource("StatsIcon"), ButtonType = LeftButtonType.Motivation },
+                        new NavLeaf { Title = (appSettings.ConfigFileStrings["leftMenuVcInfo"]["menuTabAudit"]?.ToString()) ?? "Tab Audit", IconSource = (ImageSource)Application.Current.FindResource("TabAuditIcon"), ButtonType = LeftButtonType.TabAudit },
+                        new NavLeaf { Title = appSettings.GetConfigStringSafe("Late No More", "leftMenuVcInfo", "menuLateNoMore"), IconSource = (ImageSource)Application.Current.FindResource("LateNoMoreIcon"), ButtonType = LeftButtonType.LateNoMore }
                     }
                 },
                 new NavCategory
@@ -272,7 +304,14 @@ namespace Focus_Bear
                 }
             };
 
+            // TOOLS rows can be hidden (hover X) and brought back from the TOOLS cog, as on the Mac.
+            foreach (NavCategory category in NavigationItems)
+                foreach (NavLeaf leaf in category.Items)
+                    leaf.IsHideable = ToolIdFor(leaf.ButtonType) != null;
+            ApplyHiddenTools();
+
             LeftTree.ItemsSource = NavigationItems;
+            RefreshFocusSessionLeafTitle();   // also starts its 15-second refresh
             // Handle preview mouse down at TreeView level
             LeftTree.PreviewMouseLeftButtonDown += TreeView_PreviewMouseLeftButtonDown;
         }
@@ -282,6 +321,10 @@ namespace Focus_Bear
         
             // Find the clicked TreeViewItem
             var treeViewItem = FindVisualParent<TreeViewItem>(e.OriginalSource as DependencyObject);
+
+            // A button inside a row (the TOOLS cog, a row's hide X) handles its own click.
+            if (IsInsideButton(e.OriginalSource as DependencyObject, treeViewItem))
+                return;
 
             if (treeViewItem != null && treeViewItem.HasItems && treeViewItem.DataContext is NavCategory category)
             {
@@ -322,6 +365,16 @@ namespace Focus_Bear
             
         }
 
+        private static bool IsInsideButton(DependencyObject source, DependencyObject stopAt)
+        {
+            for (var d = source; d != null && d != stopAt; d = (d is Visual || d is System.Windows.Media.Media3D.Visual3D) ? VisualTreeHelper.GetParent(d) : LogicalTreeHelper.GetParent(d))
+            {
+                if (d is System.Windows.Controls.Primitives.ButtonBase b && !(b is System.Windows.Controls.Primitives.ToggleButton))
+                    return true;
+            }
+            return false;
+        }
+
         private T FindVisualParent<T>(DependencyObject child) where T : DependencyObject
         {
             while (child != null && !(child is T))
@@ -341,10 +394,29 @@ namespace Focus_Bear
             PageBrainDump = new BrainDumpWindow();
             PageStats = new Stats();
             PageTabAudit = new TabAudit.TabAuditView(this);
+            PageLateNoMore = new LateNoMore.LateNoMoreView();
             PageSimplePomodoro = new StartSimplePomodoro(this);
             PagePomodoro = new StartPomodoro(this);
+            PageFocusStartSimple = new FocusStartSimpleScreen(this);
+            PageFocusStartAdvanced = new FocusStartAdvancedScreen(this);
             PageHabits = new HabitWindow(this);
             PageStopFocusMode = new StopFocusMode();
+            PageFocusSession = new FocusSessionScreen(this);
+            // The top bar follows the window's frame at once (a full-screen routine starting or ending), not at the next tick.
+            DependencyPropertyDescriptor.FromProperty(WindowStyleProperty, typeof(Window))
+                ?.AddValueChanged(this, (s, e) => UpdateMinimiseButton());
+            // A buddy-approved postpone session covers a routine: minimising must not get it out of the way,
+            // so the window comes straight back on the focus screen (the top-bar button and the OS both land here).
+            StateChanged += (s, e) =>
+            {
+                if (WindowState != WindowState.Minimized || !((App)Application.Current).IsPostponeLockedFocusSession) return;
+                LogWriter.LogWrite("[user-action] minimise refused - accountability-buddy session is running");
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    WindowState = WindowState.Normal;
+                    ((App)Application.Current).ShowToDoPlayer();
+                }));
+            };
             PageFocusModeEnd = new FocusModeEnd();
             PageFocusSummary = new FocusActivitySummary(this);
             PageShutOffWindow = new ShutOffWindow(this);
@@ -363,6 +435,7 @@ namespace Focus_Bear
                 { LeftButtonType.BrainDump, PageBrainDump },
                 { LeftButtonType.Motivation, PageStats},
                 { LeftButtonType.TabAudit, PageTabAudit },
+                { LeftButtonType.LateNoMore, PageLateNoMore },
                 { LeftButtonType.StartFocusSession, PageSimplePomodoro },
                 { LeftButtonType.EditHabits, PageEditHabits },
                 { LeftButtonType.Help, PageHelp }
@@ -399,11 +472,44 @@ namespace Focus_Bear
         // Find and update specific leaf
         public void UpdateLeafTitle(LeftButtonType buttonType, string newTitle)
         {
+            // The focus-session row has one source for its title (the session's state), however many places
+            // still announce "Stop Focus Session" / "Start Focus Session" to it.
+            if (buttonType == LeftButtonType.StartFocusSession) { RefreshFocusSessionLeafTitle(); return; }
             NavLeaf leaf = FindLeafByButtonType(buttonType);
             if (leaf != null)
             {
                 leaf.Title = newTitle;
             }
+        }
+
+        private System.Windows.Threading.DispatcherTimer _focusSessionTitleTimer;
+
+        /// <summary>
+        /// The focus-session row: "Focusing (29m left)" while a session runs (clicking it opens the focus screen, as
+        /// it always has), "Resume Focus Session" while paused, else "Start Focus Session" — the Mac's left menu.
+        /// Re-read every 15 seconds, so the minutes stay current without per-second churn.
+        /// </summary>
+        public void RefreshFocusSessionLeafTitle()
+        {
+            try
+            {
+                NavLeaf leaf = FindLeafByButtonType(LeftButtonType.StartFocusSession);
+                if (leaf == null) return;
+                DateTime? end = DateTime.TryParse(appSettings.sRunningFocusModeEndTime, out DateTime parsed) ? parsed : (DateTime?)null;
+                string title = FocusBear.Core.Focus.FocusSessionMenuTitle.For(appSettings.isFocusModeRunning, appSettings.isFocusModePaused, appSettings.bUseSuperPomodoroMode, end, DateTime.Now,
+                    appSettings.GetConfigStringSafe(FocusBear.Core.Focus.FocusSessionMenuTitle.DefaultFocusingTemplate, "leftMenuVcInfo", "menuFocusingTimeLeft"),
+                    appSettings.GetConfigStringSafe("Resume Focus Session", "leftMenuVcInfo", "menuResumeFocusSession"),
+                    appSettings.GetConfigStringSafe("Stop Super Focus Session", "leftMenuVcInfo", "menuStopSuperFocusSession"),
+                    appSettings.GetConfigStringSafe("Start Focus Session", "leftMenuVcInfo", "menuStartFocusSession"));
+                if (leaf.Title != title) leaf.Title = title;
+                if (_focusSessionTitleTimer == null)
+                {
+                    _focusSessionTitleTimer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(15) };
+                    _focusSessionTitleTimer.Tick += (s, e) => RefreshFocusSessionLeafTitle();
+                    _focusSessionTitleTimer.Start();
+                }
+            }
+            catch (Exception ex) { LogWriter.LogWrite("RefreshFocusSessionLeafTitle ex - " + ex.Message); }
         }
 
         // Overload for ButtonType only
@@ -452,7 +558,22 @@ namespace Focus_Bear
             }
         }
 
+        // The leaf whose screen is on show, and whether the password prompt refused the one just asked for.
+        // A refused Settings / Blocking / Edit Habits leaves the screen that was showing where it is.
+        private LeftButtonType _shownLeaf = LeftButtonType.None;
+        private bool _leafRefused;
+
+        /// <summary>Whether <paramref name="buttonType"/>'s screen is the one on show (false after a refused password).</summary>
+        public bool IsShowing(LeftButtonType buttonType) => _shownLeaf == buttonType;
+
         private void HandleContentForButtonType(LeftButtonType buttonType)
+        {
+            _leafRefused = false;
+            ShowContentFor(buttonType);
+            if (!_leafRefused) _shownLeaf = buttonType;
+        }
+
+        private void ShowContentFor(LeftButtonType buttonType)
         {
             switch (buttonType)
             {
@@ -504,6 +625,9 @@ namespace Focus_Bear
                     break;
                 case LeftButtonType.TabAudit:
                     ShowTabAuditView();
+                    break;
+                case LeftButtonType.LateNoMore:
+                    RightContent.Content = _views[LeftButtonType.LateNoMore];
                     break;
                 default:
                     ShowDefaultView(buttonType);
@@ -686,7 +810,8 @@ namespace Focus_Bear
 
             if (appSettings.isFocusModeRunning)
             {
-                ShowStopFocusModeView();
+                // The native in-session screen; a class session's teacher checklist is its task list.
+                ShowRunningFocusSessionView();
             }
             else
             {
@@ -705,9 +830,7 @@ namespace Focus_Bear
         private void ShowToDoListView()
         {
             LogWriter.LogWrite("Showing ToDo List View");
-            RightContent.Content = (appSettings.isFocusModeRunning && !appSettings.isFocusModePaused)
-                ? _views[LeftButtonType.ToDoPlayer]
-                : _views[LeftButtonType.ToDoList];
+            RightContent.Content = _views[LeftButtonType.ToDoList];
         }
 
         private void ShowToDoPlayerView()
@@ -746,9 +869,38 @@ namespace Focus_Bear
             }
         }
 
+        /// <summary>
+        /// Blocking and Edit Habits are reachable during a routine (as on the Mac); there they ask for the password
+        /// under the same rule as Settings ("require password to change settings"), so a routine can't be loosened
+        /// without it. A wrong or cancelled password goes back to the routine; outside a routine it stays on the
+        /// screen it was asked from (it used to jump to Help, e.g. from the focus start screen's break-settings Edit).
+        /// </summary>
+        private bool PasswordAllowsEditingDuringRoutine()
+        {
+            // The Mac's rule for opening preferences, whether or not a routine runs (report 09-05-05 rework).
+            if (!appSettings.PasswordRequiredToChangeSettings()) return true;
+            AskPassword pwdWnd = new AskPassword { Owner = this };
+            GridShade.Visibility = Visibility.Visible;
+            bool? result = pwdWnd.ShowDialog();
+            GridShade.Visibility = Visibility.Collapsed;
+            if (result == true) { appSettings.SettingsUnlockedAt = DateTime.Now; return true; }
+            _leafRefused = true;
+            LeftButtonType shown = _shownLeaf;
+            Task.Delay(100).ContinueWith(t => Application.Current.Dispatcher.Invoke(() =>
+            {
+                if (_menuLock == MenuLock.Routine) HandleLeafSelection(LeftButtonType.Habits);
+                // Nothing was put on screen, so the screen that was showing is still there with whatever was
+                // entered on it: only the menu's highlight has to go back to it.
+                else if (shown != LeftButtonType.None) SelectLeafInTreeView(shown);
+                else HandleLeafSelection(LeftButtonType.Help);
+            }));
+            return false;
+        }
+
         private void ShowBlockingView()
         {
             LogWriter.LogWrite("Showing Blocking View");
+            if (!PasswordAllowsEditingDuringRoutine()) return;
             if (_views.ContainsKey(LeftButtonType.Blocking))
             {
                 RightContent.Content = _views[LeftButtonType.Blocking];
@@ -758,53 +910,23 @@ namespace Focus_Bear
         private void ShowSettingsView()
         {
             LogWriter.LogWrite("Showing Settings View");
-            
+
             GridShade.Visibility = Visibility.Collapsed;
+
+            // The password comes FIRST, as for Blocking and Edit Habits. The view used to be put on screen before
+            // the prompt, so after a wrong or cancelled password Settings - the Password tab included - sat live
+            // and clickable until the delayed fallback navigated away.
+            if (!PasswordAllowsEditingDuringRoutine()) return;
 
             if (_views.ContainsKey(LeftButtonType.Settings))
             {
                 RightContent.Content = _views[LeftButtonType.Settings];
             }
-
-            if (appSettings.isPasswordSet)
-            {
-                if (appSettings.bPasswordRequireInChangeSettings)
-                {
-                    AskPassword pwdWnd = new AskPassword();
-                    pwdWnd.Owner = this;
-                    GridShade.Visibility = Visibility.Visible;
-
-                    bool? bResult = pwdWnd.ShowDialog();
-
-                    GridShade.Visibility = Visibility.Collapsed;
-                   
-                    if (bResult.Value)
-                    {
-                        //Password is correct
-                    }
-                    else
-                    {
-                        //Jump to Help tab
-                        // Fire function after 1 second without blocking
-                        Task.Delay(100).ContinueWith(t =>
-                        {
-                            Application.Current.Dispatcher.Invoke(() =>
-                            {
-                                // This runs after 1 second on a thread pool thread
-                                HandleLeafSelection(LeftButtonType.Help);
-                            });
-                            
-                        });
-                       
-                    }
-                }
-            }
-
         }
 
         private void ShowEditHabitsView()
         {
-            // TODO: Implement edit habits view logic
+            if (!PasswordAllowsEditingDuringRoutine()) return;
             if (_views.ContainsKey(LeftButtonType.EditHabits))
             {
                 RightContent.Content = _views[LeftButtonType.EditHabits];
@@ -836,6 +958,7 @@ namespace Focus_Bear
             }
             ExpandSideBar();
             bKeepCategoryDisabled = false;
+            _menuLock = MenuLock.None;
         }
         private void DisableAllButtons()
         {
@@ -856,27 +979,29 @@ namespace Focus_Bear
         }
         public void DisableAllButtons(LeftButtonType ExceptButtonType)
         {
+            // None = onboarding / signed out (everything off); Habits = a routine owns the window;
+            // MicroBreaks = a break is playing. The rules live in FocusBear.Core (LeftMenuAvailability):
+            // Help, Notes and Todo List stay open throughout, and a routine also keeps Settings open
+            // (still password-gated in ShowSettingsView), as on the Mac.
+            MenuLock menuLock = ExceptButtonType == LeftButtonType.None ? MenuLock.Everything
+                : ExceptButtonType == LeftButtonType.MicroBreaks ? MenuLock.MicroBreak
+                : MenuLock.Routine;
+            _menuLock = menuLock;
             foreach (NavCategory category in NavigationItems)
             {
                 foreach (NavLeaf leaf in category.Items)
                 {
-                    if (ExceptButtonType == LeftButtonType.None)
-                    {
-                        leaf.IsEnabled = false; //All left buttons to be disabled
-                    }
-                    else if (leaf.ButtonType != ExceptButtonType)
-                    {
-                        if (leaf.ButtonType != LeftButtonType.Help &&
-                        leaf.ButtonType != LeftButtonType.BrainDump &&
-                        leaf.ButtonType != LeftButtonType.ToDoList) //Help, brain dump, todo list is always active
-                        {
-                            leaf.IsEnabled = false;
-                        }
-                    }
+                    bool enabled = leaf.ButtonType == ExceptButtonType && ExceptButtonType != LeftButtonType.None;
+                    if (!enabled && Enum.TryParse(leaf.ButtonType.ToString(), out LeftMenuItem item))
+                        enabled = LeftMenuAvailability.IsEnabled(item, menuLock);
+                    leaf.IsEnabled = enabled;
                 }
             }
             bKeepCategoryDisabled = true;
         }
+
+        /// <summary>What last restricted the menu (see DisableAllButtons / EnableAllButtons).</summary>
+        private MenuLock _menuLock = MenuLock.None;
         private void LeftTree_SelectedItemChanged_1(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
             if (e.NewValue is NavCategory category)
@@ -942,6 +1067,272 @@ namespace Focus_Bear
             return FindParent<T>(parentObject);
         }
 
+        // ---- Hidden TOOLS rows (Mac ToolVisibilityStore / RestoreHiddenToolsView) -------------------
+
+        public static string HideToolTooltip => AppSettings.GetInstance.GetConfigStringSafe("Hide this tool", "leftMenuVcInfo", "hideToolTooltip");
+        public static string HiddenToolsCogTooltip => AppSettings.GetInstance.GetConfigStringSafe("Hidden tools", "leftMenuVcInfo", "restoreHiddenToolsTitle");
+
+        private static ToolId? ToolIdFor(LeftButtonType buttonType)
+        {
+            return Enum.TryParse(buttonType.ToString(), out LeftMenuItem item) ? ToolVisibility.ForMenuItem(item) : null;
+        }
+
+        /// <summary>Re-reads the user's hidden-tools list and collapses those TOOLS rows.</summary>
+        public void ApplyHiddenTools()
+        {
+            try
+            {
+                string stored = RegistryManager.LoadHiddenToolIds();
+                foreach (NavCategory category in NavigationItems)
+                {
+                    foreach (NavLeaf leaf in category.Items)
+                    {
+                        ToolId? id = ToolIdFor(leaf.ButtonType);
+                        leaf.IsHiddenByUser = id != null && ToolVisibility.IsHidden(stored, id.Value);
+                    }
+                }
+                RefreshHiddenToolsList(stored);
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("ApplyHiddenTools EX - " + ex.Message);
+            }
+        }
+
+        private void HideTool_Click(object sender, RoutedEventArgs e)
+        {
+            e.Handled = true;
+            if (!((sender as FrameworkElement)?.DataContext is NavLeaf leaf)) return;
+            ToolId? id = ToolIdFor(leaf.ButtonType);
+            if (id == null) return;
+            LogWriter.LogWrite("[user-action] hide tool " + ToolVisibility.RawId(id.Value));
+            RegistryManager.SaveHiddenToolIds(ToolVisibility.Hide(RegistryManager.LoadHiddenToolIds(), id.Value));
+            ApplyHiddenTools();
+        }
+
+        /// <summary>
+        /// The keyboard's way to the hover-only hide (x): Delete on a focused TOOLS row hides it, as the x does.
+        /// (The TOOLS cog still lists hidden tools to restore.)
+        /// </summary>
+        private void LeftTree_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            bool contextKey = e.Key == Key.Apps || (e.SystemKey == Key.F10 && Keyboard.Modifiers == ModifierKeys.Shift);
+            if (contextKey && Keyboard.FocusedElement is TreeViewItem focusedItem)
+            {
+                // The context-menu key (or Shift+F10) on a sidebar row opens what the TOOLS cog opens: the list of
+                // hidden tools, with focus on its first Restore, and Esc returns to the row.
+                e.Handled = true;
+                OpenHiddenToolsFromKeyboard(focusedItem);
+                return;
+            }
+            if (e.Key != Key.Delete || Keyboard.Modifiers != ModifierKeys.None) return;
+            if (!(Keyboard.FocusedElement is TreeViewItem item) || !(item.DataContext is NavLeaf leaf) || !leaf.IsHideable) return;
+            ToolId? id = ToolIdFor(leaf.ButtonType);
+            if (id == null) return;
+            e.Handled = true;
+            LogWriter.LogWrite("[user-action] hide tool (Delete key) " + ToolVisibility.RawId(id.Value));
+            RegistryManager.SaveHiddenToolIds(ToolVisibility.Hide(RegistryManager.LoadHiddenToolIds(), id.Value));
+            ApplyHiddenTools();
+        }
+
+        private void OpenHiddenToolsFromKeyboard(TreeViewItem from)
+        {
+            RefreshHiddenToolsList(RegistryManager.LoadHiddenToolIds());
+            HiddenToolsPopup.PlacementTarget = from;
+            HiddenToolsPopup.IsOpen = true;
+            if (HiddenToolsPopup.Child is UIElement child)
+            {
+                KeyEventHandler escape = null;
+                escape = (s, ke) =>
+                {
+                    if (ke.Key != Key.Escape) return;
+                    ke.Handled = true;
+                    HiddenToolsPopup.IsOpen = false;
+                    child.PreviewKeyDown -= escape;
+                    from.Focus();
+                };
+                child.PreviewKeyDown += escape;
+            }
+            Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Input, (System.Action)(() =>
+            {
+                var first = HiddenToolsRows.Children.OfType<DockPanel>().SelectMany(r => r.Children.OfType<System.Windows.Controls.Button>()).FirstOrDefault();
+                if (first != null) first.Focus();
+                else (HiddenToolsPopup.Child as FrameworkElement)?.Focus();
+            }));
+        }
+
+        private void HiddenToolsCog_Click(object sender, RoutedEventArgs e)
+        {
+            e.Handled = true;
+            RefreshHiddenToolsList(RegistryManager.LoadHiddenToolIds());
+            HiddenToolsPopup.PlacementTarget = sender as UIElement;
+            HiddenToolsPopup.IsOpen = !HiddenToolsPopup.IsOpen;
+        }
+
+        private void RestoreTool_Click(object sender, RoutedEventArgs e)
+        {
+            if (!((sender as FrameworkElement)?.Tag is ToolId id)) return;
+            LogWriter.LogWrite("[user-action] restore tool " + ToolVisibility.RawId(id));
+            RegistryManager.SaveHiddenToolIds(ToolVisibility.Restore(RegistryManager.LoadHiddenToolIds(), id));
+            ApplyHiddenTools();
+        }
+
+        /// <summary>Fills the cog's popover: one row per hidden tool with a Restore button, or the empty hint.</summary>
+        private void RefreshHiddenToolsList(string stored)
+        {
+            if (HiddenToolsRows == null) return;
+            HiddenToolsRows.Children.Clear();
+            HiddenToolsTitle.Text = appSettings.GetConfigStringSafe("Hidden tools", "leftMenuVcInfo", "restoreHiddenToolsTitle");
+            var hidden = ToolVisibility.Parse(stored);
+            HiddenToolsEmpty.Text = appSettings.GetConfigStringSafe("Nothing hidden \u2014 hover a tool and click \u2715 to hide it.", "leftMenuVcInfo", "restoreHiddenToolsEmpty");
+            HiddenToolsEmpty.Visibility = hidden.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+            string restoreText = appSettings.GetConfigStringSafe("Restore", "leftMenuVcInfo", "restoreButton");
+            foreach (ToolId id in hidden)
+            {
+                NavLeaf leaf = NavigationItems.SelectMany(c => c.Items).FirstOrDefault(l => ToolIdFor(l.ButtonType) == id);
+                var row = new DockPanel { Margin = new Thickness(0, 6, 0, 0), LastChildFill = true };
+                var restore = new System.Windows.Controls.Button
+                {
+                    Content = restoreText,
+                    Tag = id,
+                    Padding = new Thickness(10, 3, 10, 3),
+                    Margin = new Thickness(12, 0, 0, 0),
+                    Cursor = Cursors.Hand,
+                    Foreground = Brushes.Black,
+                    Background = new SolidColorBrush(Color.FromRgb(0xFF, 0xF3, 0xE0)),
+                    BorderBrush = new SolidColorBrush(Color.FromRgb(0xDE, 0x74, 0x00)),
+                    VerticalAlignment = VerticalAlignment.Center,
+                };
+                System.Windows.Automation.AutomationProperties.SetAutomationId(restore, "btnRestoreTool_" + ToolVisibility.RawId(id));
+                restore.Click += RestoreTool_Click;
+                DockPanel.SetDock(restore, Dock.Right);
+                row.Children.Add(restore);
+                var name = new TextBlock { Text = leaf?.Title ?? ToolVisibility.RawId(id), VerticalAlignment = VerticalAlignment.Center, FontSize = 13 };
+                name.SetResourceReference(TextBlock.ForegroundProperty, "ForegroundColor");
+                row.Children.Add(name);
+                HiddenToolsRows.Children.Add(row);
+            }
+        }
+
+        // ---- Top-bar minimise (Mac ViewController.btnMinimizeClicked) -----------------------------
+
+        /// <summary>
+        /// True while a routine owns the window - exactly the states in which App.SimulatePleaseSpareMe
+        /// routes to the routine's own Exit Fullscreen / postpone flow.
+        /// </summary>
+        private bool RoutineOwnsWindow()
+        {
+            if (!appSettings.IsLoggedIn || appSettings.nCurrentActivityType == CurrentActivityType.ONBOARDING) return false;
+            switch (appSettings.nCurrentActivityType)
+            {
+                case CurrentActivityType.BREAK_ACTIVITY:
+                case CurrentActivityType.SHUT_OFF:
+                    return true;
+                case CurrentActivityType.MORNING_HABITS:
+                case CurrentActivityType.EVENING_HABITS:
+                    return !appSettings.bHabitsPostponedState && !appSettings.bFocusSummaryPostponedState;
+                default:
+                    return false;
+            }
+        }
+
+        /// <summary>Whether the routine screen is currently offering its own way out (its Exit Fullscreen / postpone / get-access button).</summary>
+        private bool RoutineOffersExit()
+        {
+            try
+            {
+                if (appSettings.nCurrentActivityType == CurrentActivityType.SHUT_OFF)
+                {
+                    var btn = PageShutOffWindow?.btnAction;
+                    return btn != null && btn.Visibility == Visibility.Visible && btn.IsEnabled;
+                }
+                if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS && ((App)Application.Current).wndFocusSummary?.IsVisible == true)
+                    return true; // "need one more minute" - what SimulatePleaseSpareMe does there
+                // As on the Mac (btnMinimizeClicked → abortCurrentState): during a routine, minimise is the
+                // routine's postpone / abort prompt from every screen — the Day Plan (which hides the habit
+                // screen's own exit button), Settings, Help. The only time it does nothing is while a dialog
+                // is already open over the window (the Mac's "subviews added" guard).
+                return GridShade.Visibility != Visibility.Visible;
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("RoutineOffersExit EX - " + ex.Message);
+                return false;
+            }
+        }
+
+        private MinimiseAction CurrentMinimiseAction()
+        {
+            bool owns = RoutineOwnsWindow();
+            return MinimisePolicy.Decide(owns, owns && RoutineOffersExit());
+        }
+
+        /// <summary>
+        /// The top bar is the window's way out when it has no title bar: a full-screen routine (borderless, maximised).
+        /// A normal window has the title bar's own minimise, so the bar is not shown there.
+        /// </summary>
+        private bool TopBarNeeded() => WindowStyle == WindowStyle.None;
+
+        private void UpdateMinimiseButton()
+        {
+            Visibility bar = TopBarNeeded() ? Visibility.Visible : Visibility.Collapsed;
+            if (TopBar.Visibility != bar) TopBar.Visibility = bar;
+            MinimiseAction action = CurrentMinimiseAction();
+            btnTopMinimise.IsEnabled = action != MinimiseAction.Unavailable;
+            btnTopMinimise.ToolTip = action == MinimiseAction.MinimiseWindow
+                ? appSettings.GetConfigStringSafe("Minimise", "WindowsSpecific", "minimiseWindowTooltip")
+                : appSettings.GetConfigStringSafe("Exit Fullscreen", "common", "buttonAbortText");
+        }
+
+        private void btnTopMinimise_Click(object sender, RoutedEventArgs e)
+        {
+            MinimiseAction action = CurrentMinimiseAction();
+            LogWriter.LogWrite("[user-action] top-bar minimise clicked: " + action + " activity=" + appSettings.nCurrentActivityType);
+            switch (action)
+            {
+                case MinimiseAction.ExitRoutine:
+                    // Same path as the routine's Exit Fullscreen button / the window's close box: the
+                    // postpone / abort prompt, password rules included. Never silently gets the full-screen
+                    // routine window out of the way.
+                    ((App)Application.Current).SimulatePleaseSpareMe();
+                    break;
+                case MinimiseAction.MinimiseWindow:
+                    if (WindowStyle == WindowStyle.None)
+                    {
+                        // A borderless window left over from a finished full-screen routine: restore the
+                        // normal frame first so it comes back as a normal window.
+                        WindowStyle = WindowStyle.SingleBorderWindow;
+                        ResizeMode = ResizeMode.CanResize;
+                    }
+                    Topmost = false;
+                    WindowState = WindowState.Minimized;
+                    break;
+                default:
+                    break;
+            }
+            UpdateMinimiseButton();
+        }
+
+        private void MinimiseStateTimer_Tick(object sender, EventArgs e)
+        {
+            if (IsVisible) UpdateMinimiseButton();
+        }
+
+        /// <summary>
+        /// The toggle is a chevron beside the logo: « (collapse) while expanded; while collapsed the 45 px rail has
+        /// no room for the logo, so it hides and » (expand) sits centred.
+        /// </summary>
+        private void UpdateSidebarToggle()
+        {
+            FocusBearLogo.Visibility = IsSidebarCollapsed ? Visibility.Collapsed : Visibility.Visible;
+            SidebarChevron.Text = IsSidebarCollapsed ? "\uE76C\uE76C" : "\uE76B\uE76B";
+            btnSideBar.HorizontalAlignment = IsSidebarCollapsed ? HorizontalAlignment.Center : HorizontalAlignment.Right;
+            btnSideBar.Margin = IsSidebarCollapsed ? new Thickness(0) : new Thickness(0, 0, 8, 0);
+            string label = IsSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar";
+            btnSideBar.ToolTip = label;
+            System.Windows.Automation.AutomationProperties.SetName(btnSideBar, label);
+        }
+
         private void btnSideBar_Click(object sender, RoutedEventArgs e)
         {
             if (IsSidebarCollapsed)
@@ -949,6 +1340,7 @@ namespace Focus_Bear
                 // Expand sidebar
                 LeftColumn.Width = new GridLength(250);
                 IsSidebarCollapsed = false;
+                UpdateSidebarToggle();
 
                 // Show scrollbar
                 ScrollViewer.SetVerticalScrollBarVisibility(LeftTree, ScrollBarVisibility.Auto);
@@ -960,6 +1352,7 @@ namespace Focus_Bear
                 // Collapse sidebar
                 LeftColumn.Width = new GridLength(45);
                 IsSidebarCollapsed = true;
+                UpdateSidebarToggle();
 
                 // Hide scrollbar
                 ScrollViewer.SetVerticalScrollBarVisibility(LeftTree, ScrollBarVisibility.Hidden);
@@ -1022,6 +1415,16 @@ namespace Focus_Bear
             PageStopFocusMode.StartTimer();
         }
 
+        /// <summary>The ongoing-session screen (Mac parity): countdown, goal, the task queue, pause and end.</summary>
+        public void ShowRunningFocusSessionView()
+        {
+            LogWriter.LogWrite("FocusBear Main Window - ShowRunningFocusSessionView()");
+            var clock = System.Diagnostics.Stopwatch.StartNew();
+            RightContent.Content = PageFocusSession;
+            PageFocusSession.ScreenAppeared();
+            LogWriter.LogWrite("[timing] session screen built in " + clock.ElapsedMilliseconds + " ms");
+        }
+
         public void ShowFocusModeEndView()
         {
             LogWriter.LogWrite("FocusBear Main Window - ShowFocusModeEndView()");
@@ -1069,8 +1472,8 @@ namespace Focus_Bear
                 ((App)(Application.Current)).wndTakeABreak = null;
             }
 
-            PagePomodoro.UpdateValues(appSettings.bEnterSuperPomodoroModeAfterMorningRoutine);
-            RightContent.Content = PagePomodoro;
+            RightContent.Content = PageFocusStartAdvanced;
+            PageFocusStartAdvanced.UpdateValues(appSettings.bEnterSuperPomodoroModeAfterMorningRoutine);
         }
         public void ShowSimplePomodoroView()
         {
@@ -1083,8 +1486,8 @@ namespace Focus_Bear
                 ((App)(Application.Current)).wndTakeABreak = null;
             }
             
-            PageSimplePomodoro.UpdateValues();
-            RightContent.Content = PageSimplePomodoro;
+            RightContent.Content = PageFocusStartSimple;
+            PageFocusStartSimple.UpdateValues();
         }
 
         public void ShowOnboardingViewController()
@@ -1146,10 +1549,18 @@ namespace Focus_Bear
             return IntPtr.Zero;
         }
 
+        private readonly System.Windows.Threading.DispatcherTimer _minimiseStateTimer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+
         private void Window_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             if (IsVisible)
             {
+                ApplyHiddenTools(); // the signed-in user may have changed since the window was built
+                UpdateMinimiseButton();
+                _minimiseStateTimer.Tick -= MinimiseStateTimer_Tick;
+                _minimiseStateTimer.Tick += MinimiseStateTimer_Tick;
+                _minimiseStateTimer.Start();
+
                 if (!appSettings.bPlayActivitiesInFullScreenMode)
                 {
                     WindowState = WindowState.Normal;
@@ -1221,6 +1632,9 @@ namespace Focus_Bear
             }
             else
             {
+                _minimiseStateTimer.Stop();
+                HiddenToolsPopup.IsOpen = false;
+
                 appSettings.RemoveSecondaryWindows();
 
                 LocalSettingsManager.PutLocalSettings();

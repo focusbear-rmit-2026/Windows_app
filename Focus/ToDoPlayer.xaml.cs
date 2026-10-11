@@ -253,11 +253,6 @@ namespace Focus_Bear.Focus
                 {
                     appSettings.sBrainDump = sContentJson["brain_dump_content"].ToString();
                     RegistryManager.SaveBrainDump();
-                    //Update the braindump window ui
-                    if (app.wndBrainDump != null)
-                    {
-                        app.wndBrainDump.TxtDumpDown.Text = appSettings.sBrainDump;
-                    }
                 }
                 if (sContentJson.ContainsKey("tasks"))
                 {
@@ -378,6 +373,11 @@ namespace Focus_Bear.Focus
                 if (appSettings.sCurrentTaskCreated.Length > 0)
                 {
                     LogWriter.LogWrite("AddAndPlayTaskInCurrentList - " + appSettings.sCurrentTaskCreated);
+
+                    // The native session screen owns the queue now (outside a class session's checklist): the
+                    // task goes into it, and the headless web player below only hears about it if it is loaded.
+                    Pomodoro.FocusSessionQueueWriter.AddAndPlay(appSettings.sCurrentTaskCreated, bMarkCurrentTaskAsComplete);
+                    if (Pomodoro.FocusSessionQueueWriter.NativeOwnsQueue && webView?.CoreWebView2 == null) return;
 
                     JObject currentTask = JObject.Parse(appSettings.sCurrentTaskCreated);
 

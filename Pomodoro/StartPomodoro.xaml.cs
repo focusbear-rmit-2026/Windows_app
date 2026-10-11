@@ -35,6 +35,19 @@ namespace Focus_Bear.Pomodoro
     {
         AppSettings appSettings = AppSettings.GetInstance;
         App app = (App)Application.Current;
+
+        // FocusAlignmentThresholdCombo lists 50..100 in steps of 10 (see StartPomodoro.xaml).
+        private const int MinAlignmentThresholdPercent = 50;
+        private const int MaxAlignmentThresholdPercent = 100;
+        private const int DefaultAlignmentThresholdPercent = 80;
+
+        // Maps a focus-mode alignment threshold (percent) to the matching combo box index,
+        // clamped so an out-of-range stored value can never select a non-existent item.
+        private static int AlignmentThresholdToIndex(int thresholdPercent)
+        {
+            int clamped = Math.Max(MinAlignmentThresholdPercent, Math.Min(MaxAlignmentThresholdPercent, thresholdPercent));
+            return (clamped / 10) - 5;
+        }
         [DllImport("dwmapi.dll")]
         private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
         FocusBearMainWindow _ParentWindow = null;
@@ -159,7 +172,10 @@ namespace Focus_Bear.Pomodoro
 
                 var selectedMode = appSettings.arrFocusModes.FirstOrDefault(m => m.name == ComboBoxFocusModes.SelectedItem?.ToString());
                 if (selectedMode != null)
-                    FocusAlignmentThresholdCombo.SelectedItem = selectedMode.AlignmentScoreThreshold;
+                    // The combo items are ComboBoxItems (Content "50".."100"), so select by index.
+                    // Assigning the raw threshold to SelectedItem leaves nothing selected and later
+                    // causes a NullReferenceException when the selection is read back as a ComboBoxItem.
+                    FocusAlignmentThresholdCombo.SelectedIndex = AlignmentThresholdToIndex(selectedMode.AlignmentScoreThreshold);
             }
         }
 
@@ -292,7 +308,7 @@ namespace Focus_Bear.Pomodoro
             {
                 if (appSettings.arrFocusModes[i].name == sFocusModeToStart)
                 {
-                    FocusAlignmentThresholdCombo.SelectedIndex = (appSettings.arrFocusModes[i].AlignmentScoreThreshold / 10) - 5;
+                    FocusAlignmentThresholdCombo.SelectedIndex = AlignmentThresholdToIndex(appSettings.arrFocusModes[i].AlignmentScoreThreshold);
                 }
             }
         }
@@ -441,8 +457,11 @@ namespace Focus_Bear.Pomodoro
                 if (UseSuperPomodoroMode.IsChecked.Value)
                 {
                     appSettings.bUseSuperPomodoroMode = true;
-                    ComboBoxItem typeItem = (ComboBoxItem)ComboBoxNumberOfPomodoros.SelectedItem;
-                    appSettings.NumberOfSuperPomodorosToRun = int.Parse(typeItem.Content.ToString());
+                    ComboBoxItem typeItem = ComboBoxNumberOfPomodoros.SelectedItem as ComboBoxItem;
+                    if (typeItem != null && int.TryParse(typeItem.Content?.ToString(), out int numberOfPomodoros))
+                    {
+                        appSettings.NumberOfSuperPomodorosToRun = numberOfPomodoros;
+                    }
                     appSettings.nSuperPomodoroCountCompleted = 0; //Initialize
                     appSettings.CapturePostHog("start-focus-session-manually", string.Format("\"type\":\"super-focus\",\"focusDuration\":\"{0}\",\"breakDuration\":\"{1}\"", Minutes.Text, MinutesBreak.Text));
                 }
@@ -452,8 +471,12 @@ namespace Focus_Bear.Pomodoro
                 }
 
             }
+            // Fall back to the default threshold if nothing valid is selected, so a missing/
+            // mismatched selection can't crash starting a focus session (NullReferenceException).
             ComboBoxItem selectedItem = FocusAlignmentThresholdCombo.SelectedItem as ComboBoxItem;
-            int value = int.Parse(selectedItem.Content.ToString());
+            int value = (selectedItem != null && int.TryParse(selectedItem.Content?.ToString(), out int parsedValue))
+                ? parsedValue
+                : DefaultAlignmentThresholdPercent;
             appSettings.sRunningFocusModeAlignmentScoreThreshold = (double) value / 100;
 
             appSettings.sMinutesBreakPomodoro = "";
@@ -476,6 +499,40 @@ namespace Focus_Bear.Pomodoro
                         return;   // abort — no focus session started; the start screen stays open to retry
                     }
                 }
+            }
+
+            // #1420: an Allow-List mode with AI off means every new page on an already-allowed site
+            // still gets a permission prompt - warn before starting rather than letting the user hit
+            // that wall mid-session. Skipped in grizzly mode (per Jeremy's feedback on #1420) - grizzly
+            // already blocks immediately with no back-and-forth, so the "asked a lot" framing doesn't apply.
+            string sSelectedModeName = ComboBoxFocusModes.SelectedItem?.ToString();
+            FocusMode selectedMode = appSettings.arrFocusModes.FirstOrDefault(m => m.name == sSelectedModeName);
+            if (selectedMode != null && selectedMode.isAllowedListApproach && !appSettings.bAiCheckUrlEnabled && !appSettings.IsEffectivelyGrizzly())
+            {
+                _ParentWindow.GridShade.Visibility = Visibility.Visible;
+                FBMessageBox msg = new FBMessageBox(
+                    appSettings.GetConfigStringSafe("You've started an allow list session without AI which means you're going to get asked for approval a lot.\n\nWe suggest you either make the session stricter or enable AI.", "focusInfo", "startingFocusModeInfo", "bodyAllowListNoAiWarningText"),
+                    appSettings.GetConfigStringSafe("This might be annoying", "focusInfo", "startingFocusModeInfo", "titleAllowListNoAiWarning"),
+                    MessageBoxButton.YesNoCancel,
+                    appSettings.GetConfigStringSafe("Make it stricter - block non-allowed sites immediately", "focusInfo", "startingFocusModeInfo", "buttonMakeStricterText"),
+                    appSettings.GetConfigStringSafe("Enable AI", "focusInfo", "startingFocusModeInfo", "buttonTurnOnAiText"),
+                    appSettings.GetConfigStringSafe("Continue anyway", "focusInfo", "startingFocusModeInfo", "buttonStartWithoutAiText"),
+                    bCancelAsLink: true);
+                msg.Owner = _ParentWindow;
+                msg.ShowDialog();
+                _ParentWindow.GridShade.Visibility = Visibility.Collapsed;
+
+                if (msg.btnClicked == MessageBoxResult.Yes) //Make it stricter
+                {
+                    appSettings.nFocusBearMode = 0; //Grizzly bear mode
+                    LocalSettingsManager.PutLocalSettings();
+                }
+                else if (msg.btnClicked == MessageBoxResult.No) //Enable AI
+                {
+                    appSettings.bAiCheckUrlEnabled = true;
+                    LocalSettingsManager.PutLocalSettings();
+                }
+                //Cancel = Continue anyway - proceed with the session as configured
             }
 
             //Start Normal Focus mode
@@ -640,7 +697,10 @@ namespace Focus_Bear.Pomodoro
                 if (appSettings.arrFocusModes[i].name == sFocusModeToStart)
                 {
                     ComboBoxItem selectedItem = FocusAlignmentThresholdCombo.SelectedItem as ComboBoxItem;
-                    int value = int.Parse(selectedItem.Content.ToString());
+                    if (selectedItem == null || !int.TryParse(selectedItem.Content?.ToString(), out int value))
+                    {
+                        continue;
+                    }
                     appSettings.arrFocusModes[i].AlignmentScoreThreshold = value;
                 }
             }
@@ -649,7 +709,8 @@ namespace Focus_Bear.Pomodoro
         {
             if (BlockingScheduleManager.IsIronFocusScheduleActive())
             {
-                ComboBoxFocusModes.SelectedValue = appSettings.ActiveSchedule.FocusModeName;
+                var scheduleForPomodoro = appSettings.ActiveSchedule;   // capture once — may be nulled on the UI thread
+                ComboBoxFocusModes.SelectedValue = scheduleForPomodoro?.FocusModeName;
                 ComboBoxFocusModes.IsEnabled = false;
                 BlockingScheduleBannerText.Text = appSettings.ConfigFileStrings?["pomodoroInfo"]?["superStrictBlockingActiveMessage"]?.ToString()
                     ?? "A super strict blocking schedule is active.";

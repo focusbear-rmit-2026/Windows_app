@@ -63,8 +63,11 @@ namespace Focus_Bear.Onboarding
                     item.PropertyChanged += Item_PropertyChanged;
                 }
 
+                SelectDeselect.Content = appSettings.ConfigFileStrings["chooseHabitsVCInfo"]["checkBoxSelectAllText"].ToString(); //already used by Habits/ChooseHabits.xaml - reuse rather than duplicate
+
                 ListBLockedURLs.ItemsSource = appSettings.arrDistractingURLs;
                 SetBlockedText();
+                UpdateSelectDeselectState();
             }
             catch (Exception ex)
             {
@@ -81,14 +84,11 @@ namespace Focus_Bear.Onboarding
 
         private void btnProceed_Click(object sender, RoutedEventArgs e)
         {
-            //we need to add the URLS to always blocked urls
-            for (int i = 0; i < appSettings.arrDistractingURLs.Count(); i++)
-            {
-                if (appSettings.arrDistractingURLs[i].IsItemChecked)
-                    appSettings.arrAlwaysBlockedURLs.Add(appSettings.arrDistractingURLs[i].sURL);
-                else
-                    appSettings.bHasEditedBlockedURLs = true;
-            }
+            //we need to add the URLS to always blocked urls - once each, and an unticked one out again: the user
+            //can come Back here and Proceed a second time.
+            FocusBear.Core.Onboarding.OnboardingChoices.ApplyTicks(appSettings.arrAlwaysBlockedURLs,
+                appSettings.arrDistractingURLs.Select(u => new KeyValuePair<string, bool>(u.sURL, u.IsItemChecked)).ToList());
+            if (appSettings.arrDistractingURLs.Any(u => !u.IsItemChecked)) appSettings.bHasEditedBlockedURLs = true;
 
             _parentWindow.PageOnboardingViewController.Navigate(OnboardingViewController.ONBOARDINGSTATE._BLOCKED_APPS_);
         }
@@ -126,6 +126,7 @@ namespace Focus_Bear.Onboarding
                 }
             }
             SetBlockedText();
+            UpdateSelectDeselectState();
         }
 
         private void Item_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -134,7 +135,66 @@ namespace Focus_Bear.Onboarding
             {
                 var item = (DistractingURL)sender;
                 SetBlockedText();
+                UpdateSelectDeselectState();
             }
+        }
+
+        // Three-state master checkbox: checked when every item is checked, unchecked when none are,
+        // indeterminate (dash) when it's a mix. Mirrors AskWhichWebsitesUsedForWork.xaml.cs's
+        // SelectDeselect (#1913). _bUpdatingProgrammatically distinguishes this reflected update from an
+        // actual user click, so it doesn't loop back into SetAllChecked.
+        private bool _bUpdatingSelectDeselectProgrammatically = false;
+
+        private void UpdateSelectDeselectState()
+        {
+            _bUpdatingSelectDeselectProgrammatically = true;
+            if (appSettings.arrDistractingURLs.Count > 0 && appSettings.arrDistractingURLs.All(i => i.IsItemChecked))
+            {
+                SelectDeselect.IsChecked = true;
+            }
+            else if (appSettings.arrDistractingURLs.All(i => !i.IsItemChecked))
+            {
+                SelectDeselect.IsChecked = false;
+            }
+            else
+            {
+                SelectDeselect.IsChecked = null; //indeterminate - some checked, some not
+            }
+            _bUpdatingSelectDeselectProgrammatically = false;
+        }
+
+        private void SelectDeselect_Checked(object sender, RoutedEventArgs e)
+        {
+            if (_bUpdatingSelectDeselectProgrammatically) return;
+            SetAllChecked(true);
+        }
+
+        private void SelectDeselect_Unchecked(object sender, RoutedEventArgs e)
+        {
+            if (_bUpdatingSelectDeselectProgrammatically) return;
+            SetAllChecked(false);
+        }
+
+        // IsThreeState lets the checkbox visually show the indeterminate dash when reflecting a mixed
+        // selection, but a user's own click should only ever mean "select all"/"deselect all" - never
+        // let a click land on indeterminate itself (WPF's native cycle goes Checked -> Indeterminate on
+        // click), so collapse it straight to "deselect all" instead.
+        private void SelectDeselect_Indeterminate(object sender, RoutedEventArgs e)
+        {
+            if (_bUpdatingSelectDeselectProgrammatically) return;
+            SetAllChecked(false);
+        }
+
+        private void SetAllChecked(bool bChecked)
+        {
+            foreach (DistractingURL item in appSettings.arrDistractingURLs)
+            {
+                item.PropertyChanged -= Item_PropertyChanged;
+                item.IsItemChecked = bChecked;
+                item.PropertyChanged += Item_PropertyChanged;
+            }
+            SetBlockedText();
+            UpdateSelectDeselectState();
         }
 
         private void SetBlockedText()

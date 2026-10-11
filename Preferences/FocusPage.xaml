@@ -97,7 +97,22 @@
                                                 <ColumnDefinition Width="25"/>
                                             </Grid.ColumnDefinitions>
                                             <Rectangle Fill="{Binding color, StringFormat=\{0\}}" Width="25" Height="25"  RadiusX="4" RadiusY="4"></Rectangle>
-                                            <emoji:TextBlock Grid.Column="1" x:Name="ListViewTextBlock" Text="{Binding name, StringFormat=\{0\}}"  FontSize="13" Cursor="Hand" TextWrapping="Wrap" VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left" Foreground="{DynamicResource PreferenceFocusListItemForegroundColor}"/>
+                                            <emoji:TextBlock Grid.Column="1" x:Name="ListViewTextBlock" Text="{Binding name, StringFormat=\{0\}}"  FontSize="13" Cursor="Hand" TextWrapping="Wrap" VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Left">
+                                    <emoji:TextBlock.Style>
+                                        <!-- On the orange selection / hover fill the label is near-black in both themes. -->
+                                        <Style TargetType="emoji:TextBlock">
+                                            <Setter Property="Foreground" Value="{DynamicResource PreferenceFocusListItemForegroundColor}"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=ListViewItem}}" Value="True">
+                                                    <Setter Property="Foreground" Value="{DynamicResource OnOrangeText}"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=ListViewItem}}" Value="True">
+                                                    <Setter Property="Foreground" Value="{DynamicResource OnOrangeText}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </emoji:TextBlock.Style>
+                                </emoji:TextBlock>
                                             <Image x:Name="InfoImageMeetings" Grid.Column="2" Source="{DynamicResource InfoImage}" Width="18"  Margin="0,0,8,0" VerticalAlignment="Center" HorizontalAlignment="Center" Visibility="{Binding Path=isMeetings, Converter={StaticResource BoolToVis}}" ToolTip="{Binding sToolTip, StringFormat=\{0\}}"></Image>
                                         </Grid>
                                     </DataTemplate>

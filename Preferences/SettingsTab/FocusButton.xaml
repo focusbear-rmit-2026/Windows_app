@@ -22,7 +22,7 @@
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0"  Orientation="Vertical" >
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock x:Name="FocusButtonHead" FontSize="15" FontWeight="Bold"  Foreground="#e88800" HorizontalAlignment="Left" TextAlignment="Left">xFocus Button </TextBlock>
+                                <TextBlock x:Name="FocusButtonHead" FontSize="15" FontWeight="Bold"  Foreground="{DynamicResource OrangeTextColor}" HorizontalAlignment="Left" TextAlignment="Left">xFocus Button </TextBlock>
                                 <Border x:Name="ConnectionBorder" Margin="15,0,0,0" Padding="10,4" Background="#DFF5E5" BorderBrush="#34C759" BorderThickness="1" CornerRadius="5,5,5,5">
                                     <StackPanel Orientation="Horizontal">
                                         <Ellipse x:Name="ConnectionDot" Width="8" Height="8" Fill="#34C759" VerticalAlignment="Center" Margin="0,0,6,0"/>
@@ -53,7 +53,7 @@
                 <Grid Grid.Row="1"  Margin="0,0,0,0" Background="LightGray" ></Grid>
 
                 <StackPanel Grid.Row="2" x:Name="InstalledFirmwareSection"  Orientation="Vertical" Margin="0,20,0,0" >
-                    <TextBlock x:Name="Installed" Text="xINSTALLED FIRMWARE" Foreground="#e88800" FontSize="13" FontWeight="SemiBold" Margin="0,0,0,12"/>
+                    <TextBlock x:Name="Installed" Text="xINSTALLED FIRMWARE" Foreground="{DynamicResource OrangeTextColor}" FontSize="13" FontWeight="SemiBold" Margin="0,0,0,12"/>
                     <Grid Background="{DynamicResource SoftCreamColor}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>

@@ -34,6 +34,8 @@ namespace Focus_Bear.Preferences
                 
                 UseAIToDecideTXT.Text = appSettings.ConfigFileStrings["aISettingVcInfo"]["checkBoxWebsiteAllowText"].ToString();
                 UseAIToDecideDesc.Text = appSettings.ConfigFileStrings["aISettingVcInfo"]["descriptionWebsiteAllowText"].ToString();
+                AccountabilityBuddyTXT.Text = appSettings.GetConfigStringSafe("AI accountability buddy when postponing habits", "aISettingVcInfo", "checkBoxAccountabilityBuddyText");
+                AccountabilityBuddyDesc.Text = appSettings.GetConfigStringSafe("When you postpone your habits, an AI buddy checks your reason and, if it's genuinely urgent, starts a strict AI focus session that only unlocks what you need.", "aISettingVcInfo", "descriptionAccountabilityBuddyText");
 
             }
             catch (Exception ex)
@@ -57,6 +59,16 @@ namespace Focus_Bear.Preferences
             appSettings.bMotivationalMessageEnabled = false;
         }
 
+        private void AccountabilityBuddy_Checked(object sender, RoutedEventArgs e)
+        {
+            appSettings.bAccountabilityBuddyEnabled = true;
+        }
+
+        private void AccountabilityBuddy_Unchecked(object sender, RoutedEventArgs e)
+        {
+            appSettings.bAccountabilityBuddyEnabled = false;
+        }
+
         private void UseAIToDecide_Unchecked(object sender, RoutedEventArgs e)
         {
             appSettings.bAiCheckUrlEnabled = false;
@@ -68,6 +80,7 @@ namespace Focus_Bear.Preferences
             {
                 PersonalisedMotivationCheckBox.IsChecked = appSettings.bMotivationalMessageEnabled;
                 UseAIToDecideCheckBox.IsChecked = appSettings.bAiCheckUrlEnabled;
+                AccountabilityBuddyCheckBox.IsChecked = appSettings.bAccountabilityBuddyEnabled;
             }
         }
     }

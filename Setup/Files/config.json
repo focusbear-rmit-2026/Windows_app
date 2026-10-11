@@ -168,6 +168,7 @@
         "buttonUninstallText": "Uninstall Focus Bear",
         "shutdownNotificationTitle": "It's time to wrap up for the day. Your shutdown time is in 5 minutes.",
         "appBlockNotificationTitle": "<APP_NAME> isn't allowed in the <FOCUS_NAME> focus mode.",
+        "appBlockNotificationAllowButton": "Oops I actually need it",
         "superDistractingAppBlockedText": "<APP_NAME> is a Super distracting app.",
         "focusBreakNotificationTitle": "Your break ends in",
         "tabGeneralText": "General",
@@ -228,6 +229,7 @@
         "otherReasonText": "Other",
         "loadingText": "Loading...",
         "cutOffTimePassedText": "Running low on time - let's just focus on the high priority habits for the rest of the evening.",
+        "cutOffTimePassedSubText": "Your high priority habits will start in 5 seconds.",
         "noHighPriorityActivityText": "No activities with high Priority found.",
         "focusEndsText": "Focus mode ends in",
         "postponeEndsText": "Habit resumes in",
@@ -1239,7 +1241,8 @@
         "buttonCreateAccount": "Create Your Account",
         "orText": "OR",
         "continueInBrowser": "Continue in your browser",
-        "bubbleText": "One account, all your devices - let's get you set up!"
+        "bubbleText": "One account, all your devices - let's get you set up!",
+        "subTitleText": "We use Auth0, our secure login partner, to sign you in."
     },
     "upgradeNowVcInfo": {
         "pointFirstText": "Personalized habit routines",
@@ -3107,6 +3110,13 @@
         "titleBlockingSchedule": "Blocking schedule",
         "titleFromTime": "From",
         "titleTillTime": "Till",
+        "titleActiveTime": "Active time",
+        "titleWeekdays": "Weekdays",
+        "titleWeekends": "Weekends",
+        "titleEveryday": "Everyday",
+        "titleStrictnessFlexible": "Flexible",
+        "titleStrictnessModerate": "Moderate",
+        "titleStrictnessStrict": "Strict",
         "titleFocusMode": "Block list",
         "buttonEditBlockList": "Edit block list",
         "buttonSkipMicrobreaks": "Skip microbreaks",
@@ -3188,7 +3198,9 @@
         "breakBlockedTitle": "Class focus session in progress",
         "breakBlockedBody": "You can't start a break during a class focus session. It resumes automatically when your teacher ends the session.",
         "resumeHabitsBlockedTitle": "Class focus session in progress",
-        "resumeHabitsBlockedBody": "You can't resume your habits during a class focus session. They'll resume automatically when your teacher ends the session."
+        "resumeHabitsBlockedBody": "You can't resume your habits during a class focus session. They'll resume automatically when your teacher ends the session.",
+        "personalSessionOnlyTitle": "This starts a personal focus session",
+        "classSessionFromDashboardText": "To start a class session for your students, use the Focus Bear dashboard in your browser."
     },
     "focusStateVcInfo":{
         "titleIntention": "Focus Goal:",
@@ -3384,5 +3396,11 @@
         "iconsUpToDate": "up to date",
         "checkingHabitIcons": "Checking habit icons…",
         "checkingFocusIcons": "Checking focus icons…"
+    },
+    "toDoListViewInfo": {
+        "attachmentPendingText": "Ready to upload when you save the task.",
+        "attachmentRetryText": "The task was saved. Save again to retry the remaining files.",
+        "attachmentUnconfirmedText": "The upload result is not confirmed. Save again to check its status."
     }
+
 }

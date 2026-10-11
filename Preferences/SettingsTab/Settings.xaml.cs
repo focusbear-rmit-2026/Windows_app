@@ -423,6 +423,22 @@ namespace Focus_Bear.Preferences
             }
         }
 
+        /// <summary>
+        /// The focus start screens' "Extra Powerful Options" / "Regular Options" links: the same switch as the
+        /// Geek / Simple radio here, with its notice, menu rebuild and settings upload.
+        /// </summary>
+        internal void SwitchAppMode(bool geek)
+        {
+            // The radios only follow the setting while this page is on show. Until Settings has been opened they
+            // can still say Simple (their state from before the account's settings arrived) while the app is in
+            // geek mode: ticking Simple again then changed nothing and raised no event, so "Regular Options" did
+            // nothing. Bring them in line first, then switch.
+            SetGeekModeStatus();
+            if (appSettings.bIsGeekModeEnabled == geek) return;
+            if (geek) GeekMode.IsChecked = true;
+            else SimpleMode.IsChecked = true;
+        }
+
         public void SetGeekModeStatus()
         {
             GeekMode.Checked -= GeekMode_Checked;

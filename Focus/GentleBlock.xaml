@@ -60,20 +60,14 @@
         
         <StackPanel Grid.Row="9" Orientation="Vertical" Margin="0,0,0,50">
 
-            <Button Visibility="Collapsed" x:Name="btnNoIamWorkingOnSomethingElse" AutomationProperties.AutomationId="btnNoIamWorkingOnSomethingElse"  Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   Width="300" Height="30" HorizontalContentAlignment="Center" Padding="0" Margin="0,5" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnNoIamWorkingOnSomethingElse_Click">
-                <Button.Content>
-                    <StackPanel  Orientation="Horizontal">
-                        <TextBlock Name="btnNoIamWorkingOnSomethingElseText" Margin="1" Text="xNo I'm working on something else now" Foreground="Black"/>
-                    </StackPanel>
-                </Button.Content>
+            <Button Visibility="Collapsed" x:Name="btnNoIamWorkingOnSomethingElse" AutomationProperties.AutomationId="btnNoIamWorkingOnSomethingElse"  Style="{StaticResource BtnStyleClearOrangeBordered}" IsEnabled="True"   Width="300" Height="30" HorizontalContentAlignment="Stretch" Padding="12,0" Margin="0,5" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnNoIamWorkingOnSomethingElse_Click" ToolTip="{Binding Text, ElementName=btnNoIamWorkingOnSomethingElseText}">
+                <TextBlock Name="btnNoIamWorkingOnSomethingElseText" Text="xNo I'm working on something else now" Foreground="Black" Margin="16,0"
+                           TextTrimming="CharacterEllipsis" TextAlignment="Center" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
             </Button>
             
-            <Button  x:Name="btnJustThisTime" AutomationProperties.AutomationId="btnJustThisTime"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Width="300" Height="30" HorizontalContentAlignment="Center" Padding="0" Margin="0,5" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnJustThisTime_Click">
-                <Button.Content>
-                    <StackPanel  Orientation="Horizontal">
-                        <TextBlock Name="btnJustThisTimeText" Margin="1" Text="xYes, Just this time" Foreground="Black"/>
-                    </StackPanel>
-                </Button.Content>
+            <Button  x:Name="btnJustThisTime" AutomationProperties.AutomationId="btnJustThisTime"  Style="{StaticResource BtnStyleLightOrangeBordered}" IsEnabled="True"   Width="300" Height="30" HorizontalContentAlignment="Stretch" Padding="12,0" Margin="0,5" FontSize="14" Cursor="Hand" FontWeight="Semibold" Click="btnJustThisTime_Click" ToolTip="{Binding Text, ElementName=btnJustThisTimeText}">
+                <TextBlock Name="btnJustThisTimeText" Text="xYes, Just this time" Foreground="Black" Margin="16,0"
+                           TextTrimming="CharacterEllipsis" TextAlignment="Center" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
             </Button>
             <TextBlock Grid.Row="7" x:Name="BlockThisPage" AutomationProperties.AutomationId="BlockThisPage" Margin="15,10,0,20" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Center" TextDecorations="{x:Null}"   FontSize="14" FontWeight="Bold" MinHeight="22" Cursor="Hand">
                 <Hyperlink x:Name="BtnBlockThisPage" Click="BtnBlockThisPage_Click"   TextDecorations="Underline" ><Run x:Name="TextBlockThisPage" Text="xBlock this page"/></Hyperlink>

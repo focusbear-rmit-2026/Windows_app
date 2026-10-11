@@ -59,7 +59,7 @@
                 
             </StackPanel>
 
-            <Button  Grid.Row="0" x:Name="btnClose" AutomationProperties.AutomationId="btnClose" Content="Button" Style="{DynamicResource BtnStyleCloseRed}" SnapsToDevicePixels="True" HorizontalAlignment="Right" Height="22" VerticalAlignment="Top" Width="22" ToolTip="Close" Click="btnClose_Click"  Cursor="Hand"/>
+            <Button  Grid.Row="0" x:Name="btnClose" AutomationProperties.AutomationId="btnClose" Content="Button" AutomationProperties.Name="Close" Style="{DynamicResource BtnStyleCloseRed}" SnapsToDevicePixels="True" HorizontalAlignment="Right" Height="22" VerticalAlignment="Top" Width="22" ToolTip="Close" Click="btnClose_Click"  Cursor="Hand"/>
 
             <TextBlock Grid.Row="1" Name="Intention" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" Visibility="Visible" Margin="13,0,0,0" VerticalAlignment="Center" TextAlignment="Left" Foreground="White" FontSize="14">Intention:  </TextBlock>
             <TextBlock Grid.Row="2" Name="AlignmentScore"  Margin="13,0,0,0"   VerticalAlignment="Top"  Foreground="White" FontSize="14"  >xFocus score</TextBlock>

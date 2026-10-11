@@ -22,6 +22,8 @@
                     <RowDefinition Height="auto"/>
                     <RowDefinition Height="1"/>
                     <RowDefinition Height="auto"/>
+                    <RowDefinition Height="1"/>
+                    <RowDefinition Height="auto"/>
                 </Grid.RowDefinitions>
                 <Grid Grid.Row="0" Margin="15,15"  Background="{DynamicResource SoftCreamColor}">
                     <Grid.ColumnDefinitions>
@@ -32,7 +34,7 @@
                         <TextBlock x:Name="PersonalisedMotivationCheckBoxTXT" FontSize="14" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xxUse AI to generate a personalised motivational message each morning</TextBlock>
                         <TextBlock x:Name="PersonalisedMotivationCheckBoxDesc" Margin="0,10,0,0"  TextWrapping="Wrap" FontSize="12" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xxYour routine streak and your morning routine activities will be sent to Open AI. No other details will be shared but if you have anything in the habit titles that would identify you, we recommend you remove it..</TextBlock>
                     </StackPanel>
-                    <ToggleButton Grid.Column="1" x:Name="PersonalisedMotivationCheckBox" AutomationProperties.AutomationId="tglPersonalisedMotivationCheckBox"  Style="{DynamicResource MacStyleToggleSwitch}" Margin="15,0,0,0" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Cursor="Hand" Focusable="True" Checked="PersonalisedMotivationCheckBox_Checked" Unchecked="PersonalisedMotivationCheckBox_Unchecked" />
+                    <ToggleButton Grid.Column="1" x:Name="PersonalisedMotivationCheckBox" AutomationProperties.AutomationId="tglPersonalisedMotivationCheckBox" AutomationProperties.LabeledBy="{Binding ElementName=PersonalisedMotivationCheckBoxTXT}"  Style="{DynamicResource MacStyleToggleSwitch}" Margin="15,0,0,0" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Cursor="Hand" Focusable="True" Checked="PersonalisedMotivationCheckBox_Checked" Unchecked="PersonalisedMotivationCheckBox_Unchecked" />
                 </Grid>
                 <Grid Grid.Row="1"  Margin="15,0,15,0" Background="LightGray" ></Grid>
 
@@ -45,7 +47,20 @@
                         <TextBlock x:Name="UseAIToDecideTXT" FontSize="14" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xUse AI to decide if websites should be allowed</TextBlock>
                         <TextBlock x:Name="UseAIToDecideDesc" Margin="0,10,0,0" TextWrapping="Wrap" FontSize="12" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xWe'll use Open AI to decide if the site is valid based on your current focus mode, intention, the URL, the website title and the first 100 characters of the content. This is anonymous - no identifying details are shared...</TextBlock>
                     </StackPanel>
-                    <ToggleButton Grid.Column="1" x:Name="UseAIToDecideCheckBox" AutomationProperties.AutomationId="tglUseAIToDecideCheckBox" Style="{DynamicResource MacStyleToggleSwitch}"      Margin="15,0,0,0" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Cursor="Hand" Focusable="True" Checked="UseAIToDecide_Checked" Unchecked="UseAIToDecide_Unchecked"/>
+                    <ToggleButton Grid.Column="1" x:Name="UseAIToDecideCheckBox" AutomationProperties.AutomationId="tglUseAIToDecideCheckBox" AutomationProperties.LabeledBy="{Binding ElementName=UseAIToDecideTXT}" Style="{DynamicResource MacStyleToggleSwitch}"      Margin="15,0,0,0" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Cursor="Hand" Focusable="True" Checked="UseAIToDecide_Checked" Unchecked="UseAIToDecide_Unchecked"/>
+                </Grid>
+                <Grid Grid.Row="3"  Margin="15,0,15,0" Background="LightGray" ></Grid>
+
+                <Grid Margin="15,15" Grid.Row="4" Background="{DynamicResource SoftCreamColor}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="60"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0"  Orientation="Vertical"  >
+                        <TextBlock x:Name="AccountabilityBuddyTXT" FontSize="14" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xAI accountability buddy when postponing habits</TextBlock>
+                        <TextBlock x:Name="AccountabilityBuddyDesc" Margin="0,10,0,0" TextWrapping="Wrap" FontSize="12" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xWhen you postpone your habits, an AI buddy checks your reason...</TextBlock>
+                    </StackPanel>
+                    <ToggleButton Grid.Column="1" x:Name="AccountabilityBuddyCheckBox" AutomationProperties.AutomationId="tglAccountabilityBuddyCheckBox" AutomationProperties.LabeledBy="{Binding ElementName=AccountabilityBuddyTXT}" Style="{DynamicResource MacStyleToggleSwitch}" Margin="15,0,0,0" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Cursor="Hand" Focusable="True" Checked="AccountabilityBuddy_Checked" Unchecked="AccountabilityBuddy_Unchecked"/>
                 </Grid>
 
             </Grid>

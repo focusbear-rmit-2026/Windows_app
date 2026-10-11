@@ -483,10 +483,6 @@ namespace Focus_Bear.Preferences
                         {
                             PageEditHabits.webView.Visibility = Visibility.Collapsed;
                         }
-                        if (!btnStats.IsEnabled)
-                        {
-                            PageStats.webView.Visibility = Visibility.Collapsed;
-                        }
                         //Hide show the help tabs views
                         PageHelp.webViewGetSupport.Visibility = Visibility.Collapsed;
                         PageHelp.webViewTutorials.Visibility = Visibility.Collapsed;
@@ -501,10 +497,6 @@ namespace Focus_Bear.Preferences
                         if (!btnEditHabits.IsEnabled) //reshow the hiddedn webview
                         {
                             PageEditHabits.webView.Visibility = Visibility.Visible;
-                        }
-                        if (!btnStats.IsEnabled)
-                        {
-                            PageStats.webView.Visibility = Visibility.Visible;
                         }
                         //Hide show the help tabs views
                         PageHelp.webViewGetSupport.Visibility = Visibility.Visible;

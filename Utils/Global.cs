@@ -1,6 +1,7 @@
 ﻿using Focus_Bear.Models;
 using Interop.UIAutomationClient;
 using Microsoft.Win32;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -47,6 +48,7 @@ namespace Focus_Bear.Utils
         // Put the PC to sleep (the evening shutdown prompt's "Sleep" action — macOS's sleepMac equivalent).
         public static void SleepPc()
         {
+            if (!E2EBuild.MachineIntegrationAllowed) { LogWriter.LogWrite("SleepPc skipped - E2E test build"); return; }
             try
             {
                 EnableSystemSleep();   // clear any keep-awake state we set for routines first
@@ -58,6 +60,7 @@ namespace Focus_Bear.Utils
         // Shut the PC down (the evening shutdown prompt's "Shut Down" action — macOS's shutDownMac equivalent).
         public static void ShutDownPc()
         {
+            if (!E2EBuild.MachineIntegrationAllowed) { LogWriter.LogWrite("ShutDownPc skipped - E2E test build"); return; }
             try
             {
                 Process.Start(new ProcessStartInfo("shutdown", "/s /t 0") { CreateNoWindow = true, UseShellExecute = false });
@@ -116,12 +119,17 @@ namespace Focus_Bear.Utils
         }
 
         //"[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"
+        /// <summary>
+        /// Unix seconds for a UTC DateTime. It ignores Kind, so a local time comes out as wall-clock seconds, not
+        /// a Unix time: the registry's local "till" dates use FocusBear.Core.Schedule.StoredWallClock instead.
+        /// </summary>
         public static long ConvertToUnixTime(DateTime datetime)
         {
             DateTime sTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
             return (long)(datetime - sTime).TotalSeconds;
         }
 
+        /// <summary>A Unix time as a Kind=Utc DateTime. For the registry's local "till" dates use StoredWallClock.FromStored.</summary>
         public static DateTime ConvertFromUnixTimeToDT(long unixtime)
         {
             DateTime sTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
@@ -272,22 +280,15 @@ namespace Focus_Bear.Utils
 
                     try
                     {
-                        // Search for matching .exe files
-                        var files = Directory.GetFiles(basePath, searchName + ".exe", SearchOption.AllDirectories);
-                        if (files.Length > 0)
+                        // Lazy, first-match search for the exe by name. Windows file matching is already
+                        // case-insensitive, so this covers case variations too. EnumerateFiles returns as
+                        // soon as it finds a match (no big array). The previous code ALSO enumerated EVERY
+                        // *.exe under the tree into an array on every base path — that redundant full scan
+                        // was the main slowdown and is removed. (#1140)
+                        string match = Directory.EnumerateFiles(basePath, searchName + ".exe", SearchOption.AllDirectories).FirstOrDefault();
+                        if (!string.IsNullOrEmpty(match))
                         {
-                            return Path.GetFileName(files[0]);
-                        }
-
-                        // Also search for similar names (case-insensitive variations)
-                        var allExes = Directory.GetFiles(basePath, "*.exe", SearchOption.AllDirectories);
-                        foreach (string exePath in allExes)
-                        {
-                            string exeName = Path.GetFileNameWithoutExtension(exePath).ToLower();
-                            if (exeName == searchName)
-                            {
-                                return Path.GetFileName(exePath);
-                            }
+                            return Path.GetFileName(match);
                         }
                     }
                     catch (UnauthorizedAccessException)
@@ -407,6 +408,15 @@ namespace Focus_Bear.Utils
         ONBOARDING = 5,
     }
 
+    // One image attached to a habit's "Instructions" section (web_dashboard#2184). Either Url (a ready
+    // external URL) or FilePath (a private R2 object key needing GetActivityImageReadUrl to resolve to a
+    // real URL) is set, never both - mirrors the backend's ActivityImageData shape.
+    public struct ActivityImage
+    {
+        public string Url;
+        public string FilePath;
+    }
+
     public struct habit
     {
         public string id;
@@ -431,7 +441,9 @@ namespace Focus_Bear.Utils
         public List<string> DaysOfWeek;
         public string sCutOffTime;
         public List<string> check_list;   // optional per-activity checklist steps (#343); null/empty = none
-        public habit(string id, string name, string idFakeForDevice, string nameWithoutIcon, int durationSeconds, List<string> videoUrls, bool logQuantity, string logQuantityQuestion, bool openSpecificApps, List<string> allowedUrls, List<string> allowedApps, string allowedFocusMode, string activity_sequence_id, List<QuantityQuestion> logQuantityQuestions, string completion_requirements, bool useTimer, bool show_saved_distracting_websites, bool bHighPriorityActivity, List<string> DaysOfWeek, string sCutOffTime, List<string> check_list = null)
+        public string text_instructions;   // optional Instructions note (web_dashboard#2184); null/empty = none
+        public List<ActivityImage> image_urls;   // optional Instructions images (web_dashboard#2184); null/empty = none
+        public habit(string id, string name, string idFakeForDevice, string nameWithoutIcon, int durationSeconds, List<string> videoUrls, bool logQuantity, string logQuantityQuestion, bool openSpecificApps, List<string> allowedUrls, List<string> allowedApps, string allowedFocusMode, string activity_sequence_id, List<QuantityQuestion> logQuantityQuestions, string completion_requirements, bool useTimer, bool show_saved_distracting_websites, bool bHighPriorityActivity, List<string> DaysOfWeek, string sCutOffTime, List<string> check_list = null, string text_instructions = null, List<ActivityImage> image_urls = null)
         {
             this.id = id;
             this.name = name;
@@ -454,6 +466,8 @@ namespace Focus_Bear.Utils
             this.DaysOfWeek = DaysOfWeek;
             this.sCutOffTime = sCutOffTime;
             this.check_list = check_list;
+            this.text_instructions = text_instructions;
+            this.image_urls = image_urls;
         }
     }
 
@@ -464,6 +478,28 @@ namespace Focus_Bear.Utils
     {
         public string Text { get; set; }
         public bool IsChecked { get; set; }
+    }
+
+    // One Instructions image bound into the ongoing-activity screen's thumbnail row (web_dashboard#2184).
+    // url-only entries set DisplayUrl immediately; file_path entries start null and are updated once
+    // GetActivityImageReadUrl resolves - INotifyPropertyChanged so the bound Image picks up that later
+    // update automatically.
+    public class ActivityImageDisplayItem : INotifyPropertyChanged
+    {
+        private string _displayUrl;
+        public string DisplayUrl
+        {
+            get { return _displayUrl; }
+            set
+            {
+                if (value != _displayUrl)
+                {
+                    _displayUrl = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DisplayUrl)));
+                }
+            }
+        }
+        public event PropertyChangedEventHandler PropertyChanged;
     }
 
     public class HabitListSelectable : INotifyPropertyChanged
@@ -524,7 +560,9 @@ namespace Focus_Bear.Utils
         public string completion_requirements;
         public bool useTimer;
         public List<string> check_list;   // optional per-activity checklist steps (#343); null/empty = none
-        public breakActivity(string id, string name, int durationSeconds, List<string> videoUrls, bool logQuantity, string logQuantityQuestion, bool openSpecificApps, List<string> allowedUrls, List<string> allowedApps, string allowedFocusMode, string activity_sequence_id, bool IncludeInEveryBreak, bool isRandomChoice, List<activityChoice> choices, bool isOfficeFriendly, string logQuantityType, List<QuantityQuestion> logQuantityQuestions, string completion_requirements, bool useTimer, List<string> check_list = null)
+        public string text_instructions;   // optional Instructions note (web_dashboard#2184); null/empty = none
+        public List<ActivityImage> image_urls;   // optional Instructions images (web_dashboard#2184); null/empty = none
+        public breakActivity(string id, string name, int durationSeconds, List<string> videoUrls, bool logQuantity, string logQuantityQuestion, bool openSpecificApps, List<string> allowedUrls, List<string> allowedApps, string allowedFocusMode, string activity_sequence_id, bool IncludeInEveryBreak, bool isRandomChoice, List<activityChoice> choices, bool isOfficeFriendly, string logQuantityType, List<QuantityQuestion> logQuantityQuestions, string completion_requirements, bool useTimer, List<string> check_list = null, string text_instructions = null, List<ActivityImage> image_urls = null)
         {
             this.id = id;
             this.name = name;
@@ -546,6 +584,8 @@ namespace Focus_Bear.Utils
             this.completion_requirements = completion_requirements;
             this.useTimer = useTimer;
             this.check_list = check_list;
+            this.text_instructions = text_instructions;
+            this.image_urls = image_urls;
         }
     }
 
@@ -561,7 +601,9 @@ namespace Focus_Bear.Utils
         public string completion_requirements;
         public bool useTimer;
         public List<string> check_list;   // optional per-choice checklist steps (#343); null/empty = none
-        public activityChoice(string id, string name, List<string> videoUrls, string logQuantityQuestion, bool logQuantity, string logQuantityType, List<QuantityQuestion> logQuantityQuestions, string completion_requirements, bool useTimer, List<string> check_list = null)
+        public string text_instructions;   // optional Instructions note (web_dashboard#2184); null/empty = none
+        public List<ActivityImage> image_urls;   // optional Instructions images (web_dashboard#2184); null/empty = none
+        public activityChoice(string id, string name, List<string> videoUrls, string logQuantityQuestion, bool logQuantity, string logQuantityType, List<QuantityQuestion> logQuantityQuestions, string completion_requirements, bool useTimer, List<string> check_list = null, string text_instructions = null, List<ActivityImage> image_urls = null)
         {
             this.id = id;
             this.name = name;
@@ -573,6 +615,8 @@ namespace Focus_Bear.Utils
             this.completion_requirements = completion_requirements;
             this.useTimer = useTimer;
             this.check_list = check_list;
+            this.text_instructions = text_instructions;
+            this.image_urls = image_urls;
         }
     }
 
@@ -784,6 +828,15 @@ namespace Focus_Bear.Utils
         }
 
         public bool bUserClickedNoDoNotSuggestAnymore { get; set; }
+
+        /// <summary>
+        /// The <c>metadata</c> object exactly as the server last sent it, or null for a mode this
+        /// client has just created. Saving replaces that column wholesale, so it is kept in order to
+        /// write back the keys Windows does not understand instead of deleting them. See
+        /// <see cref="FocusModeMetadata"/>.
+        /// </summary>
+        public JObject serverMetadata { get; set; }
+
         public FocusMode()
         {
 

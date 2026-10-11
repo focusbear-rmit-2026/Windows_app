@@ -188,3 +188,212 @@
 - Fixed a break being prompted immediately after returning from a natural break: confirming a natural break now resets the break timer correctly, so the next break only comes after your full break interval #731.
 - Follow-up to the fully-booked-calendar fix: when there's no free time around your meetings, the morning routine's habits now stay together in a single "Not enough free time today" card instead of a meeting splitting the routine into two cards #1371.
 - Fixed a crash in the gentle-block popup when the current tab's URL was malformed (e.g. contained spaces or unicode) — the block now handles those URLs without crashing #1095.
+
+#v3.0.242
+- Manually adding an app to your blocked/allowed lists now has a "Select File" option to browse for the app's `.exe` (you can pick several at once, shown as removable tags), alongside typing exe names #1140.
+- Micro-breaks being off during a focus session is now shown clearly — on the breaks page and in the tray's break section — with a link to resume automatic breaks, so it's obvious why breaks aren't appearing #1215.
+- Fixed the Day Plan at the morning→evening handoff: it no longer shows a misleading "Not enough free time today" morning card when you have no meetings, and the evening routine's habits no longer get split across separate cards #1445.
+- Blocking schedules and block lists now update without restarting the app: a schedule or block list created/deleted on another device shows up when you reopen Settings → Blocking, and an open schedule editor closes itself if that schedule was deleted elsewhere #1114.
+- The break popup now has "Extend break (+5 min)" and "End break early" links. Also, starting a new focus session while a break is running now closes the break popup, and the popup no longer appears a few seconds late #1065.
+- Fixed a crash (NullReferenceException) that could occur when a blocking schedule started or stopped while you were switching between apps #1048.
+- Past the evening cutoff time, your high-priority habits now start automatically — the reminder auto-closes after a few seconds — instead of waiting for you to click OK #866.
+- The password prompt has a new "Type random characters" tab: instead of your password, you can unlock by retyping a generated string of characters #998.
+- Internal: added AutomationIds across more controls (tray, side menu, keyboard shortcuts, tab audit, activity checklist) to support end-to-end UI test automation #1439.
+
+#v3.0.243
+- Habits with an "allowed app" and a timer no longer show the break controls ("Extend break (+5 min)" / "End break early") — those links only make sense during an actual break, so they're now hidden for allowed-app habits #1453.
+- Guest accounts can now be turned into real accounts from Settings → Account: anonymous users see a "Create account" option (email + password) that saves their progress and settings, and a "Leaderboard username" row was added. The "email not verified" banner and its "Resend confirmation" link now only show for real (non-anonymous) accounts and line up with the email address #643.
+- Fixed a stale focus intention/task carrying over: when a focus session ends, the running intention and current to-do task are now cleared, so they don't wrongly reappear on the next session or end screen #1264.
+- The gentle-block "Report Bad AI Decision" (👎) now also allows the current site/app: since the report means the AI blocked it by mistake, you're no longer immediately re-blocked on the thing you just reported #1290.
+- The gentle-block "working on something else" / "just this time" buttons now handle long task names cleanly — the text is trimmed with an ellipsis and the full text shows in a tooltip on hover, instead of being cut off.
+
+#v3.0.244
+- The Blocking Schedule editor (Settings → Blocking) has been redesigned to match the macOS app: a draggable time-range slider instead of separate time spinners, Flexible/Moderate/Strict strictness buttons instead of a slider, Weekdays/Weekends/Everyday quick-select day presets, and a collapsible "More Options" section #1462.
+- The Blocking Schedule list now shows each schedule as a card with a colored accent, an emoji, and pills for its days/block list/strictness — and you can now pick an emoji for each schedule from the editor, synced with the mac app #1463.
+- The onboarding "Set Block Details" screen has been redesigned to match the same new look, and now supports picking a schedule emoji too #1464.
+- Fixed the Active Time slider's tick labels always reading up to "6PM" regardless of your selection - the slider itself covered the full 24 hours all along, just the labels were misplaced #1464.
+- Fixed blocking-schedule emoji sometimes showing in black-and-white instead of color #1464.
+- Fixed the "More Options" section on the blocking-schedule editor not expanding when you clicked directly on its arrow icon #1464.
+- Reordered onboarding so distraction blocking is set up before habits (previously the reverse), and Blocked URLs/Apps are set up before Allowed URLs #1465.
+- The Create Account screen now explains that Focus Bear uses Auth0 for sign-in #1465.
+
+#v3.0.245
+- Fixed the morning/evening routine getting stuck offering an already-completed or already-skipped habit as the "next" one, including when it was finished out of order via the Day Plan #1460.
+- Fixed the log-quantity confirmation popup getting stuck open (and the habit never marked complete) when a habit was finished through a shortcut that skips its timer screen #1440.
+- Fixed the Day Plan showing, and letting you interact with, more than your trial's 3-habit limit outside of an active routine; also added a card at the top of the Day Plan explaining the limit for trial accounts, with a link to upgrade #1320.
+- Fixed a stale "Habit resumes in X minutes" popup reappearing after a routine was already fully finished, when it was completed by marking habits Done/Skip on the Day Plan rather than clicking Play #1101.
+- Fixed blocked apps sometimes staying blocked outside your blocking schedule's active hours #1314.
+
+#v3.0.246
+- Brain Dump is now backed by the same Notes system as the rest of Focus Bear: your existing entries are moved over automatically the first time you open the app after updating, so they're no longer only stored on this one device #1132.
+- Fixed the "Quit Focus Bear?" confirmation popup occasionally freezing and not responding to any button if you clicked "Nope, just quit" right as it appeared #1190.
+- Habits with an image and/or note added to their Instructions now show them during the habit, alongside the existing Video/Checklist tabs when more than one is set up.
+
+#v3.0.247
+- Fresh installs from the public AuDHD web test now correctly open your results on first launch, even when the deep link that normally carries the retest code is lost during install - the code is picked up from the clipboard instead #1476.
+- Added a warning when starting a focus session, or saving/auto-starting a blocking schedule, that uses an Allow List with AI turned off - without AI, every new page on an already-allowed site would otherwise need separate approval #1420.
+- Fixed the leaderboard username not loading in Settings → Account - it was being read from the wrong settings key #1485.
+- Internal: added PostHog identity-stitching and shown/closed analytics events for the AuDHD results screen #1468 #1461.
+
+#v3.0.248
+- Reworked the Allow-List/AI-off warning with clearer copy and a "Make it stricter" option that turns on Grizzly mode, and it's now skipped entirely when Grizzly mode is already on #1420.
+- The "postpone" time picker now lets you type your own number of minutes directly instead of only picking from a preset list #1036.
+- During a teacher class session, a distracting site is now blocked immediately regardless of your own "immediately block" setting, and requesting an unlock now requires a reason before you can send it.
+- Several onboarding screens improved: a "Select / Deselect all" option for the suggested-websites and blocked-websites lists, and default suggested apps to block (News, Movies & TV, Solitaire).
+- Fixed several crashes: starting a focus session could fail if the alignment-threshold dropdown had nothing selected, playing focus music could occasionally crash during a rare timing conflict, and changing your Windows theme could crash the login/splash screen.
+- Internal: CI/automated test builds no longer send analytics events, keeping test runs out of the real usage data.
+
+#v3.0.249
+- Fixed the gentle-block popup blocking you when the AI URL check fails to respond — it now fails open (allows the page) instead of showing a "could not be verified" message, matching how a failed check is already handled outside cuddly mode #1501.
+- Redesigned the Teacher Mode class-session invite as a two-screen card matching the Mac app: allowed-site tags, a required decline reason, and a hold-for-15-seconds decline button instead of a plain Yes/No prompt #1502.
+- The class-session heartbeat now reports idle time and your live focus-alignment score, so a teacher's report can show Engagement and Site-relevance #1504.
+- Fixed the gentle-block analytics event recording every AI check as a "shown" popup, even when the AI silently auto-allowed the page and nothing was ever shown to you - it's now only recorded when the popup genuinely appears.
+- Fixed a crash in the background settings sync that could silently stop several settings (including a saved password) from applying whenever the synced data included a blank password field - this was the cause of "pause strict blocking schedule" incorrectly asking you to set a password when one was already set #1483.
+
+#v3.0.250
+- Fresh installs from the public AuDHD web test now open your results before the welcome/onboarding screens (onboarding starts once you close them), and the results link goes through the web app's /resume route so a code for a test you haven't taken yet starts the test instead of showing an empty results page #1576 #1520.
+- When your settings are changed on another device (e.g. saving a habit on mobile), the Windows app now shows a short "settings changed, restarting" alert before it restarts instead of closing with no warning, which looked like a crash #1509.
+- Fixed the micro-break countdown on the Breaks view appearing frozen - it now ticks down every second while the view is open #1030 #1127.
+- Fixed the tray menu tour: the first popup image is now in Spanish when the app language is Spanish, and the full 4-step tour (menu overview, Settings gear, Start Focus Session) is restored with screenshots and text updated for the current menu design #489.
+- The default "Meetings" focus mode's Zoho entry now matches meeting.zoho.* so Zoho Meeting rooms on any regional domain (.com, .in, .eu, ...) are allowed, instead of only meet.zoho.com which never matched a live call #1511.
+- Internal: AutomationIds are now unique per row in checklist/task/checkbox lists and moved off Border/Grid elements so they're reachable by UI Automation for automated testing #1452 #1488.
+
+#v3.1.251
+This release brings the Windows app in line with the Mac app. Most screens that used to be web pages inside the app are now built natively, so they load instantly, work offline where they can, and follow your light/dark theme #1588.
+
+**Focus sessions**
+- New Start Focus Session screen. Simple mode is a single duration dial with the bear; Advanced mode has collapsible sections for duration, block list, break settings and more. All sections can be collapsed, and the Start button is larger and easier to hit.
+- New in-session screen replaces the web To-Do Player: your timer, task list and a Notes panel side by side. Notes typed here stay in step with the Notes screen, and -5 minutes never adds time back when under a minute is left.
+- Teacher accounts: the "personal session" checkbox and class picker are gone. A session started from the app is always a personal one; class sessions are started from the dashboard in the browser. A short note on the screen explains this.
+- Meetings focus mode: the Zoho entry now matches every regional Zoho Meeting domain.
+
+**Block lists (Blocking)**
+- Redesigned to match the Mac: a rail of your lists on the left, a table of entries with suggestions and colours on the right. Saving works exactly as before.
+- AI block check-in: when a site is blocked during an AI session, a small check-in replaces the old gentle-block decision popup, with a frosted backdrop and an "Oops, I actually need it" option on app blocks.
+
+**Day Plan**
+- Morning-routine habits are slotted into the gaps between your meetings, as on the Mac.
+- Shorten or edit a habit from the plan, edit routine timing, hide a meeting, and edit a task's duration inline (typing "1h30" gives 90 minutes).
+- Click the date to open a month picker that shows how busy each coming day is.
+- Meetings now load for the next 45 days, not just today, and cross-midnight meetings display correctly.
+- Re-prioritise ("Reschedule plan") applies every row instead of stopping at the first; each row has an outcome slider and editable duration; tasks assigned to others are left out.
+
+**To-Do and Projects**
+- The To-Do list, projects, "What matters", project boards, the Eisenhower matrix, comments, reactions and attachments are all native screens now. Tasks assigned to someone else are hidden.
+- Reactions no longer report "Could not add reaction" when the reaction was already there.
+- Projects: due-date chip with a calendar picker, and an owner-editable outcome (1–5).
+
+**Notes**
+- Personal notes, shared project notes and the archive are native. Shared notes are edited live with your team: several people can type at once and nothing is overwritten.
+- Shared-note editor: the scrollbar starts below the formatting toolbar and the stray blue outline is gone; shared notes in the list have a clearer arrow.
+- Notes typed on the in-session screen and on the Notes screen stay in sync both ways.
+
+**Stats (formerly Motivation)**
+- All tabs are native: Streak, Progress, Goals, Pep Talk, Leaderboard, Habit Stats, Productivity and Focus Log, with charts and a heat map.
+- Selected tabs and badges now use white text on orange. Pep Talk no longer loads forever if you switch tabs while it is generating, and the Focus Log's Refresh shows progress and reports a failure.
+
+**Focus Music**
+- New layout matching the Mac. YouTube Music plays in an embedded player; Spotify links open the Spotify app.
+- Row hover and the "now playing" highlight fill the whole row.
+
+**Late No More (new)**
+- Meeting alerts and heads-up timing, calendar selection, working hours, keywords, join-link-only mode and spoken alerts, under TOOLS. Joining a meeting is detected automatically.
+
+**Routines and postponing**
+- AI accountability buddy for postponing a routine (off by default, turn it on under Settings → AI). Instead of a minutes picker, a short chat asks what you need the time for; an approved postpone starts a focus session scoped to that goal.
+- Settings, Blocking, Edit Habits, Focus Music and Stats stay reachable during a routine. They ask for your password under the same "require password to change settings" rule, so strictness is unchanged.
+- The break warning is press-and-hold, with a separate "turn breaks off" window.
+- Fixed the Focus Summary's postpone using the skip password rule instead of the postpone one.
+- Log Quantity dialogs are keyboard-first: Enter saves, and the slider value can be typed.
+
+**Main window, tray and settings**
+- TOOLS rows can be hidden with the hover ✕ and restored from the cog. Stats has a bar-chart icon.
+- The top-bar minimise button now appears only in full-screen routines, where the window has no title bar.
+- The sign-in and sign-up show-password eye is a keyboard-reachable button and sits beside the box again.
+- Report a problem: one form with a note and screenshots.
+- Dark theme text contrast improved throughout.
+
+**Voice commands**
+- Voice commands (tray microphone and the Focus Button) now go through the Focus Bear backend instead of calling OpenAI directly, and the app no longer contains an API key. Failures show a clear message: not signed in, offline, too long, rate limited, or "didn't catch that" #1600.
+- The listening/thinking popup's buttons match the app's orange buttons.
+
+**Reliability and performance**
+- Idle CPU is much lower: a hidden splash animation kept the app rendering at 57 fps all session, and several leaked animations, duplicated timers and a too-broad window-event hook were fixed.
+- Settings saved on one device no longer undo edits made on another; the app fetches the latest before uploading.
+- The offline activity queue no longer discards everything after one failure or doubles durations.
+- Brain-dump text is no longer lost when leaving the screen, and notes no longer gain a blank line on every save.
+- Logs no longer contain your access token, email or settings; log files roll at 10 MB.
+- A crash watchdog relaunches the app if it crashes or is killed; a normal quit is respected.
+- Fixed several crashes: the simple-mode duration slider, and a null "metadata" field in synced data.
+
+**Installer**
+- The installer now ships FocusBear.Core.dll and the shared-note editor, which the new screens need #1609.
+
+#v4.1.252
+The version jumps to 4.1 to mark the new native screens introduced in 3.1.251. This build carries fixes from testing them.
+
+**Class sessions (students)**
+- Joining a teacher's class session now shows the new focus session screen, the same one a personal session uses, with the teacher's checklist in its task panel. The old web To-Do Player is gone. Tasks are ticked in the teacher's order with "Mark as complete"; the latest tick can be undone; the list refreshes when the teacher changes it mid-session #1611.
+
+**Breaks and routines**
+- Taking a break while your routine is postponed no longer cancels the postpone: the routine stays postponed after the break ends or is postponed itself, instead of starting straight away. The break is no longer recorded as a parked habit on the Day Plan, and "Start break" no longer leaves a loader on screen when a break can't start #1612.
+
+**Dark mode**
+- Fixed lighter patches inside cards and fields across the new screens: To-Do rows, Projects, the task editor, Stats, the focus start and session screens, Late No More, Reports, the AI check-in, the Day Plan date picker, and the Notes search box, project picker, shared note card and brain dump card #1613.
+- Selected segments (Tasks/Projects, sort, Stats periods, Notes scopes) have an orange outline and orange text so the choice is clear in both themes. The To-Do Refresh, Filter and More buttons highlight on hover. The hide-✕ on tool rows is an orange disc with a white cross.
+- Dialog title bars follow the theme: Edit task, Reschedule plan, project dialogs, Focus Log, Day Plan Fix, the AI check-in and more.
+- Dropdowns: hovered rows are readable, and the focus start screen's AI threshold and Super Focus pickers use the app's rounded picker instead of a white box with invisible text.
+- Notes: button labels (Create, Save, Cancel, Add tag, Back, Edit on the web, Archive, Delete) are readable on their light buttons; the shared note's title is a bordered field like a personal note's.
+
+**Reschedule plan**
+- The window has a theme title bar and one Close (in the title bar). A typed estimate shows immediately. Typing a date no longer makes the row vanish into a collapsed section.
+
+**Stability**
+- Fixed the Focus Summary crash "An ItemsControl is inconsistent with its items source", which fired repeatedly whenever the summary was opened again with a different number of focus blocks #1607.
+- Fixed a crash when a second copy of Focus Bear was launched while the first was quitting (restart, update) #1596.
+
+**Voice commands**
+- The listening/thinking popup's buttons match the app's orange buttons.
+
+#v4.1.253
+Fixes from testing 4.1.252, and the follow-ups from the Mac parity review.
+
+**To-Do**
+- Files can be attached while creating a task, not only after it is saved. Choose files or paste an image or file with Ctrl+V into the new task; they upload when the task is saved, and Cancel discards them. Pasting text from Excel or Word no longer turns into a screenshot attachment #1615.
+
+**Day Plan**
+- A task typed into the Day Plan while offline now gets its to-do when the connection returns, with a retry every minute in the background. A create whose reply was lost no longer produces a duplicate to-do: the app chooses the to-do's id up front and every retry updates that same row. Edits to one task are sent one after another, so a Save and a Move at the same moment can no longer overwrite each other #1647.
+- A task in a project the app has not loaded yet waits for the project list instead of being created without its project.
+
+**Habits**
+- A habit completion or skip is no longer lost when the network drops at the wrong moment. If the request fails on the way out, the token cannot be renewed, or the server answers with a temporary error (502, 503, 504, 408, 429, 401, 403), the entry goes to the offline queue and is sent when the connection is back #1623.
+
+**Blocking**
+- The AI check-in card and its frosted backdrop now close when the focus session ends. Closing a check-in after blocking has ended no longer blocks the page or closes the browser tab #1624.
+
+**Onboarding**
+- The Focus screen is shown right after onboarding completes, and that step is now measured so the first-session funnel can be followed #1518.
+
+**Stability**
+- A theme error in one window (for example the login title bar) no longer aborts the whole light/dark switch, which left the rest of the app in the old theme (Sentry A7/91) #1597.
+
+#v4.1.254
+Mac parity for the Projects tab, and hardening of the crash watchdog.
+
+**Projects**
+- "What matters" is now built from the same local forecast as the Reschedule plan, so the two screens always agree. Each project sits in exactly one lane: Ask for an extension, Still achievable - start now, the new On track - steady progress, or Backburner. Finished, undated and empty projects go to Backburner, finished ones last. Within a lane, cards are ordered by the NEXT task's TOP score, which never decides the lane itself #1628.
+- The "This plan is overloaded" banner now ends with a link, "Click here to re-prioritise your projects and tasks", that opens the Reschedule plan. A card whose work has no estimate shows no bucket badge instead of an unsupported verdict.
+
+**Crash watchdog**
+- A build that keeps dying before its tray icon appears is relaunched three times and then only every 15 minutes, so a broken build is no longer restarted every minute with no way to quit it. An app killed after the tray icon appeared is still brought back within a minute #1626.
+- Support can switch the watchdog off for one Windows account with the registry value `WATCHDOG_DISABLED = 1` under `HKCU\Software\Focus Bear`. The next start removes the scheduled task.
+- The one-minute watchdog probe no longer loads the app's settings before deciding to exit.
+- New `docs/crash-watchdog.md` explains who gets the watchdog (admin, standard user, blocked policy, shared PC), the back-off, the off switch and how to roll back.
+
+**Fixes**
+- A URL with another URL in its query, such as a Google redirect to a blocked site, is now recognised by its own host, so the Set Intention and "allow this domain" allowances apply to it #1627.
+- Editing a routine time or habit from the Day Plan no longer rewrites every date in your settings document in a different format.
+- The focus start screen's "Edit block lists" link is translated again; it read an unused config key.
+
+**Setup**
+- The installer's signing scripts also sign `FocusBear.Core.dll` and the current uninstaller stub.

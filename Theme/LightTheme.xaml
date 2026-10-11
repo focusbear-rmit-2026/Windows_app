@@ -3,6 +3,15 @@
 
     <SolidColorBrush x:Key="BackgroundColor" Color="White"/>
     <SolidColorBrush x:Key="SoftCreamColor" Color="#FFF7EB"/>
+    <!-- Text on the orange selection / expanded-card fill (#E9912C-#F0932A): near-black, 7.5:1+. White there
+         was 2.4:1. The same in both themes, since the fill is the same. -->
+    <SolidColorBrush x:Key="OnOrangeText" Color="#1C1C1E"/>
+    <SolidColorBrush x:Key="OnOrangeSubtitle" Color="#3D2A12"/>
+    <!-- Orange for headings and links on the page and the cream cards: #A85600 is 5.3:1 on white, 4.9:1 on
+         #FFF7EB (#B35C00 was 4.4:1 on the cream). -->
+    <SolidColorBrush x:Key="OrangeTextColor" Color="#A85600"/>
+    <!-- Secondary text on a cream card (#FFF7EB): #525252 is 7.2:1 (the tray grey was about 4:1 there at 12px). -->
+    <SolidColorBrush x:Key="CardSubtitleColor" Color="#525252"/>
     <!-- Text-input background: plain white in light mode (the default Windows text-box look). -->
     <SolidColorBrush x:Key="TextBoxBackgroundColor" Color="White"/>
     <SolidColorBrush x:Key="FocusActivitySummaryBackgroundColor" Color="#eeeeee"/>
@@ -16,7 +25,9 @@
     <SolidColorBrush x:Key="TrayCardBorder" Color="#ECECEC"/>
     <SolidColorBrush x:Key="TrayCardHoverBg" Color="#FFF4E8"/>
     <SolidColorBrush x:Key="TrayCardHoverBorder" Color="#F3D9BC"/>
-    <SolidColorBrush x:Key="TraySubtitleColor" Color="#8A8A8A"/>
+    <!-- Secondary text: #8A8A8A was 3.4:1 on white, under the 4.5:1 WCAG AA minimum; #6B6B6B is 5.3:1 (and
+         4.9:1 on the cream cards), as the dark theme was fixed to be (report dark-mode-contrast). -->
+    <SolidColorBrush x:Key="TraySubtitleColor" Color="#6B6B6B"/>
     <SolidColorBrush x:Key="TrayChevronColor" Color="#C7C7C7"/>
     <SolidColorBrush x:Key="TrayIconSquareBg" Color="#FBE7CB"/>
     <SolidColorBrush x:Key="TrayCircleBtnBg" Color="#F0F0F0"/>

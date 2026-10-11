@@ -71,20 +71,12 @@ To clone the repository in Visual Studio:
    - Choose a **Path** where you want to clone the repository on your local machine.
    - Click the **Clone** button.  
 
-2. **Add the Interop.TaskScheduler.dll reference.**
-   - Obtain the `Interop.TaskScheduler.dll` file (please ask Mainish if you don't have it).
-   - In Visual Studio's Solution Explorer (`Ctrl+Alt+L`), right-click on **References** under the **Focus Bear** project.
-   - Select **Add Reference...**
-   - In the Reference Manager dialog, choose **Browse** from the left-hand menu.
-   - Click the **Browse...** button and locate the `Interop.TaskScheduler.dll` file.
-   - Select the file and click **Add**.
-   - Finally, click **OK** to add the reference.
-
-3. **Choose Debug mode and Start.**
+2. **Choose Debug mode and Start.**
    - In Visual Studio, ensure the **Debug** configuration is selected in the dropdown menu (usually located in the toolbar).
    - Press the **Start** button (often a green triangle) to build and run the application in Debug mode.
+   - `Interop.TaskScheduler.dll` (used by `Models/AppTaskScheduler.cs`) ships in the repo at `TaskSchedulerPackage/Interop.TaskScheduler.dll` and is already referenced in the project, so no manual reference setup is needed — it should just build.
 
-4. **Exception Handle.**
+3. **Exception Handle.**
 If the application encounters exceptions during runtime, you have a couple of options to manage them. You can either click the **Continue** button (often represented by a green triangle in the Visual Studio toolbar) to instruct the program to attempt to proceed despite the exception. Alternatively, for more fine-grained control, you can configure exception handling behavior in Visual Studio by navigating to **Debug** > **Windows** > **Exception Settings**. Within the Exception Settings window, you can specify particular exceptions to be skipped, allowing the program to continue execution without breaking.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>

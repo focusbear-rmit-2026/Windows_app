@@ -1,4 +1,5 @@
 ﻿using Focus_Bear.Utils;
+using FocusBear.Core.Stats;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -45,29 +46,10 @@ namespace Focus_Bear.Focus
             Console.WriteLine("////////focusModeOpenCurrentAppForAlignmentScore//////////// " + appName);
 
             IsCuddlyModeEnabled = (appSettings.nFocusBearMode == 1) ? true : false;
-            IsAiCheckUrlEnabled = appSettings.bAiCheckUrlEnabled;
-
-            if (appSettings.ActiveSchedule != null && appSettings.isBlockingScheduleRunning )
-            {
-                if (!appSettings.ActiveSchedule.isPaused && appSettings.ActiveSchedule.bAIBlockingEnabled)
-                {
-                    IsAiCheckUrlEnabled = true;
-                }
-                else
-                {
-                    IsAiCheckUrlEnabled = false;
-                }
-            }
-            else
-            {
-                IsAiCheckUrlEnabled = appSettings.bAiCheckUrlEnabled;
-            }
-
-            //Teacher Mode - the class session's ai_blocking_enabled overrides while it is active.
-            if (Focus_Bear.Focus.TeacherSessionManager.Instance.IsTeacherSessionActive())
-            {
-                IsAiCheckUrlEnabled = Focus_Bear.Focus.TeacherSessionManager.Instance.bTeacherSessionAiBlockingEnabled;
-            }
+            // One ladder, in FocusBear.Core: snooze > teacher > buddy > the block list's
+            // is_ai_enabled > the global toggle. This used to be hand-rolled here and skipped
+            // the block list, so the Mac's is_ai_enabled=false had no effect on Windows.
+            IsAiCheckUrlEnabled = AiBlocking.IsEnabled();
 
 
             CustomToolTip = "";
@@ -165,27 +147,10 @@ namespace Focus_Bear.Focus
 
         public static void FocusModeOpenCurrentUrlForAlignmentScore(string domain)
         {
-            if (appSettings.ActiveSchedule != null && appSettings.isBlockingScheduleRunning)
-            {
-                if (!appSettings.ActiveSchedule.isPaused && appSettings.ActiveSchedule.bAIBlockingEnabled)
-                {
-                    IsAiCheckUrlEnabled = true;
-                }
-                else
-                {
-                    IsAiCheckUrlEnabled = false;
-                }
-            }
-            else
-            {
-                IsAiCheckUrlEnabled = appSettings.bAiCheckUrlEnabled;
-            }
-
-            //Teacher Mode - the class session's ai_blocking_enabled overrides while it is active.
-            if (Focus_Bear.Focus.TeacherSessionManager.Instance.IsTeacherSessionActive())
-            {
-                IsAiCheckUrlEnabled = Focus_Bear.Focus.TeacherSessionManager.Instance.bTeacherSessionAiBlockingEnabled;
-            }
+            // One ladder, in FocusBear.Core: snooze > teacher > buddy > the block list's
+            // is_ai_enabled > the global toggle. This used to be hand-rolled here and skipped
+            // the block list, so the Mac's is_ai_enabled=false had no effect on Windows.
+            IsAiCheckUrlEnabled = AiBlocking.IsEnabled();
 
             if (IsCuddlyModeEnabled && IsAiCheckUrlEnabled)
             {
@@ -238,56 +203,18 @@ namespace Focus_Bear.Focus
         }
 
 
+        /// <summary>
+        /// The whole session's alignment score. The arithmetic is FocusBear.Core's
+        /// <c>FocusAlignmentScore</c>, shared with the Mac; a session with nothing tracked yet scores
+        /// 100 there, where this used to report 0 — and so credit no deep work to a session whose
+        /// only fault was never triggering an AI check.
+        /// </summary>
         public static double CalculateFocusAlignmentScore()
         {
-            double totalAlignmentScore = 0;
-            int totalSeconds = 0;
-            var keys = DictionaryScoreAiCheckUrlsInCuddlyModeCurrentFocus.Keys.ToList();
+            var entries = DictionaryScoreAiCheckUrlsInCuddlyModeCurrentFocus.Values
+                .ToList<IDictionary<string, object>>();
 
-            foreach (var key in keys)
-            {
-                if (DictionaryScoreAiCheckUrlsInCuddlyModeCurrentFocus.TryGetValue(key, out var dictionary))
-                {
-                    int seconds = dictionary.ContainsKey("totalSeconds") ? Convert.ToInt32(dictionary["totalSeconds"]) : 0;
-                    bool shouldCalculateSecondsOfCurrentUrl = false;
-
-                    if (dictionary.TryGetValue("isVisibleApp", out var isVisibleAppObj) && isVisibleAppObj is bool isVisibleApp && isVisibleApp)
-                    {
-                        shouldCalculateSecondsOfCurrentUrl = true;
-                    }
-
-                    if (dictionary.TryGetValue("isVisibleUrl", out var isVisibleUrlObj) && isVisibleUrlObj is bool isVisibleUrl && isVisibleUrl)
-                    {
-                        shouldCalculateSecondsOfCurrentUrl = true;
-                    }
-
-                    if (shouldCalculateSecondsOfCurrentUrl)
-                    {
-                        var startTime = dictionary.ContainsKey("startedTime") ? (DateTime)dictionary["startedTime"] : DateTime.Now;
-                        var endTime = DateTime.Now;
-                        var secondsBetween = (endTime - startTime).TotalSeconds;
-                        seconds += (int)secondsBetween;
-                    }
-
-                    double probability = dictionary.ContainsKey("probability") ? Convert.ToDouble(dictionary["probability"]) : 0;
-                    double score = (seconds * probability);
-                    totalSeconds += seconds;
-                    totalAlignmentScore += score;
-                }
-            }
-
-            if (totalAlignmentScore != 0)
-            {
-                totalAlignmentScore = (totalAlignmentScore / totalSeconds) * 100;
-            }
-
-            if (totalAlignmentScore > 100)
-            {
-                totalAlignmentScore = 100;
-            }
-
-            totalAlignmentScore = Math.Round(totalAlignmentScore * 100) / 100;
-            CurrentFocusAlignmentScore = totalAlignmentScore;
+            CurrentFocusAlignmentScore = FocusAlignmentActivities.Score(entries, DateTime.Now);
 
             NotifyToDoPlayerFocusAlignmentScore(CurrentFocusAlignmentScore);
 
@@ -301,13 +228,13 @@ namespace Focus_Bear.Focus
         {
             try
             {
-                bool aiActiveForSession = appSettings.isFocusModeRunning && appSettings.bAiCheckUrlEnabled;
-                bool aiActiveForSchedule = appSettings.isBlockingScheduleRunning &&
-                    appSettings.ActiveSchedule != null &&
-                    appSettings.ActiveSchedule.bAIBlockingEnabled &&
-                    !appSettings.ActiveSchedule.isPaused;
+                // Two separate questions, and only the second one moved. "Is AI on?" is the ladder
+                // in FocusBear.Core. "Is anything running?" still has to be asked here, or the
+                // global toggle alone would make an idle app start notifying.
+                bool anythingRunning = appSettings.isFocusModeRunning
+                    || appSettings.IsBlockingScheduleActiveAndNotPaused(out _);
 
-                if (!(aiActiveForSession || aiActiveForSchedule))
+                if (!(anythingRunning && AiBlocking.IsEnabled()))
                     return;
 
                 Application.Current.Dispatcher.BeginInvoke((Action)(() =>
@@ -320,6 +247,8 @@ namespace Focus_Bear.Focus
                 LogWriter.LogWrite("FocusAlignmentScoreManager.NotifyToDoPlayerFocusAlignmentScore - " + ex.Message);
             }
         }
+
+        private const double HundredthsScale = 100.0;
 
         private static readonly object _lock = new object();
         public static double GetFocusAlignmentScoreFromLastEntry()
@@ -431,7 +360,9 @@ namespace Focus_Bear.Focus
             if (totalAlignmentScore > 100)
                 totalAlignmentScore = 100;
 
-            totalAlignmentScore = Math.Round(totalAlignmentScore, 2);
+            // The Mac's `(score * 100).rounded() / 100`: half away from zero. Math.Round(x, 2) rounds a
+            // half to even, so the two clients' productivity CSVs disagreed on every x.xx5.
+            totalAlignmentScore = SwiftRounding.Rounded(totalAlignmentScore * HundredthsScale) / HundredthsScale;
 
             return totalAlignmentScore;
         }

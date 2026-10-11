@@ -3,6 +3,7 @@ using Focus_Bear.Onboarding;
 using Focus_Bear.Preferences;
 using Focus_Bear.Services.FocusButton;
 using Focus_Bear.Utils;
+using FocusBear.Core.Stats;
 using Microsoft.Web.WebView2.Core;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -265,15 +266,7 @@ namespace Focus_Bear.Habits
 
                     for (int i = 0; i < appSettings.arrAllMorningHabits.Count; i++)
                     {
-                        bool bIsSkipped = false;
-                        for (int m = 0; m < appSettings.arraySkipped.Count; m++)
-                        {
-                            if (appSettings.arraySkipped[m].ToString() == appSettings.arrAllMorningHabits[i].id)
-                            {
-                                bIsSkipped = true;
-                                break;
-                            }
-                        }
+                        bool bIsSkipped = appSettings.IsHabitAlreadyDoneOrSkipped(appSettings.arrAllMorningHabits[i].id);
                         if (!bIsSkipped && !(i == appSettings.nHabitIndex && appSettings.bSkipCurrentActivityCantDoItToday))
                         {
                             totalSecondsAllHabits += appSettings.arrAllMorningHabits[i].durationSeconds;
@@ -288,13 +281,19 @@ namespace Focus_Bear.Habits
                     sCompleted = appSettings.SecondsToText(habitCompletedSeconds);
                     sRemaining = appSettings.SecondsToText(totalSecondsAllHabits - habitCompletedSeconds);
 
-                    if (appSettings.arrAllMorningHabits.Count == (appSettings.nHabitIndex + 2)) //Second Last Activity
+                    // The next pending habit after this one - skips past anything already done/skipped
+                    // elsewhere (e.g. an earlier out-of-order Day Plan skip) instead of naively using
+                    // nHabitIndex+1, which could land on - and re-offer - an already-dealt-with habit.
+                    int nNextPendingIndex = appSettings.GetNextPendingHabitIndex(appSettings.arrAllMorningHabits, appSettings.nHabitIndex + 1);
+                    bool bNoMorePendingMorning = nNextPendingIndex >= appSettings.arrAllMorningHabits.Count;
+
+                    if (!bNoMorePendingMorning && appSettings.GetNextPendingHabitIndex(appSettings.arrAllMorningHabits, nNextPendingIndex + 1) >= appSettings.arrAllMorningHabits.Count) //Second Last Activity
                     {
                         //do not show the  ChooseAnotherHabit button
                         ChooseAnotherHabit.Visibility = Visibility.Collapsed;
                         Seperator.Visibility = Visibility.Collapsed;
                     }
-                    if (appSettings.arrAllMorningHabits.Count == (appSettings.nHabitIndex + 1)) //Last Activity
+                    if (bNoMorePendingMorning) //Last Activity
                     {
                         bLastActivity = true;
                         appSettings.CapturePostHog("complete-morning-routine");
@@ -342,17 +341,17 @@ namespace Focus_Bear.Habits
                             sHeading = appSettings.ConfigFileStrings["activityInfo"]["activityFinishedText"].ToString();
                         }
                         
-                        if(appSettings.arrAllMorningHabits[appSettings.nHabitIndex + 1].useTimer)
+                        if(appSettings.arrAllMorningHabits[nNextPendingIndex].useTimer)
                         {
                             sButtonTitle = appSettings.ConfigFileStrings["activityInfo"]["startActivityButtonText"].ToString();
-                            sButtonTitle = sButtonTitle.Replace("<NAME>", appSettings.arrAllMorningHabits[appSettings.nHabitIndex + 1].name);
-                            sButtonTitle = sButtonTitle.Replace("<TIME>", appSettings.SecondsToText(appSettings.arrAllMorningHabits[appSettings.nHabitIndex + 1].durationSeconds));
+                            sButtonTitle = sButtonTitle.Replace("<NAME>", appSettings.arrAllMorningHabits[nNextPendingIndex].name);
+                            sButtonTitle = sButtonTitle.Replace("<TIME>", appSettings.SecondsToText(appSettings.arrAllMorningHabits[nNextPendingIndex].durationSeconds));
 
                         }
                         else
                         {
                             sButtonTitle = appSettings.ConfigFileStrings["activityInfo"]["startNonTimerActivityButtonText"].ToString();
-                            sButtonTitle = sButtonTitle.Replace("<NAME>", appSettings.arrAllMorningHabits[appSettings.nHabitIndex + 1].name);
+                            sButtonTitle = sButtonTitle.Replace("<NAME>", appSettings.arrAllMorningHabits[nNextPendingIndex].name);
                         }
                         //Progress text
                         string sProgress = appSettings.ConfigFileStrings["activityInfo"]["habitsProgressText"].ToString();
@@ -373,15 +372,7 @@ namespace Focus_Bear.Habits
 
                     for (int i = 0; i < appSettings.arrAllEveningHabits.Count; i++)
                     {
-                        bool bIsSkipped = false;
-                        for (int m = 0; m < appSettings.arraySkipped.Count; m++)
-                        {
-                            if (appSettings.arraySkipped[m].ToString() == appSettings.arrAllEveningHabits[i].id)
-                            {
-                                bIsSkipped = true;
-                                break;
-                            }
-                        }
+                        bool bIsSkipped = appSettings.IsHabitAlreadyDoneOrSkipped(appSettings.arrAllEveningHabits[i].id);
                         if (!bIsSkipped && !(i == appSettings.nHabitIndex && appSettings.bSkipCurrentActivityCantDoItToday))
                         {
                             totalSecondsAllHabits += appSettings.arrAllEveningHabits[i].durationSeconds;
@@ -425,6 +416,18 @@ namespace Focus_Bear.Habits
                     else
                     {
                         isSequenceFinished = true;
+                    }
+
+                    // Also skip past any habit already recorded done/skipped elsewhere (e.g. an earlier
+                    // out-of-order Day Plan skip) - the cut-off/priority loop above doesn't account for
+                    // that on its own, so without this it could land on an already-dealt-with habit.
+                    if (!isSequenceFinished)
+                    {
+                        newHabitIndex = appSettings.GetNextPendingHabitIndex(appSettings.arrAllEveningHabits, newHabitIndex);
+                        if (newHabitIndex > appSettings.arrAllEveningHabits.Count - 1)
+                        {
+                            isSequenceFinished = true;
+                        }
                     }
                     
                     ///
@@ -1493,58 +1496,29 @@ namespace Focus_Bear.Habits
 
 
 
-                string json = "";
-                string jsonTime = "";
-                //Lets see if we need to show the Duration Data or the Log Quantity data
+                //Built as JSON (HabitGraphScript): a habit or question name with a quote or backslash used to
+                //break the spliced script, leaving the graph blank.
+                string label;
+                string labelY;
                 if (bLogQuantity)
                 {
-                    //formulate the data
-                    if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
-                    {
-                        //Prepare Log Quantity data
-                        json = string.Format("{{ \"label\": \"{0}\", \"labelX\": \"{1}\", \"labelY\": \"{2}\", \"data\": {3}, \"max\": {4} }}", sQuestionLabelToDisplayOnGraph, sLabelDate, sLabelQuantity, dataarrayDaysGraph, nMax.ToString());
-
-                    }
-                    else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
-                    {
-                        //Prepare Log Quantity data
-                        json = string.Format("{{ \"label\": \"{0}\", \"labelX\": \"{1}\", \"labelY\": \"{2}\", \"data\": {3}, \"max\": {4} }}", sQuestionLabelToDisplayOnGraph, sLabelDate, sLabelQuantity, dataarrayDaysGraph, nMax.ToString());
-
-                    }
-                    else if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
-                    {
-                        //Prepare Log Quantity data
-                        json = string.Format("{{ \"label\": \"{0}\", \"labelX\": \"{1}\", \"labelY\": \"{2}\", \"data\": {3}, \"max\": {4} }}", sQuestionLabelToDisplayOnGraph, sLabelDate, sLabelQuantity, dataarrayDaysGraph, nMax.ToString());
-                        jsonTime = string.Format("{{ \"label\": \"{0}\", \"labelX\": \"{1}\", \"labelY\": \"{2}\", \"data\": {3}, \"max\": {4}, \"TimeValues\": {5} }}", sQuestionLabelToDisplayOnGraph, sLabelTime, sLabelQuantity, dataarrayTimeGraph, nMaxTimeGraph.ToString(), TimeValues);
-                    }
-
+                    label = sQuestionLabelToDisplayOnGraph;
+                    labelY = sLabelQuantity;
                 }
                 else
                 {
-                   
+                    labelY = sLabelMinutes;
                     if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
-                    {
-                        //Prepare Duration data
-                        json = string.Format("{{ \"label\": \"{0}\", \"labelX\": \"{1}\", \"labelY\": \"{2}\", \"data\": {3}, \"max\": {4} }}", appSettings.arrAllMorningHabits[appSettings.nHabitIndex].name, sLabelDate, sLabelMinutes, dataarrayDaysGraph, nMax.ToString());
-
-                    }
+                        label = appSettings.arrAllMorningHabits[appSettings.nHabitIndex].name;
                     else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
-                    {
-                        //Prepare Duration data
-                        json = string.Format("{{ \"label\": \"{0}\", \"labelX\": \"{1}\", \"labelY\": \"{2}\", \"data\": {3}, \"max\": {4} }}", appSettings.arrAllEveningHabits[appSettings.nHabitIndex].name, sLabelDate, sLabelMinutes, dataarrayDaysGraph, nMax.ToString());
-
-                    }
-                    else if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
-                    {
-                        //Prepare Duration data
-                        json = string.Format("{{ \"label\": \"{0}\", \"labelX\": \"{1}\", \"labelY\": \"{2}\", \"data\": {3}, \"max\": {4} }}", sCurrentActivityName, sLabelDate, sLabelMinutes, dataarrayDaysGraph, nMax.ToString());
-                        jsonTime = string.Format("{{ \"label\": \"{0}\", \"labelX\": \"{1}\", \"labelY\": \"{2}\", \"data\": {3}, \"max\": {4}, \"TimeValues\": {5} }}", sCurrentActivityName, sLabelTime, sLabelMinutes, dataarrayTimeGraph, nMaxTimeGraph.ToString(), TimeValues);
-                    }
+                        label = appSettings.arrAllEveningHabits[appSettings.nHabitIndex].name;
+                    else
+                        label = sCurrentActivityName;
                 }
 
-                string functiontocall = string.Format("getData({0});", json);
+                string functiontocall = HabitGraphScript.Days(label, sLabelDate, labelY, dataarrayDaysGraph, nMax);
 
-                string functiontocallTime = string.Format("getData({0});", jsonTime);
+                string functiontocallTime = HabitGraphScript.Time(label, sLabelTime, labelY, dataarrayTimeGraph, nMaxTimeGraph, TimeValues);
 
                 if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
                 {
@@ -1627,13 +1601,17 @@ namespace Focus_Bear.Habits
             }
             else if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
             {
-                if (appSettings.arrAllMorningHabits.Count == (appSettings.nHabitIndex + 1)) //Last Activity
+                // Skip past any habit already done/skipped elsewhere (e.g. an earlier out-of-order Day
+                // Plan skip) instead of naively using nHabitIndex+1, which could land on - and
+                // re-offer - an already-dealt-with habit.
+                int nNextPendingIndex = appSettings.GetNextPendingHabitIndex(appSettings.arrAllMorningHabits, appSettings.nHabitIndex + 1);
+                if (nNextPendingIndex >= appSettings.arrAllMorningHabits.Count) //No more pending activities
                 {
                     _parentWindow.PageHabits.HideFrameAndClose();
                 }
                 else
                 {
-                    appSettings.nHabitIndex++; //Increment the index to do the next habit
+                    appSettings.nHabitIndex = nNextPendingIndex;
                     LogWriter.LogWrite("nHabitIndex = " + appSettings.nHabitIndex.ToString());
                     _parentWindow.PageHabits.ShowActivityStartScreen();
                 }

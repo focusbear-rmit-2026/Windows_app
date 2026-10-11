@@ -168,6 +168,7 @@
         "buttonUninstallText": "Desinstalar Focus Bear",
         "shutdownNotificationTitle": "Es hora de terminar por hoy. Tu tiempo de apagado es en 5 minutos.",
         "appBlockNotificationTitle": "<APP_NAME> no está permitido en el <FOCUS_NAME> modo de enfoque.",
+        "appBlockNotificationAllowButton": "Ups, sí que lo necesito",
         "superDistractingAppBlockedText": "<APP_NAME> es una aplicación muy distractora.",
         "focusBreakNotificationTitle": "Tu descanso termina en",
         "tabGeneralText": "General",
@@ -228,6 +229,7 @@
         "otherReasonText": "Otro",
         "loadingText": "Cargando",
         "cutOffTimePassedText": "Se está acabando el tiempo - concentrémonos en los hábitos de alta prioridad para el resto de la noche.",
+        "cutOffTimePassedSubText": "Tus hábitos de alta prioridad comenzarán en 5 segundos.",
         "noHighPriorityActivityText": "No se encontraron actividades con alta prioridad.",
         "focusEndsText": "El modo de enfoque termina en",
         "postponeEndsText": "El hábito se reanuda en",
@@ -863,7 +865,12 @@
             "titleStrictnessLevel": "Nivel de Rigor:",
             "strictnessSuperStrictClickedText": "Entiendo que no puedo detener esta sesión de enfoque hasta que termine. Me comprometo a evitar las distracciones y a trabajar mucho.",
             "warningDefaultFocusMode": "Atención: esto no utilizará el bloqueo IA. Focus Bear solo bloqueará los sitios de tu lista de sitios superdistractores.",
-            "strictnessSuperStrictClickedNewText": "Entiendo que no puedo detener esta sesión de enfoque. Me comprometo a evitar distracciones y a avanzar muchísimo en mi trabajo."
+            "strictnessSuperStrictClickedNewText": "Entiendo que no puedo detener esta sesión de enfoque. Me comprometo a evitar distracciones y a avanzar muchísimo en mi trabajo.",
+            "titleAllowListNoAiWarning": "Esto podría ser molesto",
+            "bodyAllowListNoAiWarningText": "Has iniciado una sesión con lista de permitidos sin IA, lo que significa que se te pedirá aprobación muy a menudo.\n\nTe sugerimos que hagas la sesión más estricta o que actives la IA.",
+            "buttonTurnOnAiText": "Activar IA",
+            "buttonStartWithoutAiText": "Continuar de todos modos",
+            "buttonMakeStricterText": "Hacerlo más estricto: bloquear de inmediato los sitios no permitidos"
         },
         "abortingFocusModeInfo": {
             "title": "Desactivación del tipo de enfoque - <FOCUSTYPE>",
@@ -1239,7 +1246,8 @@
         "buttonCreateAccount": "Crea tu cuenta",
         "orText": "O",
         "continueInBrowser": "Continuar en tu navegador",
-        "bubbleText": "Una cuenta, todos tus dispositivos: ¡vamos a configurarla!"
+        "bubbleText": "Una cuenta, todos tus dispositivos: ¡vamos a configurarla!",
+        "subTitleText": "Usamos Auth0, nuestro socio de inicio de sesión seguro, para iniciar tu sesión."
     },
     "upgradeNowVcInfo": {
         "pointFirstText": "Rutinas de hábitos personalizadas",
@@ -1361,6 +1369,7 @@
         "buttonPrivacyText": "Haz clic aquí para ver la Política de Privacidad"
     },
     "breakWarningVcInfo": {
+        "holdToPostponeProgress": "Sigue presionando... {seconds} s",
         "title": "Tu micro descanso de <DURATION> segundos comienza en",
         "titleWIN": "Tu micro descanso comienza en",
         "buttonPostponeText": "Posponer por 5 minutos",
@@ -1581,7 +1590,10 @@
         "titleSelectMinutes": "Selecciona los minutos a posponer:",
         "buttonPostponeText": "Posponer",
         "buttonDeactivateText": "Desactivar Focus Bear por 4 horas",
-        "infoText": "Si deseas más de un empujón para mantener tus hábitos, abre las preferencias y cambie el nivel de fricción desde la configuración general."
+        "infoText": "Si deseas más de un empujón para mantener tus hábitos, abre las preferencias y cambie el nivel de fricción desde la configuración general.",
+        "customTimeError": "Ingresa un número positivo válido de minutos",
+        "toolTipMinimumMinutes": "Elige una opción o escribe la tuya - mínimo 1 minuto",
+        "customTimeMaxInfo": "Puedes posponer hasta 24 horas (1440 minutos)."
     },
     "popUpOfflineVcInfo": {
         "titleOffline": "Parece que estás desconectado de Internet. Por favor conéctate para continuar con tus hábitos.",
@@ -2820,6 +2832,8 @@
         "buttonEnableBreaks": "Activar descansos",
         "buttonStartBreak": "Iniciar descanso",
         "titleEnableBreaks": "Los descansos están desactivados. Activa los descansos a intervalos regulares para aumentar tu productividad, energía y enfoque.",
+        "titleSkipMicroBreaksOn": "Hay una sesión de enfoque en curso con los microdescansos desactivados.",
+        "txtEnableMicroBreaksForFocusSession": "Reanudar los descansos automáticos de esta sesión",
         "pausedBreaksText": "Has pausado los descansos por hoy. Mañana volverán para ayudarte a recargar energías y mantener el enfoque.",
         "shutoffTimeText": "La app está en estado de apagado",
         "noBreakScheduledText": "Aún no se ha programado ningún descanso próximo.",
@@ -3010,6 +3024,15 @@
         "voicePermTitle": "Se necesita acceso al micrófono",
         "voicePermBody": "Focus Bear necesita acceso al micrófono para escuchar tus comandos de voz. Actívalo en Configuración del Sistema → Privacidad y seguridad → Micrófono.",
         "voiceOpenSettings": "Abrir Configuración del Sistema",
+        "voiceErrorSignIn": "Inicia sesión en Focus Bear para usar los comandos de voz.",
+        "voiceErrorOffline": "No se pudo conectar con Focus Bear. Revisa tu conexión a internet e inténtalo de nuevo.",
+        "voiceErrorRateLimited": "Son muchos comandos de voz seguidos. Espera un minuto e inténtalo de nuevo.",
+        "voiceErrorTooLong": "La grabación es demasiado larga. Usa comandos de voz breves e inténtalo de nuevo.",
+        "voiceErrorTimedOut": "Tu comando de voz está tardando demasiado. Inténtalo de nuevo.",
+        "voiceErrorFailed": "No se pudo procesar tu comando de voz. Inténtalo de nuevo.",
+        "voiceErrorMicrophone": "No se pudo acceder al micrófono.",
+        "voiceErrorNotCaught": "Lo siento, no lo he oído bien. Inténtalo de nuevo.",
+        "voiceErrorNotUnderstood": "Lo siento, no lo he entendido. Inténtalo de nuevo.",
         "menuLastBreak": "Último descanso",
         "menuAgo": "atrás",
         "dayPlanStartsAt": "empieza a las",
@@ -3105,6 +3128,13 @@
         "titleBlockingSchedule": "Horario de bloqueo",
         "titleFromTime": "Desde",
         "titleTillTime": "Hasta",
+        "titleActiveTime": "Tiempo activo",
+        "titleWeekdays": "Entre semana",
+        "titleWeekends": "Fines de semana",
+        "titleEveryday": "Todos los días",
+        "titleStrictnessFlexible": "Flexible",
+        "titleStrictnessModerate": "Moderado",
+        "titleStrictnessStrict": "Estricto",
         "titleFocusMode": "Lista de bloqueo",
         "buttonEditBlockList": "Editar lista de bloqueos",
         "buttonSkipMicrobreaks": "Omitir micro descansos",
@@ -3133,7 +3163,10 @@
         "permissionsInformativeText": "Necesitarás permitir los permisos para bloquear sitios web y apps distractoras.",
         "permissionsButtonGrantPermissions": "Conceder permisos",
         "permissionsButtonNo": "No, gracias",
-        "titleMissingBlockList": "Lista de bloqueo faltante"
+        "titleMissingBlockList": "Lista de bloqueo faltante",
+        "buttonSaveWithoutAiText": "Continuar de todos modos",
+        "bodyAllowListNoAiWarningText": "La lista de bloqueo '<BLOCKLIST>' usa una lista de permitidos sin IA, lo que significa que se te pedirá aprobación muy a menudo.\n\nTe sugerimos que hagas el horario más estricto o que actives la IA.",
+        "warningScheduleStartedNoAiText": "Se inició '<SCHEDULE>' sin IA. Su lista de bloqueo '<BLOCKLIST>' usa una lista de permitidos sin IA, lo que significa que se te pedirá aprobación muy a menudo.\n\nTe sugerimos que hagas el horario más estricto o que actives la IA."
     },
     "abortingCustomScheduleBlockingVcInfo":{
         "titlePauseText": "Pausando horario personalizado - <SCHEDULE>",
@@ -3158,6 +3191,23 @@
         "requestFailedText": "Error al crear la solicitud. Por favor, inténtalo más tarde."
     },
     "teacherSessionInfo":{
+        "pactInviteTitle": "Tu profesor(a) te ha invitado a unirte a una sesión PACT",
+        "pactYouCanUseHeader": "PUEDES USAR",
+        "pactEndsLine": "Termina a las <TIME>",
+        "pactEndFallback": "termina la sesión",
+        "pactInviteBody": "Todo lo demás está en pausa hasta <TIME>. Si necesitas otro sitio, puedes pedirle a tu profesor(a) que lo añada. No puedes finalizar la sesión antes de tiempo.",
+        "pactActivateButton": "Activar el PACT",
+        "pactDeclineLink": "Rechazar",
+        "pactBeforeDeclineTitle": "Antes de rechazar",
+        "pactBeforeDeclineBody": "Rechazar está permitido, pero se le informará a tu profesor(a). De vez en cuando no pasa nada, nadie te va a perseguir por una clase.",
+        "pactDeclineReportNote": "Si rechazas la mayoría de las clases, aparecerá en el informe de tu profesor(a) y querrá hablar contigo sobre cómo te va con el portátil.",
+        "pactWhyDecliningLabel": "¿POR QUÉ RECHAZAS?",
+        "pactReasonHelper": "Tu profesor(a) lo verá junto a tu nombre.",
+        "pactReasonPlaceholder": "Escribe aquí tu motivo...",
+        "pactHoldToDecline": "Mantén pulsado 15 segundos para rechazar",
+        "pactKeepHolding": "Sigue pulsando, <N>s",
+        "pactMindfulNote": "Ten cuidado con cómo usas tu portátil. Las investigaciones muestran que los estudiantes que juegan, ven vídeos y demás también distraen a sus compañeros de clase.",
+        "pactBackToJoinLink": "Mejor me uno",
         "invitePromptTitle": "Tu profesor(a) ha iniciado una sesión de enfoque de clase",
         "invitePromptBody": "Únete para iniciar la sesión de enfoque en este equipo. Solo podrás usar las aplicaciones y sitios web permitidos por tu profesor(a), y no podrás detener la sesión antes de tiempo.",
         "buttonJoin": "Unirse a la sesión",
@@ -3175,7 +3225,7 @@
         "unlockDeclinedBody": "Tu profesor(a) ha rechazado tu solicitud de desbloqueo.",
         "titleCreateUnlockRequest": "Pide a tu profesor(a) que desbloquee una aplicación o un sitio web",
         "appOrUrlTitle": "Nombre de la aplicación o sitio web",
-        "reasonTitle": "Motivo (opcional)",
+        "reasonTitle": "Motivo",
         "placeHolderAppOrUrl": "p. ej. Desmos o desmos.com",
         "placeHolderReason": "Explica por qué necesitas este desbloqueo....",
         "buttonCreateRequest": "Enviar solicitud",
@@ -3187,7 +3237,9 @@
         "breakBlockedTitle": "Sesión de enfoque de clase en curso",
         "breakBlockedBody": "No puedes iniciar un descanso durante una sesión de enfoque de clase. Se reanudará automáticamente cuando tu profesor finalice la sesión.",
         "resumeHabitsBlockedTitle": "Sesión de enfoque de clase en curso",
-        "resumeHabitsBlockedBody": "No puedes reanudar tus hábitos durante una sesión de enfoque de clase. Se reanudarán automáticamente cuando tu profesor finalice la sesión."
+        "resumeHabitsBlockedBody": "No puedes reanudar tus hábitos durante una sesión de enfoque de clase. Se reanudarán automáticamente cuando tu profesor finalice la sesión.",
+        "personalSessionOnlyTitle": "Esto inicia una sesión de enfoque personal",
+        "classSessionFromDashboardText": "Para iniciar una sesión de clase para tus estudiantes, usa el panel de Focus Bear en tu navegador."
     },
     "focusStateVcInfo":{
         "titleIntention": "Objetivo de enfoque:",
@@ -3275,7 +3327,8 @@
         "buttonContinue": "Eso es todo",
         "buttonSkip": "Omitir",
         "textFieldPlaceholder": "Agrega una URL o palabra clave",
-        "bubbleText": "Cuando visites uno de estos sitios, iniciaré una sesión de concentración para ti"
+        "bubbleText": "Cuando visites uno de estos sitios, iniciaré una sesión de concentración para ti",
+        "textChangeLaterText": "Puedes cambiar esto más tarde"
     },
     "createFirstBlockingScheduleVcInfo": {
         "title": "Configura los detalles del bloqueo",
@@ -3364,6 +3417,11 @@
         "noItemsSelected": "Ningún elemento seleccionado para Agregar.",
         "enterAppsManually": "Ingresar aplicaciones manualmente:",
         "idYouKnowTheNames": "Si conoces el nombre de los EXEs que deseas permitir, puedes agregarlos aquí. Puedes ingresar varios nombres exe separados por comas. (Ejemplo: chrome.exe, firefox.exe, notepad.exe)",
+        "btnSelectExecutable": "Seleccionar archivo",
+        "executableFiles": "Ejecutables",
+        "selectExecutableTitle": "Seleccionar el ejecutable",
+        "selectAppFileLabel": "O selecciona el archivo de la aplicación",
+        "selectAppFileHint": "Elige uno o más archivos .exe en tu PC. Puedes seleccionar varios y también agregar nombres escritos.",
         "allProcessesWillStop": "Todos los procesos relacionados con la aplicación se detendrán, la aplicación se cerrará sola y ejecutará el desinstalador de Focus Bear.",
         "withPomodoroMode": "Con el Modo Pomodoro, alternas automáticamente entre sesiones de concentración y descansos (ej. 25 minutos de concentración, 5 minutos de descanso).",
         "weHaventBuiltPomodoro": "Aún no hemos creado el Modo Pomodoro para Windows. ¿Qué tanto deseas esta función?",
@@ -3383,5 +3441,11 @@
         "iconsUpToDate": "actualizados",
         "checkingHabitIcons": "Comprobando iconos de hábitos…",
         "checkingFocusIcons": "Comprobando iconos de concentración…"
+    },
+    "toDoListViewInfo": {
+        "attachmentPendingText": "Listo para subir cuando guardes la tarea.",
+        "attachmentRetryText": "La tarea se ha guardado. Guarda de nuevo para reintentar los archivos pendientes.",
+        "attachmentUnconfirmedText": "El resultado de la subida no está confirmado. Guarda de nuevo para comprobar su estado."
     }
+
 }

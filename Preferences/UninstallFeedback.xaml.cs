@@ -25,6 +25,16 @@ namespace Focus_Bear.Preferences
     /// </summary>
     public partial class UninstallFeedback : Window
     {
+        /// <summary>The uninstall event's fields, escaped: typed feedback with a quote or line break used to break the fragment.</summary>
+        internal static string UninstallMetadata(string email, string reason, string description, DateTime installed)
+        {
+            return FocusBear.Core.Analytics.EventPayload.Members(
+                new System.Collections.Generic.KeyValuePair<string, object>("emailAddress", email ?? ""),
+                new System.Collections.Generic.KeyValuePair<string, object>("uninstallReason", reason ?? ""),
+                new System.Collections.Generic.KeyValuePair<string, object>("uninstallDescription", description ?? ""),
+                new System.Collections.Generic.KeyValuePair<string, object>("usageStartDate", installed.ToString("o")));
+        }
+
 
         AppSettings appSettings = AppSettings.GetInstance;
         public string sUninstallReason = "";
@@ -106,7 +116,7 @@ namespace Focus_Bear.Preferences
   
             sUninstallReason = ComboBoxReason.SelectedItem.ToString();
             sUninstallDesc = TxtFeedback.Text;
-            string sMetadata = string.Format("\"emailAddress\":\"{0}\",\"uninstallReason\":\"{1}\",\"uninstallDescription\":\"{2}\",\"usageStartDate\":\"{3}\"", appSettings.sUser_email, sUninstallReason, sUninstallDesc, appSettings.FirstAppInstallDT.ToString("o"));
+            string sMetadata = UninstallMetadata(appSettings.sUser_email, sUninstallReason, sUninstallDesc, appSettings.FirstAppInstallDT);
             appSettings.CapturePostHog("uninstall", sMetadata);
 
 

@@ -67,7 +67,7 @@ namespace Focus_Bear.Preferences.SettingsTab
             catch (Exception ex) { LogWriter.LogWrite("KeyboardShortcuts LoadStrings - " + ex.Message); }
         }
 
-        private bool RowControls(string action, out TextBlock val, out Button clear, out Border box)
+        private bool RowControls(string action, out TextBlock val, out Button clear, out ShortcutRecorderBox box)
         {
             switch (action)
             {
@@ -89,7 +89,7 @@ namespace Focus_Bear.Preferences.SettingsTab
 
         private void RefreshRow(string action)
         {
-            if (!RowControls(action, out TextBlock val, out Button clear, out Border box)) return;
+            if (!RowControls(action, out TextBlock val, out Button clear, out ShortcutRecorderBox box)) return;
             box.BorderBrush = BlueBorder;
             if (appSettings.KeyboardShortcuts != null
                 && appSettings.KeyboardShortcuts.TryGetValue(action, out KeyboardShortcut sc)
@@ -105,18 +105,37 @@ namespace Focus_Bear.Preferences.SettingsTab
                 val.SetResourceReference(TextBlock.ForegroundProperty, "ForegroundGrey");   // theme-aware
                 clear.Visibility = Visibility.Collapsed;
             }
+            // Read as one button: "Open Brain Dump: Ctrl + B" (or "... Record Shortcut").
+            System.Windows.Automation.AutomationProperties.SetName(box, (LabelFor(action)?.Text ?? "").TrimEnd(':', ' ') + ": " + val.Text);
+        }
+
+        private TextBlock LabelFor(string action)
+        {
+            switch (action)
+            {
+                case ShortcutActions.BrainDump: return LblBrainDump;
+                case ShortcutActions.FocusMusic: return LblFocusMusic;
+                case ShortcutActions.TaskList: return LblTaskList;
+                case ShortcutActions.FocusSession: return LblFocusSession;
+                default: return null;
+            }
         }
 
         // --- recording ---------------------------------------------------------------------------
 
+        private void Recorder_RecordRequested(object sender, EventArgs e)
+        {
+            if (sender is ShortcutRecorderBox box && box.Tag is string action) StartRecording(action, box);
+        }
+
         private void Recorder_Click(object sender, MouseButtonEventArgs e)
         {
-            if (!(sender is Border box) || !(box.Tag is string action)) return;
+            if (!(sender is ShortcutRecorderBox box) || !(box.Tag is string action)) return;
             StartRecording(action, box);
             e.Handled = true;
         }
 
-        private void StartRecording(string action, Border box)
+        private void StartRecording(string action, ShortcutRecorderBox box)
         {
             _recordingAction = action;
             box.Focus();   // so the box receives PreviewKeyDown
@@ -126,7 +145,7 @@ namespace Focus_Bear.Preferences.SettingsTab
             // it; only the ✕ clears it). Show the "record" placeholder only when nothing is set yet.
             bool hasShortcut = appSettings.KeyboardShortcuts != null
                 && appSettings.KeyboardShortcuts.TryGetValue(action, out KeyboardShortcut sc) && sc != null && sc.IsSet;
-            if (!hasShortcut && RowControls(action, out TextBlock val, out Button _, out Border __))
+            if (!hasShortcut && RowControls(action, out TextBlock val, out Button _, out ShortcutRecorderBox __))
             {
                 val.Text = _recordingPlaceholder;
                 val.SetResourceReference(TextBlock.ForegroundProperty, "ForegroundGrey");
@@ -154,7 +173,23 @@ namespace Focus_Bear.Preferences.SettingsTab
 
         private void Recorder_KeyDown(object sender, KeyEventArgs e)
         {
-            if (_recordingAction == null) return;
+            if (_recordingAction == null)
+            {
+                // Not recording: Tab moves on as usual; Enter or Space on the box starts recording (the keyboard's click).
+                if ((e.Key == Key.Enter || e.Key == Key.Space) && Keyboard.Modifiers == ModifierKeys.None
+                    && sender is ShortcutRecorderBox box && box.Tag is string action)
+                {
+                    e.Handled = true;
+                    StartRecording(action, box);
+                }
+                return;
+            }
+            // Tab and Shift+Tab leave the box (and stop recording) rather than being swallowed: no keyboard trap.
+            if (e.Key == Key.Tab && (Keyboard.Modifiers & (ModifierKeys.Control | ModifierKeys.Alt | ModifierKeys.Windows)) == 0)
+            {
+                StopRecording();
+                return;
+            }
             e.Handled = true;
 
             Key key = (e.Key == Key.System) ? e.SystemKey : e.Key;
@@ -174,6 +209,8 @@ namespace Focus_Bear.Preferences.SettingsTab
 
             uint vk = (uint)KeyInterop.VirtualKeyFromKey(key);
             if (vk == 0) { StopRecording(); return; }
+            //Shift alone is typing (Shift + B is a capital B everywhere): wait for Ctrl, Alt or Win, as for a bare key.
+            if (!FocusBear.Core.Ui.GlobalShortcutRule.IsAcceptable(winMods, vk)) return;
 
             SaveShortcut(_recordingAction, winMods, vk, BuildDisplay(mods, key));
             StopRecording();

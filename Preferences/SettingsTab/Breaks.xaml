@@ -39,7 +39,7 @@
                         <TextBlock x:Name="EnableBreaks" FontSize="14" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xxEnable Breaks</TextBlock>
                         <TextBlock x:Name="EnableBreaksDesc" Margin="0,10,0,0"  TextWrapping="Wrap" FontSize="12" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xEnable taking breaks at regular intervals. Breaks help your productivity, energy levels, and ability to focus....</TextBlock>
                     </StackPanel>
-                    <ToggleButton Grid.Column="1" x:Name="EnableBreaksCheckbox" AutomationProperties.AutomationId="tglEnableBreaksCheckbox"  Style="{DynamicResource MacStyleToggleSwitch}" Margin="15,0,0,0" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Cursor="Hand" Focusable="True" Checked="EnableBreaksCheckbox_Checked" Unchecked="EnableBreaksCheckbox_Unchecked" />
+                    <ToggleButton Grid.Column="1" x:Name="EnableBreaksCheckbox" AutomationProperties.AutomationId="tglEnableBreaksCheckbox" AutomationProperties.LabeledBy="{Binding ElementName=EnableBreaks}"  Style="{DynamicResource MacStyleToggleSwitch}" Margin="15,0,0,0" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Cursor="Hand" Focusable="True" Checked="EnableBreaksCheckbox_Checked" Unchecked="EnableBreaksCheckbox_Unchecked" />
                 </Grid>
                 <Grid Grid.Row="1"  Margin="15,0,15,0" Background="LightGray" ></Grid>
 
@@ -52,7 +52,7 @@
                         <TextBlock x:Name="ShowBreaksWhileInCall" FontSize="14" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xShow breaks while in call</TextBlock>
                         <TextBlock x:Name="ShowBreaksWhileInCallDesc" Margin="0,10,0,0" TextWrapping="Wrap" FontSize="12" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xIn large meetings where you're not actively participating, it can be helpful to still have break reminders. We'll choose office friendly break activities (e.g. chair stretches) and won't play sound effects..</TextBlock>
                     </StackPanel>
-                    <ToggleButton Grid.Column="1" x:Name="btnShowBreaksWhileInCall" AutomationProperties.AutomationId="tglShowBreaksWhileInCall" Style="{DynamicResource MacStyleToggleSwitch}"      Margin="15,0,0,0" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Cursor="Hand" Focusable="True" Checked="btnShowBreaksWhileInCall_Checked" Unchecked="btnShowBreaksWhileInCall_Unchecked"/>
+                    <ToggleButton Grid.Column="1" x:Name="btnShowBreaksWhileInCall" AutomationProperties.AutomationId="tglShowBreaksWhileInCall" AutomationProperties.LabeledBy="{Binding ElementName=ShowBreaksWhileInCall}" Style="{DynamicResource MacStyleToggleSwitch}"      Margin="15,0,0,0" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Cursor="Hand" Focusable="True" Checked="btnShowBreaksWhileInCall_Checked" Unchecked="btnShowBreaksWhileInCall_Unchecked"/>
                 </Grid>
 
                 <Grid Grid.Row="3"  Margin="15,0,15,0" Background="LightGray" ></Grid>
@@ -66,7 +66,7 @@
                         <TextBlock x:Name="DisableSoundsLabel" FontSize="14" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xDisable notification sounds</TextBlock>
                         <TextBlock x:Name="DisableSoundsDesc" Margin="0,10,0,0" TextWrapping="Wrap" FontSize="12" FontWeight="Normal" HorizontalAlignment="Left" TextAlignment="Left">xWhen enabled, Focus Bear will not play any notification sounds (habit complete, routine start/end, focus mode). Focus music is not affected.</TextBlock>
                     </StackPanel>
-                    <ToggleButton Grid.Column="1" x:Name="btnDisableNotificationSounds" AutomationProperties.AutomationId="tglDisableNotificationSounds" Style="{DynamicResource MacStyleToggleSwitch}" Margin="15,0,0,0" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Cursor="Hand" Focusable="True" Checked="btnDisableNotificationSounds_Checked" Unchecked="btnDisableNotificationSounds_Unchecked"/>
+                    <ToggleButton Grid.Column="1" x:Name="btnDisableNotificationSounds" AutomationProperties.AutomationId="tglDisableNotificationSounds" AutomationProperties.LabeledBy="{Binding ElementName=DisableSoundsLabel}" Style="{DynamicResource MacStyleToggleSwitch}" Margin="15,0,0,0" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Cursor="Hand" Focusable="True" Checked="btnDisableNotificationSounds_Checked" Unchecked="btnDisableNotificationSounds_Unchecked"/>
                 </Grid>
 
                 <Grid Grid.Row="5"  Margin="15,0,15,0" Background="LightGray" ></Grid>

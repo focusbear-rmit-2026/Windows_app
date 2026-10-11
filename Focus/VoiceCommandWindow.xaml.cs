@@ -54,7 +54,7 @@ namespace Focus_Bear.Focus
             catch (Exception ex)
             {
                 LogWriter.LogWrite("VoiceCommandWindow StartListening ex - " + ex.Message);
-                ShowError("Couldn't access the microphone.");
+                ShowError(VoiceCommandMessages.Microphone());
             }
         }
 
@@ -71,8 +71,7 @@ namespace Focus_Bear.Focus
                 if (_recorder != null && _recorder.IsRecording)
                     await _recorder.StopRecording();
 
-                IntentResponse result = await OpenAIService.ProcessVoiceCommand(
-                    OpenAIService.OpenAIApiKey, appSettings.RecordingPath);
+                IntentResponse result = await VoiceCommandService.ProcessVoiceCommand(appSettings.RecordingPath);
 
                 if (result != null && !string.IsNullOrWhiteSpace(result.transcription))
                 {
@@ -82,7 +81,7 @@ namespace Focus_Bear.Focus
 
                 if (result == null || result.confidence == "low")
                 {
-                    ShowError("Sorry, I didn't catch that. Please try again.");
+                    ShowError(VoiceCommandMessages.NotCaught());
                     return;
                 }
 
@@ -93,7 +92,7 @@ namespace Focus_Bear.Focus
                 if (!disp.Recognized)
                 {
                     ShowError(string.IsNullOrEmpty(disp.Message)
-                        ? "Sorry, I didn't understand that. Please try again."
+                        ? VoiceCommandMessages.NotUnderstood()
                         : disp.Message);
                     return;
                 }
@@ -112,10 +111,15 @@ namespace Focus_Bear.Focus
                 await Task.Delay(1400);
                 Close();
             }
+            catch (VoiceCommandException ex)
+            {
+                LogWriter.LogWrite("VoiceCommandWindow FinishAndProcess " + ex.Reason + " - " + ex.Message);
+                ShowError(VoiceCommandMessages.ForFailure(ex.Reason));
+            }
             catch (Exception ex)
             {
-                LogWriter.LogWrite("VoiceCommandWindow FinishAndProcess ex - " + ex.Message);
-                ShowError("Something went wrong. Please try again.");
+                LogWriter.LogWrite("VoiceCommandWindow FinishAndProcess ex - " + ex);
+                ShowError(VoiceCommandMessages.Failed());
             }
             finally
             {

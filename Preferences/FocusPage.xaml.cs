@@ -392,20 +392,27 @@ namespace Focus_Bear.Preferences
 
             try
             {
-                if (sApps.Length > 0)
+                var selectedFocusMode = ListFocusModes.SelectedItem as FocusMode;
+                if (selectedFocusMode != null)
                 {
-                    //add to focus mode urls list
+                    bool bAppAdded = false;
 
-                    //First check if it is already added
-                    var selectedFocusMode = ListFocusModes.SelectedItem as FocusMode;
-
-                    if (selectedFocusMode != null)
+                    // Files picked via "Select File" — add each (with the exes from its install folder).
+                    foreach (var custom in aa.SelectedCustomApps)
                     {
-                        //Seperate the text with ,
+                        if (!selectedFocusMode.arrAllowedAppsWin.Any(i => i.AppName.ToLower() == custom.AppName.ToLower()))
+                        {
+                            selectedFocusMode.arrAllowedAppsWin.Add(custom);
+                            bAppAdded = true;
+                        }
+                    }
+
+                    // Typed names — added alongside any selected files.
+                    if (sApps.Length > 0)
+                    {
                         string[] data = sApps.Split(',');
                         if (data != null && data.Count() > 0)
                         {
-                            bool bAppAdded = false;
                             foreach (string ss in data)
                             {
                                 string app = ss.Trim().ToLower();
@@ -416,27 +423,20 @@ namespace Focus_Bear.Preferences
                                     var listItems = selectedFocusMode.arrAllowedAppsWin.Where(i => i.AppName == app);
                                     if (listItems.Count() == 0)
                                     {
-                                        AppDetails newApp = new AppDetails(app, app);
-
-                                        // Try to detect the real process if it's running.
-                                        string realProcessName = Global.TryDetectRealProcessName(app);
-                                        if (!string.IsNullOrEmpty(realProcessName) && realProcessName.ToLower() != app)
-                                        {
-                                            newApp.ExeNames.Add(realProcessName);
-                                            LogWriter.LogWrite("Auto-detected alternative process name for manual app: " + realProcessName);
-                                        }
-
-                                        selectedFocusMode.arrAllowedAppsWin.Add(newApp);
+                                        // Store the typed name as-is (matching the other add screens). We no
+                                        // longer scan the filesystem to auto-detect a process name — that
+                                        // recursive Program Files search hung the app, and blocking already
+                                        // matches on the bare exe/process name anyway. (#1140)
+                                        selectedFocusMode.arrAllowedAppsWin.Add(new AppDetails(app, app));
                                         bAppAdded = true;
                                     }
                                 }
                             }
-                            if(bAppAdded)
-                                appSettings.CapturePostHog("add-allowed-app-manually-in-focus-mode");
                         }
-
-
                     }
+
+                    if (bAppAdded)
+                        appSettings.CapturePostHog("add-allowed-app-manually-in-focus-mode");
                 }
             }
             catch (Exception ex)

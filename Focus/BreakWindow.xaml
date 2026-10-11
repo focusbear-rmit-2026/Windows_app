@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Focus_Bear.Focus"
         mc:Ignorable="d"
-        Title="Focus Bear" Height="145" Width="323" ResizeMode="NoResize" AutomationProperties.AutomationId="BreakWindow" Closing="Window_Closing">
+        Title="Focus Bear" SizeToContent="Height" Width="390" ResizeMode="NoResize" AutomationProperties.AutomationId="BreakWindow" Closing="Window_Closing">
     <Grid>
         <Grid.Resources>
             <ResourceDictionary>
@@ -24,20 +24,30 @@
             </Grid.ColumnDefinitions>
 
             <Image Name="TopIcon" Grid.Column="0"  Margin="0,0,0,10" Height="64" Width="64" Source="../Images/FBicon-64.png"   VerticalAlignment="Center" HorizontalAlignment="Center"/>
-            <Grid Grid.Column="1" x:Name="UseTimerRelated" Visibility="visible">
+            <Grid Grid.Column="1" x:Name="UseTimerRelated" Visibility="visible" Margin="0,14,0,14">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="45" />
-                    <RowDefinition Height="30" />
-                    <RowDefinition Height="40" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
-                <TextBlock  Grid.Row="0" Name="Description" Margin="10,0,10,0" TextWrapping="Wrap" Text="xYour break ends in:" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
+                <TextBlock  Grid.Row="0" Name="Description" Margin="10,0,10,4" TextWrapping="Wrap" Text="xYour break ends in:" FontSize="15" FontWeight="Normal" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
                 <TextBlock Grid.Row="1" x:Name="TxtTimer" Margin="0,0,0,0" TextWrapping="NoWrap" Text="05:00"  Padding="0" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center"  VerticalAlignment="Top" />
-                <StackPanel x:Name="SkipPostponeSection" Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
-                    <TextBlock x:Name="Skip" AutomationProperties.AutomationId="txtSkip" Grid.Row="4" Margin="0,0,20,0" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Right" TextDecorations="{x:Null}"   FontSize="15" MinHeight="22" Cursor="Hand">
+                <StackPanel x:Name="SkipPostponeSection" Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
+                    <TextBlock x:Name="Skip" AutomationProperties.AutomationId="txtSkip" Margin="0,0,20,0" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Right" TextDecorations="{x:Null}"   FontSize="15" MinHeight="22" Cursor="Hand">
                         <Hyperlink x:Name="btnSkip" AutomationProperties.AutomationId="btnSkip" Click="btnSkip_Click"   TextDecorations="Underline" ><Run x:Name="btnSkipTXT" Text="xSkip"/></Hyperlink>
                     </TextBlock>
-                    <TextBlock x:Name="Postpone" AutomationProperties.AutomationId="txtPostpone" Grid.Row="4" Margin="20,0,0,0" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Left" TextDecorations="{x:Null}"   FontSize="15" MinHeight="22" Cursor="Hand">
+                    <TextBlock x:Name="Postpone" AutomationProperties.AutomationId="txtPostpone" Margin="20,0,0,0" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Left" TextDecorations="{x:Null}"   FontSize="15" MinHeight="22" Cursor="Hand">
                         <Hyperlink x:Name="btnPostpone" AutomationProperties.AutomationId="btnPostpone" Click="btnPostpone_Click"   TextDecorations="Underline" ><Run x:Name="btnPostponeTXT" Text="xPostpone"/></Hyperlink>
+                    </TextBlock>
+                </StackPanel>
+                <!-- Extend / end-early controls, shown only for a timed break (hidden for I'm-Done activities). #1065 -->
+                <StackPanel x:Name="ExtendEndBreakSection" Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" Visibility="Collapsed" Margin="0,10,0,0">
+                    <TextBlock x:Name="ExtendBreak" Margin="0,0,20,0" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Right" TextDecorations="{x:Null}"   FontSize="13" MinHeight="22" Cursor="Hand">
+                        <Hyperlink x:Name="btnExtendBreak" AutomationProperties.AutomationId="btnExtendBreak" Click="btnExtendBreak_Click"   TextDecorations="Underline" ><Run x:Name="btnExtendBreakTXT" Text="xExtend break (+5 min)"/></Hyperlink>
+                    </TextBlock>
+                    <TextBlock x:Name="EndBreak" Margin="20,0,0,0" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Left" TextDecorations="{x:Null}"   FontSize="13" MinHeight="22" Cursor="Hand">
+                        <Hyperlink x:Name="btnEndBreak" AutomationProperties.AutomationId="btnEndBreak" Click="btnEndBreak_Click"   TextDecorations="Underline" ><Run x:Name="btnEndBreakTXT" Text="xEnd break early"/></Hyperlink>
                     </TextBlock>
                 </StackPanel>
             </Grid>

@@ -7,7 +7,6 @@ using System.Runtime.InteropServices;
 using System.Collections.Generic;
 using TreeScope = Interop.UIAutomationClient.TreeScope;
 using Focus_Bear.Utils;
-using System.Text.RegularExpressions;
 using System.Linq;
 using System.Management;
 using Focus_Bear.Models;
@@ -17,6 +16,7 @@ using Focus_Bear.Focus;
 using System.Windows.Threading;
 using Focus_Bear;
 using System.Threading;
+using FocusBear.Core.Blocking;
 
 namespace FocusBear.Utils
 {
@@ -39,34 +39,16 @@ namespace FocusBear.Utils
         //  private readonly MenuOptions listener;
 
        
-        public static readonly int UIA_ControlTypePropertyId = 30003;
-        public static readonly int UIA_EditControlTypeId = 50004;
-        public static readonly int UIA_PATTERN_ID = 10002;
 
         public static readonly List<string> BLOCKED_URLS = new List<string> { "*.google.com", "facebook.com", "x.com" };
         public static readonly List<string> BLOCKED_APPS = new List<string> { "notepad", "regedit", "registry editor" };
 
-        string sAlwaysBlockedWebUrl = "file:///" + AppSettings.FocusBlockPagePath + "?old_url={0}&block_type=always-blocked";
-        string sFcousBlockedWebUrl = "file:///" + AppSettings.FocusBlockPagePath + "?old_url={0}&focus_mode_end_time={1}&focus_mode={2}&focus_mode_intention={3}";
-        string sActivityBlockedWebUrl = "file:///" + AppSettings.FocusBlockPagePath + "?old_url={0}&block_type={1}"; //evening-habit, morning-habit, break-activity
 
 
         public static readonly List<string> UNBLOCKED_APPLICATIONS = new List<string> { "csrss", "dwm", "idle", "shellexperiencehost", "msedgewebview2", "explorer", "focusbear", "focus bear", "devenv", "taskmgr", "searchui", "searchhost", "applicationframehost", "textinputhost", "startmenuexperiencehost", "shellhost", "openwith", "searchapp", "lockapp", "snippingtool", "systemsettings" };
         public static readonly int SW_MINIMIZE = 6;
         public static readonly int SW_FORCEMINIMIZE = 11;
 
-        public static readonly List<string> UNBLOCKED_URLS = new List<string> { "about:blank", 
-            "chrome://", 
-            "favorites:", 
-            "eyst-focus.html",
-            "earnyourscreentime.com",
-            "devtools://",
-            "chrome-extension://",
-            "focusbear.io",
-            "view-source:",
-            "about:blank",
-            "focus-bear.github.io",
-            "focus-block.html",};
 
 
         private IntPtr GetEffectiveWindowHandle(IntPtr processMainWindowHandle)
@@ -87,29 +69,57 @@ namespace FocusBear.Utils
             }
         }
 
-        private Boolean MatchWildcardString(String input, String pattern)
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool SetForegroundWindow(IntPtr hWnd);
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool IsWindow(IntPtr hWnd);
+        private const int SW_RESTORE = 9;
+
+        /// <summary>
+        /// "Oops I actually need it" on the app-blocked notice - the same flow as the blocked page's "Oops, I
+        /// actually need this" and the Mac's notice button: forget this session's block on the app and bring it
+        /// back to the front. The focus handler then sees it as fresh and shows the gentle block popup (allow /
+        /// explain to the AI buddy / set intention), with that popup's usual gates and its time-limited allow.
+        /// Nothing is allowed here directly.
+        /// </summary>
+        private void NeedBlockedAppAfterAll(string sAppName, IntPtr hWnd)
         {
-
-            String regexPattern = "^";
-
-            foreach (Char c in pattern)
+            try
             {
-                switch (c)
+                AppBlockNotice.ForgetSessionBlock(appSettings.TemporarryBlockedAppsGentleBlock, sAppName);
+                appSettings.CapturePostHog("unblock-it-for-me-worked");
+                LogWriter.LogWrite("FCH - Oops I actually need it - " + sAppName + ", re-presenting the block popup");
+                if (hWnd == IntPtr.Zero || !IsWindow(hWnd))
                 {
-                    case '*':
-                        regexPattern += ".*";
-                        break;
-                    case '?':
-                        regexPattern += ".";
-                        break;
-                    default:
-                        regexPattern += "[" + c + "]";
-                        break;
+                    // The window minimised at the block can be gone (the app re-created it): use the app's main window.
+                    hWnd = Process.GetProcessesByName(sAppName).Select(p => p.MainWindowHandle)
+                                  .FirstOrDefault(h => h != IntPtr.Zero);
+                }
+                if (hWnd != IntPtr.Zero && IsWindow(hWnd))
+                {
+                    ShowWindow(hWnd, SW_RESTORE);
+                    SetForegroundWindow(hWnd);
+                    // Our own SetForegroundWindow raises no focus event we act on, so the app came back with no
+                    // popup at all: effectively let through. Show the block popup for it now, as a switch to it
+                    // would (cuddly mode: the gentle popup, which asks the AI when it's on).
+                    LogWriter.LogWrite("FCH - Oops: showing the block popup again for " + sAppName);
+                    // The same two steps as the cuddly path in processCurrentFocusElement: open the app for the
+                    // alignment score (which asks the AI when it's on), then the popup.
+                    FocusAlignmentScoreManager.FocusModeOpenCurrentAppForAlignmentScore(sAppName, appSettings.sRunningFocusModeName, 0, false, sAppName);
+                    appSettings.ShowGentleBlockWindow(hWnd, sAppName);
+                }
+                else
+                {
+                    LogWriter.LogWrite("FCH - Oops: no window left for " + sAppName);
                 }
             }
-            return new Regex(regexPattern + "$").IsMatch(input);
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("FCH - NeedBlockedAppAfterAll ex - " + ex.Message);
+            }
         }
-
 
         public FocusChangeHandler(/*MenuOptions listener*/)
         {
@@ -118,6 +128,12 @@ namespace FocusBear.Utils
 
  
         public void HandleFocusChangedEvent(IUIAutomationElement element)
+        {
+            try { HandleFocusChangedEventCore(element); }
+            finally { Focus_Bear.Utils.E2EBuild.NoteFocusHandled(element); }
+        }
+
+        private void HandleFocusChangedEventCore(IUIAutomationElement element)
         {
             ///  string currentPomodoro = Settings.preferenceSetting.synchronizeSetting.currentPomodoroMode;
             /// string currentFocus = Settings.preferenceSetting.synchronizeSetting.currentFocusMode;
@@ -145,33 +161,22 @@ namespace FocusBear.Utils
             }
 
 
+            // A flag left set after its habit has gone must not minimise every app: clear it (logged once).
+            RunningActivityRules.ClearIfStale(appSettings);
+
             if (appSettings.bHabitwithAllowedAppsRunning && !appSettings.bHabitwithUseFocusModeRunning)//
             {
                 ProcessAllowedAppAndURLsInActivity(element); //only for apps
-               // ProcessAlloweURLsInActivity(element);
             }
 
             //A paused focus session must not keep blocking apps - pausing means "suspend focus enforcement
             //until resumed" (#1274). Treat isFocusModePaused like a paused blocking schedule (already
             //excluded via !ActiveSchedule.isPaused).
-            if ((appSettings.isFocusModeRunning && !appSettings.isFocusModePaused) || appSettings.bHabitwithUseFocusModeRunning || (appSettings.isBlockingScheduleRunning && !appSettings.ActiveSchedule.isPaused))
+            if ((appSettings.isFocusModeRunning && !appSettings.isFocusModePaused) || appSettings.bHabitwithUseFocusModeRunning || appSettings.IsBlockingScheduleActiveAndNotPaused(out _))
             {
                 processCurrentFocusElement(element);
             }
 
-            if (appSettings.bHabitwithAllowedAppsRunning || (appSettings.isFocusModeRunning && !appSettings.isFocusModePaused) || (appSettings.isBlockingScheduleRunning && !appSettings.ActiveSchedule.isPaused))
-                return;
-
-            if (appSettings.IsAppDeactivated())//no need to track always blocked urls
-            {
-                return;
-            }
-
-            //#if !DEBUG
-            if (appSettings.arrAlwaysBlockedURLs.Count() > 0)
-                processCurrentURL(element); //For always Blocked URLS
-//#endif
- 
         }
 
         private void ProcessShutOffStateBlockAllApps(IUIAutomationElement element)
@@ -213,217 +218,21 @@ namespace FocusBear.Utils
                             return;
                         }
 
-                        bool bAllowedAppFound = false;
-                        if (appSettings.nCurrentActivityType == CurrentActivityType.MORNING_HABITS)
+                        // One rule for every routine habit and break activity (Core ActivityAllowList): a blank entry
+                        // allows nothing (it used to become the title pattern "**", allowing every app), and an index
+                        // that doesn't point at the running activity no longer throws into "block nothing".
+                        var rules = RunningActivityRules.For(appSettings);
+                        if (rules.Label.Length == 0) return;   // not in a habit or break activity
+                        if (rules.Known && ActivityAllowList.IsAppAllowed(process.ProcessName, ReadWindowTitle(process.MainWindowHandle), rules.Apps))
                         {
-                            foreach (string sApp in appSettings.arrAllMorningHabits[appSettings.nHabitIndex].allowedApps)
-                            {
-                                string App = sApp.ToLower().Replace(".exe", "");
-                                if (App == process.ProcessName.ToLower())
-                                {
-                                    bAllowedAppFound = true;
-                                    LogWriter.LogWrite(sApp + " allow app found in MORNING_HABITS activity - break");
-                                    break;
-                                }
-
-                                //Now if we have not found any we need to look and match the app and allow / block apps with window title
-                                try
-                                {
-                                    //Check title
-                                    const int nChars = 256;
-                                    StringBuilder Buff = new StringBuilder(nChars);
-                                    if (GetWindowText(process.MainWindowHandle, Buff, nChars) > 0)
-                                    {
-                                        string sTitle = Buff.ToString().ToLower();
-                                        string allowedAppTitle = "*" + App + "*";
-                                        if (MatchWildcardString(sTitle, allowedAppTitle))
-                                        {
-                                            LogWriter.LogWrite(sTitle + "title found in ALLOWED apps apps with window title matched in MORNING_HABITS activity - ALLOW");
-                                            bAllowedAppFound = true;
-                                            break;
-                                        }
-                                    }
-                                }
-                                catch (Exception ex)
-                                {
-                                    LogWriter.LogWrite("ProcessAllowedAppAndURLsInActivity GetWindowText ALLOWED app EX - " + ex.Message);
-                                }
-                            }
-                            if (!bAllowedAppFound)
-                            {
-                                LogWriter.LogWrite(process.ProcessName + " Not allowed app found in MORNING_HABITS activity - BLOCK");
-                                MinimizeBlockedAppWindow(process.MainWindowHandle);
-                                appSettings.CapturePostHog("block-distracting-app");
-                            }
-                        }
-                        else if (appSettings.nCurrentActivityType == CurrentActivityType.EVENING_HABITS)
-                        {
-                            foreach (string sApp in appSettings.arrAllEveningHabits[appSettings.nHabitIndex].allowedApps)
-                            {
-                                string App = sApp.ToLower().Replace(".exe", "");
-                                if (App == process.ProcessName.ToLower())
-                                {
-                                    bAllowedAppFound = true;
-                                    LogWriter.LogWrite(sApp + " allow app found in EVENING_HABITS activity -  break;");
-                                    break;
-                                }
-
-                                //Now if we have not found any we need to look and match the app and allow / block apps with window title
-                                try
-                                {
-                                    //Check title
-                                    const int nChars = 256;
-                                    StringBuilder Buff = new StringBuilder(nChars);
-                                    if (GetWindowText(process.MainWindowHandle, Buff, nChars) > 0)
-                                    {
-                                        string sTitle = Buff.ToString().ToLower();
-                                        string allowedAppTitle = "*" + App + "*";
-                                        if (MatchWildcardString(sTitle, allowedAppTitle))
-                                        {
-                                            LogWriter.LogWrite(sTitle + "title found in ALLOWED apps apps with window title matched in EVENING_HABITS activity - ALLOW");
-                                            bAllowedAppFound = true;
-                                            break;
-                                        }
-                                    }
-                                }
-                                catch (Exception ex)
-                                {
-                                    LogWriter.LogWrite("ProcessAllowedAppAndURLsInActivity GetWindowText ALLOWED app EX - " + ex.Message);
-                                }
-                            }
-                            if (!bAllowedAppFound)
-                            {
-                                LogWriter.LogWrite(process.ProcessName + " Not allowed app found in EVENING_HABITS activity - BLOCK");
-                                MinimizeBlockedAppWindow(process.MainWindowHandle);
-                                appSettings.CapturePostHog("block-distracting-app");
-                            }
-                        }
-                        else  if (appSettings.nCurrentActivityType == CurrentActivityType.BREAK_ACTIVITY)
-                        {
-
-                            if (appSettings.isMandatoryActivityGoing)
-                            {
-                                foreach (string sApp in appSettings.arrActivitiesIncludeInEveryBreak[appSettings.nHabitIndex].allowedApps)
-                                {
-                                    string App = sApp.ToLower().Replace(".exe", "");
-                                    if (App == process.ProcessName.ToLower())
-                                    {
-                                        bAllowedAppFound = true;
-                                        LogWriter.LogWrite(sApp + " allow app found in BREAK_ACTIVITY activity -  break;");
-                                        break;
-                                    }
-
-                                    //Now if we have not found any we need to look and match the app and allow / block apps with window title
-                                    try
-                                    {
-                                        //Check title
-                                        const int nChars = 256;
-                                        StringBuilder Buff = new StringBuilder(nChars);
-                                        if (GetWindowText(process.MainWindowHandle, Buff, nChars) > 0)
-                                        {
-                                            string sTitle = Buff.ToString().ToLower();
-                                            string allowedAppTitle = "*" + App + "*";
-                                            if (MatchWildcardString(sTitle, allowedAppTitle))
-                                            {
-                                                LogWriter.LogWrite(sTitle + "title found in ALLOWED apps apps with window title matched in BREAK_ACTIVITY activity - ALLOW");
-                                                bAllowedAppFound = true;
-                                                break;
-                                            }
-                                        }
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        LogWriter.LogWrite("ProcessAllowedAppAndURLsInActivity GetWindowText ALLOWED app EX - " + ex.Message);
-                                    }
-
-                                }
-                                if (!bAllowedAppFound)
-                                {
-                                    LogWriter.LogWrite(process.ProcessName + " Not allowed app found in BREAK_ACTIVITY activity - BLOCK");
-                                    MinimizeBlockedAppWindow(process.MainWindowHandle);
-                                    appSettings.CapturePostHog("block-distracting-app");
-                                }
-                            }
-                            else
-                            {
-                                foreach (string sApp in appSettings.arrActivitiesExcludeInEveryBreak[appSettings.nHabitIndex].allowedApps)
-                                {
-                                    string App = sApp.ToLower().Replace(".exe", "");
-                                    if (App == process.ProcessName.ToLower())
-                                    {
-                                        bAllowedAppFound = true;
-                                        LogWriter.LogWrite(sApp + " allow app found in BREAK_ACTIVITY activity -  break;");
-                                        break;
-                                    }
-
-                                    //Now if we have not found any we need to look and match the app and allow / block apps with window title
-                                    try
-                                    {
-                                        //Check title
-                                        const int nChars = 256;
-                                        StringBuilder Buff = new StringBuilder(nChars);
-                                        if (GetWindowText(process.MainWindowHandle, Buff, nChars) > 0)
-                                        {
-                                            string sTitle = Buff.ToString().ToLower();
-                                            string allowedAppTitle = "*" + App + "*";
-                                            if (MatchWildcardString(sTitle, allowedAppTitle))
-                                            {
-                                                LogWriter.LogWrite(sTitle + "title found in ALLOWED apps apps with window title matched in BREAK_ACTIVITY activity - ALLOW");
-                                                bAllowedAppFound = true;
-                                                break;
-                                            }
-                                        }
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        LogWriter.LogWrite("ProcessAllowedAppAndURLsInActivity GetWindowText ALLOWED app EX - " + ex.Message);
-                                    }
-                                }
-                                if (!bAllowedAppFound)
-                                {
-                                    LogWriter.LogWrite(process.ProcessName + " Not allowed app found in BREAK_ACTIVITY activity - BLOCK");
-                                    MinimizeBlockedAppWindow(process.MainWindowHandle);
-                                    appSettings.CapturePostHog("block-distracting-app");
-                                }
-                            }
-
+                            LogWriter.LogWrite(process.ProcessName + " allowed in " + rules.Label + " activity - ALLOW");
+                            return;
                         }
 
-                        //If its an allowed app and if its browser, then let's check the URLs
-                        if(bAllowedAppFound)
-                        {
-                            // block or Unblock URLS
-                            if (Global.BROWSERS.Exists(ele => ele == process.ProcessName))
-                            {
-                               /// if (appSettings.arrAllMorningHabits[appSettings.nHabitIndex].allowedApps.Exists(ele => ele == process.ProcessName))
-                                {
-                                    if (process.ProcessName.ToLower() == "firefox" || process.ProcessName.ToLower() == "chrome" || process.ProcessName.ToLower() == "msedge")
-                                    {
-                                        return;
-                                        //ProcessAlloweURLsInActivity(appSettings.sLastActiveURLInFirefox,  process.MainWindowHandle, element, null, true);
-                                    }
-                                    else
-                                    {
-                                        IUIAutomationElement elm = appSettings.automation.ElementFromHandle(process.MainWindowHandle);
-                                        IUIAutomationCondition Cond = appSettings.automation.CreatePropertyCondition(UIA_ControlTypePropertyId, UIA_EditControlTypeId);
-                                        IUIAutomationElementArray elm2 = elm.FindAll(TreeScope.TreeScope_Descendants, Cond);
-                                        if (elm2 != null)
-                                        {
-                                            for (int i = 0; i < elm2.Length; i++)
-                                            {
-                                                IUIAutomationElement elm3 = elm2.GetElement(i);
-                                                IUIAutomationValuePattern val = (IUIAutomationValuePattern)elm3.GetCurrentPattern(UIA_PATTERN_ID);
-                                                if (val != null && !string.IsNullOrEmpty(val.CurrentValue) && (!val.CurrentValue.ToString().Contains("focus-block.html")))
-                                                {
-                                                    ProcessAlloweURLsInActivity(val.CurrentValue, process.MainWindowHandle, element, val);
-                                                }
-                                            }
-                                        }
-                                    }
-                                   
-                                }
-                            }
-                        }
+                        LogWriter.LogWrite(process.ProcessName + " Not allowed app found in " + rules.Label + " activity"
+                            + (rules.Known ? "" : " (the running activity's rules could not be found)") + " - BLOCK");
+                        MinimizeBlockedAppWindow(process.MainWindowHandle);
+                        appSettings.CapturePostHog("block-distracting-app");
                     }
                 }
             }
@@ -434,12 +243,22 @@ namespace FocusBear.Utils
             }
 
         }
-        private void ProcessAlloweURLsInActivity(string sURL, IntPtr hWnd, IUIAutomationElement element, IUIAutomationValuePattern val, bool bForFirefox = false)
+
+        private static string ReadWindowTitle(IntPtr hWnd)
         {
-            return; //handled by PBU
+            try
+            {
+                const int nChars = 256;
+                StringBuilder Buff = new StringBuilder(nChars);
+                return GetWindowText(hWnd, Buff, nChars) > 0 ? Buff.ToString() : "";
+            }
+            catch (Exception ex)
+            {
+                LogWriter.LogWrite("ProcessAllowedAppAndURLsInActivity GetWindowText ALLOWED app EX - " + ex.Message);
+                return "";
+            }
         }
-        
-                
+
         private void processCurrentFocusElement(IUIAutomationElement element)
         {
             try
@@ -525,9 +344,9 @@ namespace FocusBear.Utils
                         {
                             listItems = appSettings.arrFocusModes.Where(i => i.id == appSettings.sUseFocusModeIDInActivity).ToList();
                         }
-                        else if (appSettings.isBlockingScheduleRunning && !appSettings.ActiveSchedule.isPaused) // Blocking schedule
+                        else if (appSettings.IsBlockingScheduleActiveAndNotPaused(out var scheduleForFocusMode)) // Blocking schedule
                         {
-                            listItems = appSettings.arrFocusModes.Where(i => i.id == appSettings.ActiveSchedule.SelectedFocusModeId).ToList();
+                            listItems = appSettings.arrFocusModes.Where(i => i.id == scheduleForFocusMode.SelectedFocusModeId).ToList();
                         }
                         else //Normal focus mode running
                         {
@@ -570,7 +389,7 @@ namespace FocusBear.Utils
                                             string appNameClean = sApp.AppName.ToLower().Replace(".exe", "");
                                             string allowedAppTitle = "*" + appNameClean + "*";
 
-                                            if (MatchWildcardString(sTitle, allowedAppTitle))
+                                            if (WildcardPattern.Matches(sTitle, allowedAppTitle))
                                             {
                                                 LogWriter.LogWrite(sTitle + "title found in ALLOWED apps  apps with window title matched in focus mode - ALLOW");
                                                 bAllowedAppFound = true;
@@ -597,12 +416,10 @@ namespace FocusBear.Utils
                                     // user's own Focus Bear mode - so an unlisted app is hard-blocked, no gentle popup.
                                     bool bEffectiveCuddly = (appSettings.nFocusBearMode == 1) && !TeacherSessionManager.Instance.IsTeacherSessionActive();
 
-                                    // Is the AI app-check enabled for the current context (global / blocking-schedule / teacher)?
-                                    bool bAiCheckEnabled = appSettings.bAiCheckUrlEnabled;
-                                    if (appSettings.isBlockingScheduleRunning && appSettings.ActiveSchedule != null)
-                                        bAiCheckEnabled = appSettings.ActiveSchedule.bAIBlockingEnabled;
-                                    if (TeacherSessionManager.Instance.IsTeacherSessionActive())
-                                        bAiCheckEnabled = TeacherSessionManager.Instance.bTeacherSessionAiBlockingEnabled;
+                                    // One ladder, in FocusBear.Core: snooze > teacher > buddy > the block list's
+                                    // is_ai_enabled > the global toggle. This used to be hand-rolled here and skipped
+                                    // the block list, so the Mac's is_ai_enabled=false had no effect on Windows.
+                                    bool bAiCheckEnabled = AiBlocking.IsEnabled();
 
                                     // Cuddly -> gentle app popup. Non-cuddly (incl. Teacher) with AI enabled -> route through the
                                     // AI app-check too (GentleBlock blocks immediately on an AI-negative verdict). Non-cuddly
@@ -655,6 +472,8 @@ namespace FocusBear.Utils
 
                                 if (!bAllowedAppFound)
                                 {
+                                    // The window we are about to minimise - "Oops I actually need it" brings it back.
+                                    IntPtr hBlockedWindow = GetEffectiveWindowHandle(process.MainWindowHandle);
                                     MinimizeBlockedAppWindow(process.MainWindowHandle);
 
                                     if (TeacherSessionManager.Instance.IsTeacherSessionActive())
@@ -681,7 +500,21 @@ namespace FocusBear.Utils
                                         string sTemp = appSettings.ConfigFileStrings["common"]["appBlockNotificationTitle"].ToString();
                                         sTemp = sTemp.Replace("<APP_NAME>", process.ProcessName);
                                         sTemp = sTemp.Replace("<FOCUS_NAME>", appSettings.sRunningFocusModeName);
-                                        appSettings.ShowBaloonTip(sTemp);
+
+                                        // Mac FocusBlockNotificationManager: in cuddly mode the notice carries
+                                        // "Oops I actually need it", the app equivalent of the blocked page's
+                                        // "Oops, I actually need this" (which is also cuddly-only).
+                                        bool bCuddlyNow = appSettings.nFocusBearMode == 1;
+                                        if (AppBlockNotice.OffersNeedItButton(bCuddlyNow, false))
+                                        {
+                                            string sAppName = process.ProcessName;
+                                            string sBtn = appSettings.GetConfigStringSafe("Oops I actually need it", "common", "appBlockNotificationAllowButton");
+                                            appSettings.ShowBaloonTip(sTemp, "", sBtn, () => NeedBlockedAppAfterAll(sAppName, hBlockedWindow));
+                                        }
+                                        else
+                                        {
+                                            appSettings.ShowBaloonTip(sTemp);
+                                        }
                                     }
 
                                     LogWriter.LogWrite(process.ProcessName + " Not allowed app found in Focus Element activity - BLOCK");
@@ -720,526 +553,6 @@ namespace FocusBear.Utils
                 LogWriter.LogWrite("processCurrentFocusElement EX - " + ex.Message);
             }
         }
-
-        private void ProcessURLForFocusModes(string sURL, FocusMode focusType, IntPtr hWnd, IUIAutomationElement element, IUIAutomationValuePattern val, bool bForFirefox = false )
-        {
-
-            if (sURL.Contains("file://"))
-            {
-                return;
-            }
-            if (appSettings.nFocusBearMode == 1)
-            {
-                if (sURL.Contains("focus_bear_temporarily_allow=true"))
-                {
-                    return;
-                }
-            }
-           
-            //Check if its an always unblocked url
-            for (int m = 0; m < UNBLOCKED_URLS.Count(); m++)
-            {
-                string sToCheck = UNBLOCKED_URLS[m];
-                if (sURL.Contains(sToCheck))
-                {
-                    return;
-                }
-            }
-
-            bool bAllowedURLFound = true; //by default allowed url is true
-
-            if (focusType.isAllowedListApproach)//Block everything except safe sites I choose
-            {
-                LogWriter.LogWrite("isAllowedListApproach - Block everything except safe sites I choose - " + focusType.name);
-
-                {
-                    LogWriter.LogWrite("isAllowedListApproach - Selected URLs are allowed");
-                    //We will first check if the url is in the blocked urls list of the focusmode, then we will not check allowed
-                    bAllowedURLFound = true; //allowed unless we find it in the blocked urls array
-
-                    //check if the current URL is in the list of Blocked urls, then block else allow
-                    foreach (string url in focusType.arrBlockedUrls)
-                    {
-                        {
-                            var sUrlToCheck = sURL.Replace("http://", "");
-                            sUrlToCheck = sUrlToCheck.Replace("https://", "");
-                            sUrlToCheck = sUrlToCheck.Replace("www.", "");
-
-                            var allowedURL = url.Replace("http://", "");
-                            allowedURL = allowedURL.Replace("https://", "");
-                            allowedURL = allowedURL.Replace("www.", "");
-                            //Remove last slash from allowed url
-                            allowedURL = allowedURL.TrimEnd(new[] { '/' });
-
-                            if (sUrlToCheck.StartsWith(allowedURL))
-                            {
-                                LogWriter.LogWrite(sUrlToCheck + " found in blocked URLS of focus mode - BLOCK");
-                                bAllowedURLFound = false;
-                                break;
-                            }
-                            else
-                            {
-
-                                // if (Regex.Match(sUrlToCheck, Regex.Escape(allowedURL).Replace("\\*", "(.+)")).Success)
-                                allowedURL = "*" + allowedURL + "*";
-                                if (MatchWildcardString(sUrlToCheck, allowedURL))
-                                {
-                                    LogWriter.LogWrite(sUrlToCheck + " found in blocked URLS WILDCARD match of focus mode - BLOCK");
-                                    bAllowedURLFound = false;
-                                    break;
-                                }
-                                else
-                                {
-                                    try
-                                    {
-                                        //Check title
-                                        const int nChars = 256;
-                                        StringBuilder Buff = new StringBuilder(nChars);
-                                        if (GetWindowText(hWnd, Buff, nChars) > 0)
-                                        {
-                                            string sTitle = Buff.ToString();
-                                            if (MatchWildcardString(sTitle, allowedURL))
-                                            {
-                                                LogWriter.LogWrite(sTitle + "title found in blocked URLS WILDCARD match of focus mode - BLOCK");
-                                                bAllowedURLFound = false;
-                                                break;
-                                            }
-                                        }
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        LogWriter.LogWrite("processCurrentFocusElement GetWindowText blockedurls EX - " + ex.Message);
-                                    }
-
-                                }
-                            }
-                        }
-                    }
-
-                    if (bAllowedURLFound)//Means it was not found in the blocked urls..now let's check Allowed URLs
-                    {
-                        bAllowedURLFound = false;
-                        //check if the current URL is in the list of allowed urls, then allow else block
-                        foreach (string url in focusType.arrAllowedUrls)
-                        {
-                            {
-      
-                                var sUrlToCheck = sURL.Replace("http://", "");
-                                sUrlToCheck = sUrlToCheck.Replace("https://", "");
-                                sUrlToCheck = sUrlToCheck.Replace("www.", "");
-
-                                var allowedURL = url.Replace("http://", "");
-                                allowedURL = allowedURL.Replace("https://", "");
-                                allowedURL = allowedURL.Replace("www.", "");
-
-                                //Remove last slash from allowed url
-                                allowedURL = allowedURL.TrimEnd(new[] { '/' });
-
-                                if (sUrlToCheck.StartsWith(allowedURL))
-                                {
-                                    LogWriter.LogWrite(sUrlToCheck + " found in ALLOWED URLS of focus mode - ALLOW");
-                                    bAllowedURLFound = true;
-                                    return;
-                                }
-                                else
-                                {
-                                    //if (Regex.Match(sUrlToCheck, Regex.Escape(allowedURL).Replace("\\*", "(.+)")).Success)
-                                    allowedURL = "*" + allowedURL + "*";
-                                    if (MatchWildcardString(sUrlToCheck, allowedURL))
-                                    {
-                                        LogWriter.LogWrite(sUrlToCheck + " found in ALLOWED URLS WILDCARD match of focus mode - ALLOW");
-
-                                        bAllowedURLFound = true;
-                                        return;
-                                    }
-                                    else
-                                    {
-                                        try
-                                        {
-                                            //Check title
-                                            const int nChars = 256;
-                                            StringBuilder Buff = new StringBuilder(nChars);
-                                            if (GetWindowText(hWnd, Buff, nChars) > 0)
-                                            {
-                                                string sTitle = Buff.ToString();
-                                                if (MatchWildcardString(sTitle, allowedURL))
-                                                {
-                                                    LogWriter.LogWrite(sTitle + "title found in ALLOWED URLS WILDCARD match of focus mode - ALLOW");
-                                                    bAllowedURLFound = true;
-                                                    return;
-                                                }
-                                            }
-                                        }
-                                        catch (Exception ex)
-                                        {
-                                            LogWriter.LogWrite("processCurrentFocusElement GetWindowText ALLOWED URLS EX - " + ex.Message);
-                                        }
-
-                                    }
-                                }
-
-                            }
-                        }
-                    }
-
-                    if (!bAllowedURLFound)
-                    {
-                        LogWriter.LogWrite("FCH processCurrentFocusElement  isAllowedListApproach - Attempt to Suppress URL");
-                        if(bForFirefox)
-                        {
-                            suppressURLForFirefox(hWnd,sURL, "focus");
-                        }
-                        else
-                        {
-                            suppressURL(hWnd, val, "focus");
-                        }
-                        
-                        return;
-                    }
-                }
-            }
-            else //Allow everything except districting sites
-            {
-                LogWriter.LogWrite("isBlockedListApproach - Allow everything except districting sites");
-
-                {
-                    LogWriter.LogWrite("isBlockedListApproach - selected URLS are blocked");
-
-                    bAllowedURLFound = true; //allowed unless we find it in the blocked urls array
-
-                    //check if the current URL is in the list of Blocked urls, then block else allow
-                    foreach (string url in focusType.arrBlockedUrls)
-                    {
-                        ////if (Uri.IsWellFormedUriString(val.CurrentValue, UriKind.RelativeOrAbsolute))
-                        {
-                            var sUrlToCheck = sURL.Replace("http://", "");
-                            sUrlToCheck = sUrlToCheck.Replace("https://", "");
-                            sUrlToCheck = sUrlToCheck.Replace("www.", "");
-
-                            var allowedURL = url.Replace("http://", "");
-                            allowedURL = allowedURL.Replace("https://", "");
-                            allowedURL = allowedURL.Replace("www.", "");
-                            //Remove last slash from allowed url
-                            allowedURL = allowedURL.TrimEnd(new[] { '/' });
-
-                            if (sUrlToCheck.StartsWith(allowedURL))
-                            {
-                                LogWriter.LogWrite(sUrlToCheck + " (BLocked List APproach) found in blocked URLS of focus mode - BLOCK");
-                                bAllowedURLFound = false;
-                                break;
-                            }
-                            else
-                            {
-                                // if (Regex.Match(sUrlToCheck, Regex.Escape(allowedURL).Replace("\\*", "(.+)")).Success)
-                                allowedURL = "*" + allowedURL + "*";
-                                if (MatchWildcardString(sUrlToCheck, allowedURL))
-                                {
-                                    bAllowedURLFound = false;
-                                    LogWriter.LogWrite(sUrlToCheck + " (BLocked List APproach MatchWildcardString) found in blocked URLS of focus mode - BLOCK");
-                                    break;
-                                }
-                                else
-                                {
-                                    try
-                                    {
-                                        //Check title
-                                        const int nChars = 256;
-                                        StringBuilder Buff = new StringBuilder(nChars);
-                                        if (GetWindowText(hWnd, Buff, nChars) > 0)
-                                        {
-                                            string sTitle = Buff.ToString();
-                                            if (MatchWildcardString(sTitle, allowedURL))
-                                            {
-                                                LogWriter.LogWrite(sTitle + "title found in (BLocked List APproach MatchWildcardString) match of focus mode - BLOCK");
-                                                bAllowedURLFound = false;
-                                                break;
-                                            }
-                                        }
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        LogWriter.LogWrite("processCurrentFocusElement GetWindowText blockedurls EX - " + ex.Message);
-                                    }
-
-                                }
-                            }
-                        }
-                    }
-                    if (!bAllowedURLFound)
-                    {
-                        LogWriter.LogWrite("FCH - processCurrentFocusElement isBlockedListApproach - Attempt to Suppress URL");
-                        if (bForFirefox)
-                        {
-                            suppressURLForFirefox(hWnd, sURL, "focus");
-                        }
-                        else
-                        {
-                            suppressURL(hWnd, val, "focus");
-                        }
-                        return;
-                    }
-                    else //Check the URL in Always BLocked URL List
-                    {
-                        if (appSettings.arrAlwaysBlockedURLs.Count() > 0)
-                            processCurrentURL(element); //For always Blocked URLS
-                    }
-                }
-            }
-
-        }
-
-        private void processCurrentURL(IUIAutomationElement element)
-        {
-            return;
-        }
-
-        private void suppressURLForFirefox(IntPtr hWnd, string val, string type, string focusMode = null)
-        {
-            try
-            {
-                LogWriter.LogWrite("FCH - suppressURLForFirefox - Block URL - " + val);
-
-                if (type == "focus")
-                {
-                    if (appSettings.nFocusBearMode == 1)//Cuddly bearMode
-                    {
-                        string sURLForFocusMode = "";
-                        try
-                        {
-                            Uri myUri = new Uri(val);
-                            string host = myUri.Host; //fails if ther eis no http://
-                            sURLForFocusMode = host;
-                            Debug.WriteLine(sURLForFocusMode);
-                        }
-                        catch (Exception ex)
-                        {
-                            /*
-                            This constructor initializes a new instance of the UriBuilder class with the Fragment, Host, Path, Port, Query, Scheme, and Uri properties set as specified in uri.
-                            If uri does not specify a scheme, the scheme defaults to "http:".
-                            */
-                            Uri myUri = new UriBuilder(val).Uri;
-                            sURLForFocusMode = myUri.Host;
-                            Debug.WriteLine(ex.Message);
-                        }
-
-                        var allowedURLs = appSettings.TemporaryAllowedURLsGentleBlock.Where(i => i.sURL.ToLower() == sURLForFocusMode.ToLower());
-                        if (allowedURLs.Count() != 0)
-                        {
-                            //found in allowed url
-                            //if found in allowed URLs then add the title in the keywords list
-                            try
-                            {
-                                //Check title
-                                const int nChars = 256;
-                                StringBuilder Buff = new StringBuilder(nChars);
-                                if (GetWindowText(hWnd, Buff, nChars) > 0)
-                                {
-                                    string sTitle = Buff.ToString();
-                                    if(sTitle.Length > 0)
-                                    {
-                                        var titleExists = appSettings.TemporaryAllowedURLsTabTitles.Where(i => i.ToLower() == sTitle.ToLower());
-                                        if (titleExists.Count() == 0)
-                                        {
-                                            //add to list
-                                            appSettings.TemporaryAllowedURLsTabTitles.Add(sTitle);
-                                        }
-                                    }
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                LogWriter.LogWrite("alwaysblockedurls GetWindowText blockedurls EX - " + ex.Message);
-                            }
-
-                            return;//allow the url
-                        }
-                        else
-                        {
-                            var blockedURLs = appSettings.TemporarryBlockedURLsGentleBlock.Where(i => i.ToLower() == sURLForFocusMode.ToLower());
-                            
-                            if (blockedURLs.Count() != 0)
-                            {
-                                //found in blocked urls..block
-                            }
-                            else
-                            {
-                                string sTitle = "";
-                                try
-                                {
-                                    //Check title
-                                    const int nChars = 256;
-                                    StringBuilder Buff = new StringBuilder(nChars);
-                                    if (GetWindowText(hWnd, Buff, nChars) > 0)
-                                    {
-                                        sTitle = Buff.ToString();
-                                    }
-                                }
-                                catch (Exception ex)
-                                {
-                                    LogWriter.LogWrite("FCS suppressURLForFirefox 1 GetWindowText blockedurls EX - " + ex.Message);
-                                }
-
-                                appSettings.ShowGentleBlockWindow(hWnd, "", sURLForFocusMode, sTitle);
-                                return;
-                            }
-                        }
-                    }
-
-                    
-                    if (appSettings.bHabitwithUseFocusModeRunning)
-                    {
-                        //string sActivityBlockedWebUrl = "https://focus-bear.github.io/assets/focus-blocked?old_url={0}&block_type={1}"; //evening-habit, morning-habit, break-activity
-                        string sURL = string.Format(sActivityBlockedWebUrl, val, appSettings.sHabitTypeForUseFocusModeIDInActivity);
-                        if (appSettings.nFocusBearMode == 1)//cuddly mode
-                            sURL = sURL + "&cuddly_bear_mode=true";
-                        appSettings.FirefoxLastAccWindow.accValue[appSettings.objChild] = sURL;
-
-                    }
-                    else
-                    {
-                        DateTime end = DateTime.Parse(appSettings.sRunningFocusModeEndTime).ToUniversalTime();
-                        string sEndTime = end.ToString("o");
-                        string sFcousBlockedUrl = string.Format(sFcousBlockedWebUrl, val, sEndTime, appSettings.sRunningFocusModeName, appSettings.sRunningFocusModeIntention);
-                        // "https://focus-bear.github.io/assets/focus-blocked/?old_url={0)&focus_mode_end_time={1}&focus_mode={2}&focus_mode_intention={3}";
-                        
-                        if(appSettings.nFocusBearMode == 1)//cuddly mode
-                            sFcousBlockedUrl = sFcousBlockedUrl + "&cuddly_bear_mode=true";
-
-                        appSettings.FirefoxLastAccWindow.accValue[appSettings.objChild] = sFcousBlockedUrl;
-
-                    }
-
-                }
-                else if (type == "blocked")
-                {
-                    appSettings.FirefoxLastAccWindow.accValue[appSettings.objChild] = string.Format(sAlwaysBlockedWebUrl, val);
-                }
-                else
-                {
-                    //string sActivityBlockedWebUrl = "https://focus-bear.github.io/assets/focus-blocked?old_url={0}&block_type={1}"; //evening-habit, morning-habit, break-activity
-                    appSettings.FirefoxLastAccWindow.accValue[appSettings.objChild] = string.Format(sActivityBlockedWebUrl, val, type);
-                }
-
-                SendKeys.SendWait("{ENTER}");
-
-                appSettings.CapturePostHog("block-distracting-url");
-            }
-            catch (Exception ex)
-            {
-                LogWriter.LogWrite("suppressURLForFirefox EX -" + ex.Message);
-            }
-
-
-        }
-        private void suppressURL(IntPtr hWnd,  IUIAutomationValuePattern val, string type, string focusMode = null)
-        {
-            try
-            {
-                LogWriter.LogWrite("suppressURL - Block URL - " + val.CurrentValue);
-
-
-                if (type == "focus")
-                {
-                    if (appSettings.nFocusBearMode == 1)//Cuddly bearMode
-                    {
-                        string sURLForFocusMode = "";
-                        try
-                        {
-                            Uri myUri = new Uri(val.CurrentValue);
-                            string host = myUri.Host; //fails if ther eis no http://
-                            sURLForFocusMode = host;
-                            Debug.WriteLine(sURLForFocusMode);
-                        }
-                        catch (Exception ex)
-                        {
-                            /*
-                            This constructor initializes a new instance of the UriBuilder class with the Fragment, Host, Path, Port, Query, Scheme, and Uri properties set as specified in uri.
-                            If uri does not specify a scheme, the scheme defaults to "http:".
-                            */
-                            Uri myUri = new UriBuilder(val.CurrentValue).Uri; 
-                            sURLForFocusMode = myUri.Host; 
-                            Debug.WriteLine(ex.Message);
-                        }
-
-                        var allowedURLs = appSettings.TemporaryAllowedURLsGentleBlock.Where(i => i.sURL.ToLower() == sURLForFocusMode.ToLower());
-                        if (allowedURLs.Count() != 0)
-                        {
-                            //found in allowed app
-                            return;//allow the app
-                        }
-                        else
-                        {
-                            var blockedURLs = appSettings.TemporarryBlockedURLsGentleBlock.Where(i => i.ToLower() == sURLForFocusMode.ToLower());
-                            if (blockedURLs.Count() != 0)
-                            {
-                                //found in blocked apps..block
-                            }
-                            else
-                            {
-                                string sTitle = "";
-                                try
-                                {
-                                    //Check title
-                                    const int nChars = 256;
-                                    StringBuilder Buff = new StringBuilder(nChars);
-                                    if (GetWindowText(hWnd, Buff, nChars) > 0)
-                                    {
-                                        sTitle = Buff.ToString();
-                                    }
-                                }
-                                catch (Exception ex)
-                                {
-                                    LogWriter.LogWrite("FCS suppressURLForFirefox 1 GetWindowText blockedurls EX - " + ex.Message);
-                                }
-
-                                appSettings.ShowGentleBlockWindow(hWnd,"", sURLForFocusMode, sTitle);
-                                return;
-                            }
-                        }
-                    }
-
-                    DateTime end = DateTime.Parse(appSettings.sRunningFocusModeEndTime).ToUniversalTime();
-                    string sEndTime = end.ToString("o");
-
-                    if (appSettings.bHabitwithUseFocusModeRunning)
-                    {
-                        //string sActivityBlockedWebUrl = "https://focus-bear.github.io/assets/focus-blocked?old_url={0}&block_type={1}"; //evening-habit, morning-habit, break-activity
-                        string sURL = string.Format(sActivityBlockedWebUrl, val.CurrentValue, appSettings.sHabitTypeForUseFocusModeIDInActivity);
-                        if (appSettings.nFocusBearMode == 1)//cuddly mode
-                            sURL = sURL + "&cuddly_bear_mode=true";
-
-                        val.SetValue(sURL);
-                    }
-                    else
-                    {
-                        string sFcousBlockedUrl = string.Format(sFcousBlockedWebUrl, val.CurrentValue, sEndTime, appSettings.sRunningFocusModeName, appSettings.sRunningFocusModeIntention);
-                        // "https://focus-bear.github.io/assets/focus-blocked/?old_url={0)&focus_mode_end_time={1}&focus_mode={2}&focus_mode_intention={3}";
-                        if (appSettings.nFocusBearMode == 1)//cuddly mode
-                            sFcousBlockedUrl = sFcousBlockedUrl + "&cuddly_bear_mode=true";
-                        val.SetValue(sFcousBlockedUrl);
-                    }
-                }
-                else if(type == "blocked")
-                {
-                    val.SetValue(string.Format(sAlwaysBlockedWebUrl, val.CurrentValue));
-                
-                }
-                else
-                {
-                    //string sActivityBlockedWebUrl = "https://focus-bear.github.io/assets/focus-blocked?old_url={0}&block_type={1}"; //evening-habit, morning-habit, break-activity
-                    val.SetValue(string.Format(sActivityBlockedWebUrl, val.CurrentValue, type));
-                }
-
-                SendKeys.SendWait("{ENTER}");
-
-                appSettings.CapturePostHog("block-distracting-url");
-            }
-            catch (Exception ex)
-            {
-                LogWriter.LogWrite("suppressURL EX -" + ex.Message);
-            }
-        }
-
     }
 
 

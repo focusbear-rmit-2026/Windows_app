@@ -49,7 +49,7 @@
                                FontSize="15" FontWeight="Bold" Margin="0,0,0,10"
                                Foreground="{DynamicResource ForegroundColor}"/>
 
-                    <TextBox Grid.Row="1" x:Name="TitleField" Height="30" Margin="0,0,0,8"
+                    <TextBox Grid.Row="1" x:Name="TitleField" AutomationProperties.AutomationId="TitleField" Height="30" Margin="0,0,0,8"
                              Background="{DynamicResource TextBoxBackgroundColor}" Foreground="{DynamicResource ForegroundColor}" BorderBrush="{DynamicResource ForegroundGrey}"
                              VerticalContentAlignment="Center" Padding="6,0,6,0" FontSize="14"/>
 
@@ -61,7 +61,7 @@
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" x:Name="LblProject" Text="Project" VerticalAlignment="Center"
                                        Width="90" FontSize="12" Foreground="{DynamicResource ForegroundGrey}"/>
-                            <TextBox Grid.Column="1" x:Name="ProjectField" Height="28" FontSize="13"
+                            <TextBox Grid.Column="1" x:Name="ProjectField" AutomationProperties.AutomationId="ProjectField" Height="28" FontSize="13"
                                      Background="{DynamicResource TextBoxBackgroundColor}" Foreground="{DynamicResource ForegroundColor}" BorderBrush="{DynamicResource ForegroundGrey}"
                                      VerticalContentAlignment="Center" Padding="6,0,6,0"/>
                         </Grid>
@@ -79,7 +79,7 @@
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" x:Name="LblDuration" Text="Duration (min)" VerticalAlignment="Center"
                                    Width="90" FontSize="12" TextWrapping="Wrap" Foreground="{DynamicResource ForegroundGrey}"/>
-                        <TextBox Grid.Column="1" x:Name="DurationField" Height="28" VerticalContentAlignment="Center"
+                        <TextBox Grid.Column="1" x:Name="DurationField" AutomationProperties.AutomationId="DurationField" Height="28" VerticalContentAlignment="Center"
                                  Background="{DynamicResource TextBoxBackgroundColor}" Foreground="{DynamicResource ForegroundColor}" BorderBrush="{DynamicResource ForegroundGrey}"
                                  Padding="6,0,6,0" FontSize="13"/>
                     </Grid>
@@ -92,7 +92,7 @@
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" x:Name="LblImportance" Text="Importance" VerticalAlignment="Center"
                                    Width="90" FontSize="12" Foreground="{DynamicResource ForegroundGrey}"/>
-                        <ComboBox Grid.Column="1" x:Name="ImportanceField" Height="28" FontSize="13"
+                        <ComboBox Grid.Column="1" x:Name="ImportanceField" AutomationProperties.AutomationId="ImportanceField" Height="28" FontSize="13"
                                   SelectionChanged="ImportanceField_SelectionChanged"/>
                         <Border Grid.Column="2" x:Name="ImportanceSwatch" Width="16" Height="16" CornerRadius="8"
                                 Margin="8,0,2,0" Background="Transparent"/>
@@ -100,7 +100,7 @@
 
                     <TextBlock Grid.Row="5" x:Name="LblNotes" Text="Details" FontSize="12" Margin="0,2,0,4"
                                Foreground="{DynamicResource ForegroundGrey}"/>
-                    <TextBox Grid.Row="6" x:Name="NotesField" Height="64" Margin="0,0,0,10"
+                    <TextBox Grid.Row="6" x:Name="NotesField" AutomationProperties.AutomationId="NotesField" Height="64" Margin="0,0,0,10"
                              Background="{DynamicResource TextBoxBackgroundColor}" Foreground="{DynamicResource ForegroundColor}" BorderBrush="{DynamicResource ForegroundGrey}"
                              AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"
                              Padding="6,4,6,4" FontSize="13"/>
@@ -108,7 +108,7 @@
                     <TextBlock Grid.Row="7" x:Name="LblSubtasks" Text="Sub-tasks" FontSize="12" Margin="0,2,0,4"
                                Foreground="{DynamicResource ForegroundGrey}"/>
                     <StackPanel Grid.Row="8" x:Name="SubtasksStack" Orientation="Vertical"/>
-                    <Button Grid.Row="9" x:Name="BtnAddSubtask" HorizontalAlignment="Left" Height="28" MinWidth="140"
+                    <Button Grid.Row="9" x:Name="BtnAddSubtask" AutomationProperties.AutomationId="BtnAddSubtask" HorizontalAlignment="Left" Height="28" MinWidth="140"
                             Margin="0,4,0,10" Style="{StaticResource BtnStyleClearOrangeBordered}" Cursor="Hand"
                             Click="BtnAddSubtask_Click">
                         <TextBlock x:Name="BtnAddSubtaskText" Text="＋ Add sub-task" Margin="12,3,12,3" Foreground="#000000"/>
@@ -125,10 +125,10 @@
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Grid.Column="0" x:Name="LblMove" Text="Move to…" VerticalAlignment="Center"
                                            Width="90" FontSize="12" Foreground="{DynamicResource ForegroundGrey}"/>
-                                <TextBox Grid.Column="1" x:Name="MoveField" Height="28" VerticalContentAlignment="Center"
+                                <TextBox Grid.Column="1" x:Name="MoveField" AutomationProperties.AutomationId="MoveField" Height="28" VerticalContentAlignment="Center"
                                          Background="{DynamicResource TextBoxBackgroundColor}" Foreground="{DynamicResource ForegroundColor}" BorderBrush="{DynamicResource ForegroundGrey}"
                                          Padding="6,0,6,0" FontSize="13" TextChanged="MoveField_TextChanged"/>
-                                <Button Grid.Column="2" x:Name="BtnMove" Height="28" MinWidth="72" Margin="8,0,0,0"
+                                <Button Grid.Column="2" x:Name="BtnMove" AutomationProperties.AutomationId="BtnMove" Height="28" MinWidth="72" Margin="8,0,0,0"
                                         Style="{StaticResource BtnStyleClearOrangeBordered}" Cursor="Hand" Click="BtnMove_Click">
                                     <TextBlock x:Name="BtnMoveText" Text="Move" Margin="14,3,14,3" Foreground="#000000"/>
                                 </Button>
@@ -144,19 +144,19 @@
 
             <!-- Pinned action row: Remove far left; Cancel + primary Save on the right. Always visible. -->
             <Grid Grid.Row="1" Margin="0,10,0,0">
-                <Button x:Name="btnRemove" HorizontalAlignment="Left" MinWidth="110" MinHeight="34"
+                <Button x:Name="btnRemove" AutomationProperties.AutomationId="btnRemove" HorizontalAlignment="Left" MinWidth="110" MinHeight="34"
                         Style="{StaticResource BtnStyleClearOrangeBordered}" Cursor="Hand" Click="btnRemove_Click">
                     <TextBlock x:Name="btnRemoveText" Text="Remove" Margin="14,4,14,4" FontSize="14">
                         <TextBlock.Foreground><SolidColorBrush Color="#FF3B30"/></TextBlock.Foreground>
                     </TextBlock>
                 </Button>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button x:Name="btnCancel" MinWidth="120" MinHeight="34" Margin="0,0,8,0"
+                    <Button x:Name="btnCancel" AutomationProperties.AutomationId="btnCancel" MinWidth="120" MinHeight="34" Margin="0,0,8,0"
                             Style="{StaticResource BtnStyleClearOrangeBordered}" Cursor="Hand"
                             IsCancel="True" Click="btnCancel_Click">
                         <TextBlock x:Name="btnCancelText" Text="Cancel" Margin="14,4,14,4" FontSize="14" Foreground="#000000"/>
                     </Button>
-                    <Button x:Name="btnSave" MinWidth="120" MinHeight="34" IsDefault="True"
+                    <Button x:Name="btnSave" AutomationProperties.AutomationId="btnSave" MinWidth="120" MinHeight="34" IsDefault="True"
                             Style="{StaticResource BtnStyleLightOrangeBordered}" Cursor="Hand" Click="btnSave_Click">
                         <TextBlock x:Name="btnSaveText" Text="Save" Margin="14,4,14,4" FontSize="14" Foreground="#000000"/>
                     </Button>

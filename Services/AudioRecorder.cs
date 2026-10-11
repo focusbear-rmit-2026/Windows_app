@@ -29,7 +29,7 @@ namespace Focus_Bear.Services
         {
             string appFolder = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                "Focus Bear");
+                FocusBear.Core.AppInstance.DataFolderName);
 
             Directory.CreateDirectory(appFolder);
 
