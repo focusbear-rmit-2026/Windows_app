@@ -68,6 +68,20 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Verify ONNX model assets
+        shell: powershell
+        run: |
+          $models = @('logistic_regression.onnx', 'minilm_l6_v2.onnx', 'xgboost_1.onnx', 'xgboost_2.onnx')
+          foreach ($name in $models) {
+            $path = Join-Path $PWD ('RelevanceClassifier\' + $name)
+            if (-not (Test-Path $path)) { throw "Missing ONNX model: $name" }
+            $item = Get-Item $path
+            if ($item.Length -lt 1024) { throw "ONNX model is too small; check Git LFS download: $name" }
+            Write-Host "$name : $($item.Length) bytes"
+          }
 
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
@@ -153,12 +167,25 @@ jobs:
             $dataDir = Join-Path $env:LOCALAPPDATA 'Focus Bear'
           }
           $log = Join-Path $dataDir 'Logs\Debug_Logs.txt'
+          $smokeStart = Get-Date
           $app = Start-Process -FilePath $exe -PassThru
           Start-Sleep -Seconds 45
 
           if (Test-Path $log) { Get-Content $log -Tail 80 } else { Write-Host "no log at $log" }
           $failures = @()
-          if ($app.HasExited) { $failures += "the app exited during startup (code $($app.ExitCode))" }
+          if ($app.HasExited) {
+            $failures += "the app exited during startup (code $($app.ExitCode))"
+            Write-Host 'Windows Application events since smoke test launch:'
+            try {
+              $events = @(Get-WinEvent -FilterHashtable @{ LogName = 'Application'; StartTime = $smokeStart } -ErrorAction Stop |
+                Where-Object { $_.ProviderName -in @('.NET Runtime', 'Application Error', 'Windows Error Reporting') -and
+                  $_.Message -match 'Focus Bear|Focus_Bear|onnxruntime' })
+              if ($events.Count -eq 0) { Write-Host 'No matching application crash events found.' }
+              $events | Select-Object TimeCreated, ProviderName, Id, Message | Format-List | Out-String -Width 240 | Write-Host
+            } catch {
+              Write-Host ("Could not read crash events: " + $_.Exception.Message)
+            }
+          }
           if (-not (Test-Path $log) -or -not (Select-String -Path $log -SimpleMatch 'App Started' -Quiet)) {
             $failures += "the log never recorded 'App Started'"
           }
