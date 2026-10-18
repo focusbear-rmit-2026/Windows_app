@@ -451,13 +451,15 @@ namespace Focus_Bear.Focus
             }
         }
 
-        private static string CleanYouTubeWatchShadowTitle(Uri url, string windowTitle)
+        private static string CleanYouTubeShadowTitle(Uri url, string windowTitle)
         {
             string host = url.Host;
             bool youtube = string.Equals(host, "youtube.com", StringComparison.OrdinalIgnoreCase) ||
                 string.Equals(host, "www.youtube.com", StringComparison.OrdinalIgnoreCase) ||
                 string.Equals(host, "m.youtube.com", StringComparison.OrdinalIgnoreCase);
-            if (!youtube || !string.Equals(url.AbsolutePath, "/watch", StringComparison.OrdinalIgnoreCase))
+            bool supportedPage = string.Equals(url.AbsolutePath, "/watch", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(url.AbsolutePath, "/results", StringComparison.OrdinalIgnoreCase);
+            if (!youtube || !supportedPage)
                 return null;
 
             string clean = windowTitle ?? string.Empty;
@@ -524,7 +526,7 @@ namespace Focus_Bear.Focus
                         string cleanVideoTitle = Uri.TryCreate(
                             rawShadowUrl.Contains("://") ? rawShadowUrl : "https://" + rawShadowUrl,
                             UriKind.Absolute, out shadowUrl)
-                            ? CleanYouTubeWatchShadowTitle(shadowUrl, sCurrentTabTitle)
+                            ? CleanYouTubeShadowTitle(shadowUrl, sCurrentTabTitle)
                             : null;
                         if (cleanVideoTitle != null)
                             shadowTitle = cleanVideoTitle;
@@ -532,12 +534,13 @@ namespace Focus_Bear.Focus
                             string.Equals(shadowTitle, "Untitled", StringComparison.OrdinalIgnoreCase) ||
                             string.Equals(shadowTitle, "New Tab", StringComparison.OrdinalIgnoreCase) ||
                             string.Equals(shadowTitle, "YouTube", StringComparison.OrdinalIgnoreCase);
-                        bool youtubeWatch = shadowUrl != null &&
+                        bool youtubeContentPage = shadowUrl != null &&
                             (string.Equals(shadowUrl.Host, "youtube.com", StringComparison.OrdinalIgnoreCase) ||
                              string.Equals(shadowUrl.Host, "www.youtube.com", StringComparison.OrdinalIgnoreCase) ||
                              string.Equals(shadowUrl.Host, "m.youtube.com", StringComparison.OrdinalIgnoreCase)) &&
-                            string.Equals(shadowUrl.AbsolutePath, "/watch", StringComparison.OrdinalIgnoreCase);
-                        if (youtubeWatch)
+                            (string.Equals(shadowUrl.AbsolutePath, "/watch", StringComparison.OrdinalIgnoreCase) ||
+                             string.Equals(shadowUrl.AbsolutePath, "/results", StringComparison.OrdinalIgnoreCase));
+                        if (youtubeContentPage)
                         {
                             // URL navigation can precede the window title update. The browser
                             // shadow queue waits for a stable title and validates the active URL.

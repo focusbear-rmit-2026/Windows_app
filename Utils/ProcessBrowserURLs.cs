@@ -187,13 +187,15 @@ namespace Focus_Bear.Utils
 
         // Input repair for the native SHADOW check only. Keep the actual URL
         // for URL features and keep the original window title for deduplication.
-        private static string CleanYouTubeWatchShadowTitle(Uri url, string windowTitle)
+        private static string CleanYouTubeShadowTitle(Uri url, string windowTitle)
         {
             string host = url.Host;
             bool youtube = string.Equals(host, "youtube.com", StringComparison.OrdinalIgnoreCase) ||
                 string.Equals(host, "www.youtube.com", StringComparison.OrdinalIgnoreCase) ||
                 string.Equals(host, "m.youtube.com", StringComparison.OrdinalIgnoreCase);
-            if (!youtube || !string.Equals(url.AbsolutePath, "/watch", StringComparison.OrdinalIgnoreCase))
+            bool supportedPage = string.Equals(url.AbsolutePath, "/watch", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(url.AbsolutePath, "/results", StringComparison.OrdinalIgnoreCase);
+            if (!youtube || !supportedPage)
                 return null;
 
             string clean = windowTitle ?? string.Empty;
@@ -208,6 +210,28 @@ namespace Focus_Bear.Utils
             if (clean.Length == 0 || string.Equals(clean, "YouTube", StringComparison.OrdinalIgnoreCase))
                 return null;
             return clean;
+        }
+
+        private static bool IsUrlPlaceholderTitle(Uri currentUrl, string windowTitle)
+        {
+            string candidate = Regex.Replace(windowTitle ?? string.Empty,
+                @"\s+[-–—]\s+(Google Chrome|Microsoft Edge|Mozilla Firefox)\s*$",
+                string.Empty, RegexOptions.IgnoreCase);
+            candidate = Regex.Replace(candidate, @"^\s*\(\d+\)\s*", string.Empty).Trim();
+            candidate = Regex.Replace(candidate, @"\s+[-–—]\s+YouTube\s*$",
+                string.Empty, RegexOptions.IgnoreCase).Trim();
+            Uri titleUrl;
+            if (candidate.Length == 0 || candidate.Any(char.IsWhiteSpace) ||
+                !Uri.TryCreate(candidate.Contains("://") ? candidate : "https://" + candidate,
+                    UriKind.Absolute, out titleUrl) ||
+                (titleUrl.Scheme != Uri.UriSchemeHttp && titleUrl.Scheme != Uri.UriSchemeHttps))
+                return false;
+            // Ignore only the scheme; keep path/query case and values intact.
+            return string.Equals(titleUrl.Authority, currentUrl.Authority,
+                       StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(titleUrl.PathAndQuery, currentUrl.PathAndQuery,
+                       StringComparison.Ordinal) &&
+                string.Equals(titleUrl.Fragment, currentUrl.Fragment, StringComparison.Ordinal);
         }
 
         private static void QueueNativeWebsiteShadowCheck(IntPtr hWnd, string url)
@@ -293,7 +317,8 @@ namespace Focus_Bear.Utils
                                 return;
                             bool placeholder = string.IsNullOrWhiteSpace(title) ||
                                 title.StartsWith("Untitled", StringComparison.OrdinalIgnoreCase) ||
-                                title.StartsWith("New Tab", StringComparison.OrdinalIgnoreCase);
+                                title.StartsWith("New Tab", StringComparison.OrdinalIgnoreCase) ||
+                                IsUrlPlaceholderTitle(parsedUrl, title);
                             if (!placeholder && title == previousTitle)
                             {
                                 stable = true;
@@ -319,11 +344,11 @@ namespace Focus_Bear.Utils
                         string keywords = string.Join(" ", parsedUrl.AbsolutePath
                             .Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries)
                             .Where(part => part.Length > 2 && !part.All(char.IsDigit)));
-                        string cleanVideoTitle = CleanYouTubeWatchShadowTitle(parsedUrl, title);
+                        string cleanVideoTitle = CleanYouTubeShadowTitle(parsedUrl, title);
                         string modelTitle = cleanVideoTitle ?? title;
                         string context = cleanVideoTitle ?? (title + " " + keywords).Trim();
                         if (cleanVideoTitle != null)
-                            Debug.WriteLine("[NativeRelevanceModel] WEBSITE SHADOW CONTEXT POLICY=YouTubeWatchCleanTitle | " +
+                            Debug.WriteLine("[NativeRelevanceModel] WEBSITE SHADOW CONTEXT POLICY=YouTubeCleanTitle | " +
                                 "RawTitle=" + title + " | ModelTitle=" + modelTitle);
                         Debug.WriteLine("[NativeRelevanceModel] WEBSITE SHADOW INPUT | UserGoal=" +
                             goal + " | URL=" + rawUrl + " | Title=" + title);
