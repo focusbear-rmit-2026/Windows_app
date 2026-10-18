@@ -470,8 +470,19 @@ namespace Focus_Bear.Focus
                 string.Empty, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
             clean = System.Text.RegularExpressions.Regex.Replace(clean, @"^\s*\(\d+\)\s*", string.Empty);
             clean = System.Text.RegularExpressions.Regex.Replace(clean, @"\s+", " ").Trim();
-            // Do not turn an unready or generic page title into a blank input.
-            if (clean.Length == 0 || string.Equals(clean, "YouTube", StringComparison.OrdinalIgnoreCase))
+            // Generic/loading titles are not valid content inputs, even when stable.
+            if (clean.Length == 0 ||
+                string.Equals(clean, "YouTube", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(clean, "Untitled", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(clean, "New Tab", StringComparison.OrdinalIgnoreCase))
+                return null;
+            Uri titleUrl;
+            if (!clean.Any(char.IsWhiteSpace) &&
+                Uri.TryCreate(clean.Contains("://") ? clean : "https://" + clean,
+                    UriKind.Absolute, out titleUrl) &&
+                string.Equals(titleUrl.Authority, url.Authority, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(titleUrl.PathAndQuery, url.PathAndQuery, StringComparison.Ordinal) &&
+                string.Equals(titleUrl.Fragment, url.Fragment, StringComparison.Ordinal))
                 return null;
             return clean;
         }

@@ -1257,6 +1257,27 @@ namespace Focus_Bear
                     }
                 }
             }
+            // Dataset replay is explicitly opted into and must not depend on the
+            // backend-dependent post-login workflow reaching its final step.
+            if (DevFlags.DisagreementEval && NativeRelevanceClassifier != null &&
+                !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("FOCUSBEAR_EVALUATION_INPUT")))
+            {
+                LogWriter.LogWrite("Native evaluation startup hook queued.");
+                Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ApplicationIdle,
+                    new Action(async () =>
+                    {
+                        try
+                        {
+                            LogWriter.LogWrite("Native evaluation startup hook entered.");
+                            await DisagreementEvaluator.RunFiveExampleTestAsync(string.Empty, string.Empty);
+                        }
+                        catch (Exception ex)
+                        {
+                            LogWriter.LogWrite("Native evaluation startup hook failed: " + ex);
+                        }
+                    }));
+            }
+
             //Show the splash window here
             if (!appSettings.bStartingAfterDeactivated)
             {

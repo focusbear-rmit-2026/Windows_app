@@ -19,6 +19,12 @@ namespace Focus_Bear.RelevanceClassifier
 
         private InferenceSession _miniLmSession;
 
+        private string _contextEmbeddingInput = string.Empty;
+        private bool _trackingContextCleaned;
+        private int _lastMiniLmSequenceLength;
+        private int _contextMiniLmSequenceLength;
+
+
         private JObject _goalTfidfData;
         private JObject _contextTfidfData;
 
@@ -56,6 +62,11 @@ namespace Focus_Bear.RelevanceClassifier
 
         private string _cachedFocusIntention;
         private float[] _cachedFocusEmbedding;
+
+        internal int EffectiveOnnxThreadCount => _onnxThreadCount;
+        internal bool TrackingContextExperimentEnabled => string.Equals(
+            Environment.GetEnvironmentVariable("FOCUSBEAR_TRACKING_CONTEXT_EXPERIMENT"),
+            "1", StringComparison.Ordinal);
 
         private static int ReadOnnxThreadCount()
         {
@@ -509,6 +520,41 @@ namespace Focus_Bear.RelevanceClassifier
 
             return _cachedFocusEmbedding;
         }
+        // Opt-in shadow experiment. Keep TF-IDF, URL features and reference labels
+        // unchanged; compare against the original replay before adopting this policy.
+        private static string PrepareContextEmbeddingInput(
+            string context, string url, out bool cleaned)
+        {
+            cleaned = false;
+            context = context ?? string.Empty;
+            if (!string.Equals(Environment.GetEnvironmentVariable(
+                "FOCUSBEAR_TRACKING_CONTEXT_EXPERIMENT"), "1", StringComparison.Ordinal))
+                return context;
+
+            Uri parsed;
+            string candidate = url ?? string.Empty;
+            if (!Uri.TryCreate(candidate.Contains("://") ? candidate : "https://" + candidate,
+                    UriKind.Absolute, out parsed) ||
+                (parsed.Scheme != Uri.UriSchemeHttp && parsed.Scheme != Uri.UriSchemeHttps) ||
+                !parsed.AbsolutePath.StartsWith("/events/public/v1/encoded/track/",
+                    StringComparison.OrdinalIgnoreCase))
+                return context;
+
+            // Remove only long mixed letter/digit tracking tokens from this route.
+            // Preserve readable context, including its title and ordinary path words.
+            string result = Regex.Replace(context, @"\S{80,}", match =>
+            {
+                string token = match.Value;
+                return token.Any(char.IsLetter) && token.Any(char.IsDigit)
+                    ? string.Empty : token;
+            });
+            result = Regex.Replace(result, @"\s+", " ").Trim();
+            if (result.Length == 0 || string.Equals(result, context, StringComparison.Ordinal))
+                return context;
+            cleaned = true;
+            return result;
+        }
+
         private float[] GenerateMiniLmEmbedding(string text)
         {
             if (_miniLmSession == null)
@@ -529,6 +575,7 @@ namespace Focus_Bear.RelevanceClassifier
 
             int sequenceLength =
                 tokenized.SequenceLength;
+            _lastMiniLmSequenceLength = sequenceLength;
 
             if (sequenceLength <= 0)
                 throw new InvalidOperationException(
@@ -915,10 +962,13 @@ namespace Focus_Bear.RelevanceClassifier
             goalEmbeddingTimer.Stop();
             AddTiming("GoalEmbeddingMs", goalEmbeddingTimer.Elapsed.TotalMilliseconds);
             var contextEmbeddingTimer = Stopwatch.StartNew();
+            _contextEmbeddingInput = PrepareContextEmbeddingInput(
+                websiteContext, websiteUrl, out _trackingContextCleaned);
             float[] contextEmbedding =
                 GenerateMiniLmEmbedding(
-                    websiteContext
+                    _contextEmbeddingInput
                 );
+            _contextMiniLmSequenceLength = _lastMiniLmSequenceLength;
 
             contextEmbeddingTimer.Stop();
             AddTiming("ContextEmbeddingMs", contextEmbeddingTimer.Elapsed.TotalMilliseconds);
@@ -1527,6 +1577,12 @@ namespace Focus_Bear.RelevanceClassifier
                     ["Mode"] = "SHADOW",
                     ["Goal"] = focusIntention ?? string.Empty,
                     ["Context"] = websiteContext ?? string.Empty,
+                    ["ContextEmbeddingInput"] = _contextEmbeddingInput,
+                    ["ContextEmbeddingSequenceLength"] = _contextMiniLmSequenceLength,
+                    ["TrackingContextCleaned"] = _trackingContextCleaned,
+                    ["TrackingContextExperimentEnabled"] = string.Equals(
+                        Environment.GetEnvironmentVariable("FOCUSBEAR_TRACKING_CONTEXT_EXPERIMENT"),
+                        "1", StringComparison.Ordinal),
                     ["Url"] = websiteUrl ?? string.Empty,
                     ["Title"] = tabTitle ?? string.Empty,
                     ["Action"] = result.Action,

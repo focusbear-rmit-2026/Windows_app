@@ -187,6 +187,16 @@ namespace Focus_Bear.Utils
 
         // Input repair for the native SHADOW check only. Keep the actual URL
         // for URL features and keep the original window title for deduplication.
+        private static bool IsYouTubeContentPage(Uri url)
+        {
+            bool youtube = string.Equals(url.Host, "youtube.com", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(url.Host, "www.youtube.com", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(url.Host, "m.youtube.com", StringComparison.OrdinalIgnoreCase);
+            return youtube &&
+                (string.Equals(url.AbsolutePath, "/watch", StringComparison.OrdinalIgnoreCase) ||
+                 string.Equals(url.AbsolutePath, "/results", StringComparison.OrdinalIgnoreCase));
+        }
+
         private static string CleanYouTubeShadowTitle(Uri url, string windowTitle)
         {
             string host = url.Host;
@@ -206,8 +216,19 @@ namespace Focus_Bear.Utils
                 string.Empty, RegexOptions.IgnoreCase);
             clean = Regex.Replace(clean, @"^\s*\(\d+\)\s*", string.Empty);
             clean = Regex.Replace(clean, @"\s+", " ").Trim();
-            // Do not turn an unready or generic page title into a blank input.
-            if (clean.Length == 0 || string.Equals(clean, "YouTube", StringComparison.OrdinalIgnoreCase))
+            // Generic/loading titles are not valid content inputs, even when stable.
+            if (clean.Length == 0 ||
+                string.Equals(clean, "YouTube", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(clean, "Untitled", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(clean, "New Tab", StringComparison.OrdinalIgnoreCase))
+                return null;
+            Uri titleUrl;
+            if (!clean.Any(char.IsWhiteSpace) &&
+                Uri.TryCreate(clean.Contains("://") ? clean : "https://" + clean,
+                    UriKind.Absolute, out titleUrl) &&
+                string.Equals(titleUrl.Authority, url.Authority, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(titleUrl.PathAndQuery, url.PathAndQuery, StringComparison.Ordinal) &&
+                string.Equals(titleUrl.Fragment, url.Fragment, StringComparison.Ordinal))
                 return null;
             return clean;
         }
@@ -318,7 +339,9 @@ namespace Focus_Bear.Utils
                             bool placeholder = string.IsNullOrWhiteSpace(title) ||
                                 title.StartsWith("Untitled", StringComparison.OrdinalIgnoreCase) ||
                                 title.StartsWith("New Tab", StringComparison.OrdinalIgnoreCase) ||
-                                IsUrlPlaceholderTitle(parsedUrl, title);
+                                IsUrlPlaceholderTitle(parsedUrl, title) ||
+                                (IsYouTubeContentPage(parsedUrl) &&
+                                 CleanYouTubeShadowTitle(parsedUrl, title) == null);
                             if (!placeholder && title == previousTitle)
                             {
                                 stable = true;
