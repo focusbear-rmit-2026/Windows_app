@@ -68,20 +68,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          lfs: true
-
-      - name: Verify ONNX model assets
-        shell: powershell
-        run: |
-          $models = @('logistic_regression.onnx', 'minilm_l6_v2.onnx', 'xgboost_1.onnx', 'xgboost_2.onnx')
-          foreach ($name in $models) {
-            $path = Join-Path $PWD ('RelevanceClassifier\' + $name)
-            if (-not (Test-Path $path)) { throw "Missing ONNX model: $name" }
-            $item = Get-Item $path
-            if ($item.Length -lt 1024) { throw "ONNX model is too small; check Git LFS download: $name" }
-            Write-Host "$name : $($item.Length) bytes"
-          }
 
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2

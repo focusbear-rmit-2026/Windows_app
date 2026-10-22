@@ -15,6 +15,8 @@ using System.Web;
 using System.Windows.Forms;
 using System.Windows.Threading;
 using FocusBear.Core.Blocking;
+using FocusBear.Core.Relevance;
+using Focus_Bear.RelevanceClassifier;
 
 namespace Focus_Bear.Utils
 {
@@ -100,8 +102,6 @@ namespace Focus_Bear.Utils
         public static void ProcessCurrentURL(IntPtr hwnd)
         {
             AppSettings appSettings = AppSettings.GetInstance;
-            Debug.WriteLine("[NativeRelevanceModel] URL EVENT | URL=" +
-                (appSettings.sLastActiveURLInFirefox ?? "<missing>"));
 
             //In case the set intention window is open, we should hide it
             appSettings.Hide_SetIntentionWindow();
@@ -185,96 +185,21 @@ namespace Focus_Bear.Utils
         [DllImport("user32.dll")]
         private static extern IntPtr GetAncestor(IntPtr hWnd, uint flags);
 
-        // Input repair for the native SHADOW check only. Keep the actual URL
-        // for URL features and keep the original window title for deduplication.
-        private static bool IsYouTubeContentPage(Uri url)
-        {
-            bool youtube = string.Equals(url.Host, "youtube.com", StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(url.Host, "www.youtube.com", StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(url.Host, "m.youtube.com", StringComparison.OrdinalIgnoreCase);
-            return youtube &&
-                (string.Equals(url.AbsolutePath, "/watch", StringComparison.OrdinalIgnoreCase) ||
-                 string.Equals(url.AbsolutePath, "/results", StringComparison.OrdinalIgnoreCase));
-        }
-
-        private static string CleanYouTubeShadowTitle(Uri url, string windowTitle)
-        {
-            string host = url.Host;
-            bool youtube = string.Equals(host, "youtube.com", StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(host, "www.youtube.com", StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(host, "m.youtube.com", StringComparison.OrdinalIgnoreCase);
-            bool supportedPage = string.Equals(url.AbsolutePath, "/watch", StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(url.AbsolutePath, "/results", StringComparison.OrdinalIgnoreCase);
-            if (!youtube || !supportedPage)
-                return null;
-
-            string clean = windowTitle ?? string.Empty;
-            clean = Regex.Replace(clean,
-                @"\s+[-–—]\s+(Google Chrome|Microsoft Edge|Mozilla Firefox)\s*$",
-                string.Empty, RegexOptions.IgnoreCase);
-            clean = Regex.Replace(clean, @"\s+[-–—]\s+YouTube\s*$",
-                string.Empty, RegexOptions.IgnoreCase);
-            clean = Regex.Replace(clean, @"^\s*\(\d+\)\s*", string.Empty);
-            clean = Regex.Replace(clean, @"\s+", " ").Trim();
-            // Generic/loading titles are not valid content inputs, even when stable.
-            if (clean.Length == 0 ||
-                string.Equals(clean, "YouTube", StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(clean, "Untitled", StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(clean, "New Tab", StringComparison.OrdinalIgnoreCase))
-                return null;
-            Uri titleUrl;
-            if (!clean.Any(char.IsWhiteSpace) &&
-                Uri.TryCreate(clean.Contains("://") ? clean : "https://" + clean,
-                    UriKind.Absolute, out titleUrl) &&
-                string.Equals(titleUrl.Authority, url.Authority, StringComparison.OrdinalIgnoreCase) &&
-                string.Equals(titleUrl.PathAndQuery, url.PathAndQuery, StringComparison.Ordinal) &&
-                string.Equals(titleUrl.Fragment, url.Fragment, StringComparison.Ordinal))
-                return null;
-            return clean;
-        }
-
-        private static bool IsUrlPlaceholderTitle(Uri currentUrl, string windowTitle)
-        {
-            string candidate = Regex.Replace(windowTitle ?? string.Empty,
-                @"\s+[-–—]\s+(Google Chrome|Microsoft Edge|Mozilla Firefox)\s*$",
-                string.Empty, RegexOptions.IgnoreCase);
-            candidate = Regex.Replace(candidate, @"^\s*\(\d+\)\s*", string.Empty).Trim();
-            candidate = Regex.Replace(candidate, @"\s+[-–—]\s+YouTube\s*$",
-                string.Empty, RegexOptions.IgnoreCase).Trim();
-            Uri titleUrl;
-            if (candidate.Length == 0 || candidate.Any(char.IsWhiteSpace) ||
-                !Uri.TryCreate(candidate.Contains("://") ? candidate : "https://" + candidate,
-                    UriKind.Absolute, out titleUrl) ||
-                (titleUrl.Scheme != Uri.UriSchemeHttp && titleUrl.Scheme != Uri.UriSchemeHttps))
-                return false;
-            // Ignore only the scheme; keep path/query case and values intact.
-            return string.Equals(titleUrl.Authority, currentUrl.Authority,
-                       StringComparison.OrdinalIgnoreCase) &&
-                string.Equals(titleUrl.PathAndQuery, currentUrl.PathAndQuery,
-                       StringComparison.Ordinal) &&
-                string.Equals(titleUrl.Fragment, currentUrl.Fragment, StringComparison.Ordinal);
-        }
-
         private static void QueueNativeWebsiteShadowCheck(IntPtr hWnd, string url)
         {
             try
             {
                 AppSettings settings = AppSettings.GetInstance;
                 var app = System.Windows.Application.Current as App;
-                var classifier = app == null ? null : app.NativeRelevanceClassifier;
-                if (classifier == null)
+                if (app == null || RelevanceShadowMode.Classifier == null)
                     return;
 
-                Uri parsedUrl;
                 string rawUrl = (url ?? string.Empty).Trim();
-                if (rawUrl.Length == 0 ||
-                    !Uri.TryCreate(rawUrl.Contains("://") ? rawUrl : "https://" + rawUrl,
-                        UriKind.Absolute, out parsedUrl) ||
-                    (parsedUrl.Scheme != Uri.UriSchemeHttp && parsedUrl.Scheme != Uri.UriSchemeHttps))
+                Uri parsedUrl = RelevanceInput.ParseWebUrl(rawUrl);
+                if (parsedUrl == null)
                     return;
 
-                string goal = ((settings.sRunningFocusModeIntention ?? string.Empty) + " " +
-                    (settings.sCurrentTaskPlayingInToDoPlayer ?? string.Empty)).Trim();
+                string goal = RelevanceInput.ComposeGoal(settings.sRunningFocusModeIntention, settings.sCurrentTaskPlayingInToDoPlayer);
                 if (goal.Length == 0 || string.Equals(goal,
                     "What do you want to achieve in this focus session?", StringComparison.OrdinalIgnoreCase))
                     return;
@@ -316,8 +241,8 @@ namespace Focus_Bear.Utils
                                 if (root == IntPtr.Zero) root = hWnd;
                                 if (GetForegroundWindow() != root)
                                     return;
-                                string currentGoal = ((settings.sRunningFocusModeIntention ?? string.Empty) + " " +
-                                    (settings.sCurrentTaskPlayingInToDoPlayer ?? string.Empty)).Trim();
+                                string currentGoal = RelevanceInput.ComposeGoal(settings.sRunningFocusModeIntention,
+                                    settings.sCurrentTaskPlayingInToDoPlayer);
                                 bool active = (settings.isFocusModeRunning && !settings.isFocusModePaused) ||
                                     settings.bHabitwithUseFocusModeRunning ||
                                     (settings.isBlockingScheduleRunning && settings.ActiveSchedule != null &&
@@ -336,13 +261,7 @@ namespace Focus_Bear.Utils
                             }));
                             if (!validSnapshot)
                                 return;
-                            bool placeholder = string.IsNullOrWhiteSpace(title) ||
-                                title.StartsWith("Untitled", StringComparison.OrdinalIgnoreCase) ||
-                                title.StartsWith("New Tab", StringComparison.OrdinalIgnoreCase) ||
-                                IsUrlPlaceholderTitle(parsedUrl, title) ||
-                                (IsYouTubeContentPage(parsedUrl) &&
-                                 CleanYouTubeShadowTitle(parsedUrl, title) == null);
-                            if (!placeholder && title == previousTitle)
+                            if (!BrowserTitle.IsNotReady(parsedUrl, title) && title == previousTitle)
                             {
                                 stable = true;
                                 break;
@@ -353,7 +272,7 @@ namespace Focus_Bear.Utils
                         }
                         if (!stable)
                         {
-                            Debug.WriteLine("[NativeRelevanceModel] WEBSITE SHADOW skipped: title not ready | URL=" + rawUrl);
+                            Debug.WriteLine("[NativeRelevanceModel] WEBSITE SHADOW skipped: title not ready");
                             return;
                         }
                         string key = goal + "\n" + rawUrl + "\n" + title;
@@ -364,26 +283,11 @@ namespace Focus_Bear.Utils
                                  DateTime.UtcNow - LastNativeShadowTimeUtc < TimeSpan.FromSeconds(30)))
                                 return;
                         }
-                        string keywords = string.Join(" ", parsedUrl.AbsolutePath
-                            .Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries)
-                            .Where(part => part.Length > 2 && !part.All(char.IsDigit)));
-                        string cleanVideoTitle = CleanYouTubeShadowTitle(parsedUrl, title);
-                        string modelTitle = cleanVideoTitle ?? title;
-                        string context = cleanVideoTitle ?? (title + " " + keywords).Trim();
-                        if (cleanVideoTitle != null)
-                            Debug.WriteLine("[NativeRelevanceModel] WEBSITE SHADOW CONTEXT POLICY=YouTubeCleanTitle | " +
-                                "RawTitle=" + title + " | ModelTitle=" + modelTitle);
-                        Debug.WriteLine("[NativeRelevanceModel] WEBSITE SHADOW INPUT | UserGoal=" +
-                            goal + " | URL=" + rawUrl + " | Title=" + title);
-                        var stopwatch = Stopwatch.StartNew();
-                        var result = classifier.Predict(goal, context, rawUrl, modelTitle);
-                        stopwatch.Stop();
-                        Debug.WriteLine(string.Format(CultureInfo.InvariantCulture,
-                            "[NativeRelevanceModel] WEBSITE SHADOW RESULT | Action={0} | Tier={1} | " +
-                            "Confidence={2:F4} | Cosine={3:F4} | LLMFallback={4} | " +
-                            "WebsiteLatencyMs={5:F2} | URL={6}",
-                            result.Action, result.Tier, result.Confidence, result.CosineSimilarity,
-                            result.LlmFallbackRequired, stopwatch.Elapsed.TotalMilliseconds, rawUrl));
+                        RelevanceInput input = RelevanceInput.ForBrowserTab(settings.sRunningFocusModeIntention,
+                            settings.sCurrentTaskPlayingInToDoPlayer, rawUrl, title);
+                        if (input == null || input.Goal != goal)
+                            return;
+                        await RelevanceShadowMode.PredictInBackground(input).ConfigureAwait(false);
                         lock (NativeShadowLock)
                         {
                             LastNativeShadowKey = key;

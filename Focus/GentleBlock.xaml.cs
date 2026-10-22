@@ -1,5 +1,6 @@
 ﻿using Focus_Bear.API;
 using Focus_Bear.RelevanceClassifier;
+using FocusBear.Core.Relevance;
 using Focus_Bear.Utils;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -28,7 +29,6 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Threading;
-using static Focus_Bear.RelevanceClassifier.NativeRelevanceClassifier;
 
 namespace Focus_Bear.Focus
 {
@@ -451,42 +451,6 @@ namespace Focus_Bear.Focus
             }
         }
 
-        private static string CleanYouTubeShadowTitle(Uri url, string windowTitle)
-        {
-            string host = url.Host;
-            bool youtube = string.Equals(host, "youtube.com", StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(host, "www.youtube.com", StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(host, "m.youtube.com", StringComparison.OrdinalIgnoreCase);
-            bool supportedPage = string.Equals(url.AbsolutePath, "/watch", StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(url.AbsolutePath, "/results", StringComparison.OrdinalIgnoreCase);
-            if (!youtube || !supportedPage)
-                return null;
-
-            string clean = windowTitle ?? string.Empty;
-            clean = System.Text.RegularExpressions.Regex.Replace(clean,
-                @"\s+[-–—]\s+(Google Chrome|Microsoft Edge|Mozilla Firefox)\s*$",
-                string.Empty, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-            clean = System.Text.RegularExpressions.Regex.Replace(clean, @"\s+[-–—]\s+YouTube\s*$",
-                string.Empty, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-            clean = System.Text.RegularExpressions.Regex.Replace(clean, @"^\s*\(\d+\)\s*", string.Empty);
-            clean = System.Text.RegularExpressions.Regex.Replace(clean, @"\s+", " ").Trim();
-            // Generic/loading titles are not valid content inputs, even when stable.
-            if (clean.Length == 0 ||
-                string.Equals(clean, "YouTube", StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(clean, "Untitled", StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(clean, "New Tab", StringComparison.OrdinalIgnoreCase))
-                return null;
-            Uri titleUrl;
-            if (!clean.Any(char.IsWhiteSpace) &&
-                Uri.TryCreate(clean.Contains("://") ? clean : "https://" + clean,
-                    UriKind.Absolute, out titleUrl) &&
-                string.Equals(titleUrl.Authority, url.Authority, StringComparison.OrdinalIgnoreCase) &&
-                string.Equals(titleUrl.PathAndQuery, url.PathAndQuery, StringComparison.Ordinal) &&
-                string.Equals(titleUrl.Fragment, url.Fragment, StringComparison.Ordinal))
-                return null;
-            return clean;
-        }
-
         private async void CheckWithChatGPT()
         {
             //Here first we need to call the chat GPT API and decide per that to show the Gentle block window or not
@@ -519,202 +483,19 @@ namespace Focus_Bear.Focus
                         }
                     }));
 
-                    string shadowAction = "";
-                    string shadowConfidence = "";
-                    string shadowTier = "";
-                    string shadowFallbackRequired = "";
-                    // Shadow-mode check with the native C# ONNX relevance classifier.
-                    // This does NOT change the current Focus Bear blocking decision.
-                    try
-                    {
-                        string shadowTitle = System.Text.RegularExpressions.Regex.Replace(
-                            sCurrentTabTitle ?? string.Empty, @"^\s*\(\d+\)\s*", string.Empty).Trim();
-                        shadowTitle = System.Text.RegularExpressions.Regex.Replace(
-                            shadowTitle, @"\s+[-–—]\s+(Google Chrome|Microsoft Edge|Mozilla Firefox)\s*$",
-                            string.Empty, System.Text.RegularExpressions.RegexOptions.IgnoreCase).Trim();
-                        Uri shadowUrl;
-                        string rawShadowUrl = sActiveURL ?? string.Empty;
-                        string cleanVideoTitle = Uri.TryCreate(
-                            rawShadowUrl.Contains("://") ? rawShadowUrl : "https://" + rawShadowUrl,
-                            UriKind.Absolute, out shadowUrl)
-                            ? CleanYouTubeShadowTitle(shadowUrl, sCurrentTabTitle)
-                            : null;
-                        if (cleanVideoTitle != null)
-                            shadowTitle = cleanVideoTitle;
-                        bool placeholderTitle = string.IsNullOrWhiteSpace(shadowTitle) ||
-                            string.Equals(shadowTitle, "Untitled", StringComparison.OrdinalIgnoreCase) ||
-                            string.Equals(shadowTitle, "New Tab", StringComparison.OrdinalIgnoreCase) ||
-                            string.Equals(shadowTitle, "YouTube", StringComparison.OrdinalIgnoreCase);
-                        bool youtubeContentPage = shadowUrl != null &&
-                            (string.Equals(shadowUrl.Host, "youtube.com", StringComparison.OrdinalIgnoreCase) ||
-                             string.Equals(shadowUrl.Host, "www.youtube.com", StringComparison.OrdinalIgnoreCase) ||
-                             string.Equals(shadowUrl.Host, "m.youtube.com", StringComparison.OrdinalIgnoreCase)) &&
-                            (string.Equals(shadowUrl.AbsolutePath, "/watch", StringComparison.OrdinalIgnoreCase) ||
-                             string.Equals(shadowUrl.AbsolutePath, "/results", StringComparison.OrdinalIgnoreCase));
-                        if (youtubeContentPage)
-                        {
-                            // URL navigation can precede the window title update. The browser
-                            // shadow queue waits for a stable title and validates the active URL.
-                            // Leave the existing backend check below to continue normally.
-                            Debug.WriteLine("[NativeRelevanceModel] GENTLE BLOCK SHADOW deferred to stable browser check | URL=" + sActiveURL);
-                        }
-                        else if (placeholderTitle)
-                        {
-                            Debug.WriteLine("[NativeRelevanceModel] GENTLE BLOCK SHADOW skipped: title not ready | URL=" + sActiveURL);
-                        }
-                        else
-                        {
-                            App currentApp = (App)Application.Current;
-
-                            if (currentApp.NativeRelevanceClassifier == null)
-                            {
-                                throw new InvalidOperationException(
-                                    "Native relevance classifier is not loaded."
-                                );
-                            }
-
-                            string urlPathKeywords = string.Empty;
-
-                            try
-                            {
-                                string rawUrl = sActiveURL ?? string.Empty;
-
-                                if (!string.IsNullOrWhiteSpace(rawUrl))
-                                {
-                                    Uri parsedUrl = new Uri(
-                                        rawUrl.Contains("://") ? rawUrl : "https://" + rawUrl);
-
-                                    string[] pathParts = parsedUrl.AbsolutePath
-                                        .Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
-
-                                    urlPathKeywords = string.Join(" ",
-                                        pathParts.Where(part =>
-                                            part.Length > 2 &&
-                                            !part.All(char.IsDigit)));
-                                }
-                            }
-                            catch (UriFormatException)
-                            {
-                                urlPathKeywords = string.Empty;
-                            }
-
-                            string modelTitle = cleanVideoTitle ?? sCurrentTabTitle;
-                            string websiteContext = cleanVideoTitle ?? (
-                               (sCurrentTabTitle ?? string.Empty) + " " + urlPathKeywords
-                            ).Trim();
-
-                            string userGoal = (
-                                 (appSettings.sRunningFocusModeIntention ?? string.Empty)
-                                 + " " +
-                                 (appSettings.sCurrentTaskPlayingInToDoPlayer ?? string.Empty)
-                            ).Trim();
-
-                            Debug.WriteLine(
-                                "[NativeRelevanceClassifier] CURRENT TASK CHECK=" +
-                                 (appSettings.sCurrentTaskPlayingInToDoPlayer ?? "<NULL>")
-                            );
-
-                            Debug.WriteLine(
-                                "[NativeRelevanceClassifier] REAL INPUT - UserGoal=" +
-                                 userGoal
-                            );
-
-                            Debug.WriteLine(
-                                "[NativeRelevanceClassifier] REAL INPUT - FocusIntention=" +
-                                appSettings.sRunningFocusModeIntention
-                            );
-
-                            Debug.WriteLine(
-                                "[NativeRelevanceClassifier] REAL INPUT - TabTitle=" +
-                                sCurrentTabTitle
-                            );
-
-                            Debug.WriteLine(
-                                "[NativeRelevanceClassifier] REAL INPUT - URL=" +
-                                sActiveURL
-                            );
-
-                            Debug.WriteLine(
-                                "[NativeRelevanceClassifier] REAL INPUT - WebsiteContext=" +
-                                websiteContext
-                            );
-
-                            var nativePredictionStopwatch = System.Diagnostics.Stopwatch.StartNew();
-
-                            NativePredictionResult relevanceResult =
-                                currentApp.NativeRelevanceClassifier.Predict(
-                                    userGoal,
-                                    websiteContext,
-                                    sActiveURL,
-                                    modelTitle
-                                );
-                            nativePredictionStopwatch.Stop();
-
-                            double nativePredictionLatencyMs =
-                                nativePredictionStopwatch.Elapsed.TotalMilliseconds;
-
-                            Debug.WriteLine(
-                                "[NativeRelevanceClassifier] WEBSITE LATENCY MS=" +
-                                nativePredictionLatencyMs.ToString(
-                                    "0.00",
-                                    CultureInfo.InvariantCulture
-                                )
-                            );
-
-                            shadowAction = relevanceResult.Action;
-
-                            shadowConfidence =
-                                relevanceResult.Confidence.ToString(
-                                    "0.0000",
-                                    CultureInfo.InvariantCulture
-                                );
-
-                            shadowTier =
-                                relevanceResult.Tier.ToString(
-                                    CultureInfo.InvariantCulture
-                                );
-
-                            shadowFallbackRequired =
-                                (!relevanceResult.ConfidenceGatePassed).ToString();
-
-                            LogWriter.LogWrite(
-                                "NativeRelevanceModel SHADOW" +
-                                " | Action=" + shadowAction +
-                                " | Tier=" + shadowTier +
-                                " | Confidence=" + shadowConfidence +
-                                " | NativeLatencyMs=" +
-                                relevanceResult.LatencyMs.ToString(
-                                   "0.00",
-                                   CultureInfo.InvariantCulture
-                                )
-                            );
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        // Shadow mode must never interrupt the existing Focus Bear behaviour.
-                        LogWriter.LogWrite(
-                            "NativeRelevanceModel SHADOW failed - " + ex.Message
-                        );
-                    }
+                    // Shadow mode: started alongside the backend check and never awaited, so it can't delay or
+                    // change the blocking decision. YouTube videos are left to the stable-title queue in
+                    // ProcessBrowserURLs, because the URL changes before the window title does.
+                    Uri shadowUrl = RelevanceInput.ParseWebUrl(sActiveURL);
+                    RelevanceInput shadowInput = BrowserTitle.IsYouTubeContentPage(shadowUrl) ? null :
+                        RelevanceInput.ForBrowserTab(appSettings.sRunningFocusModeIntention,
+                            appSettings.sCurrentTaskPlayingInToDoPlayer, sActiveURL, sCurrentTabTitle);
+                    Task<NativeRelevanceClassifier.NativePredictionResult> shadowPrediction =
+                        RelevanceShadowMode.PredictInBackground(shadowInput);
                     FocusBearAPIClient client = new FocusBearAPIClient();
                     var nResponse = await client.ChatGPTIsURLSafe(sActiveURL, sCurrentTabTitle, "", appSettings.sRunningFocusModeName, appSettings.sRunningFocusModeIntention, appSettings.sLangCode);
                     double xProbability = nResponse;   //already a double: the culture round trip could only lose it
-
-                    bool backendAllows = xProbability >= 0.80;
-                    bool shadowAllows = shadowAction.Equals(
-                       "Allow",
-                        StringComparison.OrdinalIgnoreCase
-                    );
-
-                    bool isDisagreement =
-
-
-
-
-                        !string.IsNullOrEmpty(shadowAction) &&
-                        xProbability >= 0 &&
-                        (backendAllows != shadowAllows);
+                    RelevanceShadowMode.LogDisagreementWhenDone(shadowPrediction, xProbability);
 
                     if (CurrentURLBeingProcessedWithChatGPTAPI != sActiveURL) //If user have moved to another url, do not do anything
                         return;
@@ -737,22 +518,6 @@ namespace Focus_Bear.Focus
                     {
                         Console.WriteLine("csvfocusAIDecisions write error: " + ex.Message);
                     }
-
-                    // Record classifier/backend disagreements for shadow-mode analysis.
-                    if (isDisagreement)
-                    {
-                            LogWriter.LogWrite(
-                                    "RelevanceModel DISAGREEMENT - URL=" + sActiveURL +
-                                    " | ShadowAction=" + shadowAction +
-                                    " | ShadowTier=" + shadowTier +
-                                    " | ShadowConfidence=" + shadowConfidence +
-                                    " | ShadowLLMFallback=" + shadowFallbackRequired +
-                                    " | BackendProbability=" + xProbability +
-                                    " | BackendAction=" + (backendAllows ? "Allow" : "Block")
-                            );
-                    }
-
-
 
                     // Non-cuddly (grizzly) / Teacher Mode: no gentle popup and no questions asked. Decide from
                     // the AI verdict alone - an aligned site is allowed silently; anything else (distracting, or

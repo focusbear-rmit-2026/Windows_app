@@ -56,7 +56,6 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using static Focus_Bear.Focus.TabMetrics;
-using static Focus_Bear.RelevanceClassifier.NativeRelevanceClassifier;
 using WinForms = System.Windows.Forms;
 
 namespace Focus_Bear
@@ -67,11 +66,6 @@ namespace Focus_Bear
     public partial class App : Application
     {
         AppSettings appSettings = AppSettings.GetInstance;
-
-        // Long-lived native ONNX relevance classifier.
-        // Models are loaded once and reused during the application lifetime.
-        internal NativeRelevanceClassifier NativeRelevanceClassifier { get; private set; }
-        private readonly object _nativeRelevanceInitializationLock = new object();
 
         // Single-instance names. The E2E test build appends "-E2E" (see E2EBuild), so it runs beside the real app
         // instead of waking it and exiting.
@@ -1219,51 +1213,15 @@ namespace Focus_Bear
         {
             LogWriter.LogWrite("ProceedAfterDownloadingConfigFile()");
 
-            // Publish the classifier only after loading succeeds. Serialize repeated
-            // configuration callbacks so they cannot initialize multiple instances.
-            lock (_nativeRelevanceInitializationLock)
-            {
-                if (NativeRelevanceClassifier == null)
-                {
-                    var initializationStopwatch = Stopwatch.StartNew();
-                    try
-                    {
-                        var classifier = new NativeRelevanceClassifier();
-                        if (!classifier.LoadModels())
-                        {
-                            throw new InvalidOperationException(
-                                "One or more native ONNX relevance models failed to load. " +
-                                "Check the MODEL LOAD FAILED debug output and RelevanceClassifier assets."
-                            );
-                        }
-
-                        NativeRelevanceClassifier = classifier;
-                        initializationStopwatch.Stop();
-                        LogWriter.LogWrite(
-                            "NativeRelevanceModel initialized successfully." +
-                            " | Mode=SHADOW" +
-                            " | ModelLoadMs=" + initializationStopwatch.Elapsed.TotalMilliseconds.ToString(
-                                "0.00", CultureInfo.InvariantCulture)
-                        );
-                    }
-                    catch (Exception ex)
-                    {
-                        initializationStopwatch.Stop();
-                        LogWriter.LogWrite(
-                            "NativeRelevanceModel initialization failed - " + ex.Message +
-                            " | ModelLoadMs=" + initializationStopwatch.Elapsed.TotalMilliseconds.ToString(
-                                "0.00", CultureInfo.InvariantCulture)
-                        );
-                    }
-                }
-            }
+            // Download, verify and load the shadow classifier off the startup path; until it's ready there is none.
+            Task shadowModelReady = RelevanceShadowMode.StartInBackground();
             // Dataset replay is explicitly opted into and must not depend on the
             // backend-dependent post-login workflow reaching its final step.
-            if (DevFlags.DisagreementEval && NativeRelevanceClassifier != null &&
+            if (DevFlags.DisagreementEval &&
                 !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("FOCUSBEAR_EVALUATION_INPUT")))
             {
                 LogWriter.LogWrite("Native evaluation startup hook queued.");
-                Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ApplicationIdle,
+                shadowModelReady.ContinueWith(_ => Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ApplicationIdle,
                     new Action(async () =>
                     {
                         try
@@ -1275,7 +1233,7 @@ namespace Focus_Bear
                         {
                             LogWriter.LogWrite("Native evaluation startup hook failed: " + ex);
                         }
-                    }));
+                    })), TaskScheduler.Default);
             }
 
             //Show the splash window here

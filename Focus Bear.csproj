@@ -512,6 +512,7 @@
     <Compile Include="RelevanceClassifier\NativeMiniLmTokenizer.cs" />
     <Compile Include="RelevanceClassifier\NativeRelevanceClassifier.cs" />
     <Compile Include="RelevanceClassifier\NativeTfidfVectorizer.cs" />
+    <Compile Include="RelevanceClassifier\RelevanceShadowMode.cs" />
     <Compile Include="TabAudit\TabAuditView.xaml.cs">
       <DependentUpon>TabAuditView.xaml</DependentUpon>
     </Compile>
@@ -1629,9 +1630,6 @@
     <Resource Include="Images\crosshair_transparent.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="RelevanceClassifier\vocab.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <Resource Include="Images\Settings\button_black.png" />
     <Resource Include="Images\Settings\button_white.png" />
     <Resource Include="Images\always_blocked_apps.png" />
@@ -1754,24 +1752,6 @@
     <Resource Include="Images\validIcon.png" />
     <Resource Include="Images\eye-gray.png" />
     <Resource Include="Images\eye-orange.png" />
-    <None Include="RelevanceClassifier\logistic_regression.onnx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="RelevanceClassifier\minilm_l6_v2.onnx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="RelevanceClassifier\tfidf_context.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="RelevanceClassifier\tfidf_goal.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="RelevanceClassifier\xgboost_1.onnx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="RelevanceClassifier\xgboost_2.onnx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="Sound\StartingMorningEveningRoutine\StartingMorningEveningRoutine_5.wav" />
     <None Include="Sound\StartingMorningEveningRoutine\StartingMorningEveningRoutine_4.wav" />
     <None Include="Sound\StartingMorningEveningRoutine\StartingMorningEveningRoutine_2.wav" />

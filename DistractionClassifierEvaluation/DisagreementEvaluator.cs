@@ -1,4 +1,6 @@
-﻿using Focus_Bear.Utils;
+﻿using Focus_Bear.RelevanceClassifier;
+using Focus_Bear.Utils;
+using FocusBear.Core.Relevance;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -22,8 +24,8 @@ namespace Focus_Bear
         {
             if (!DevFlags.DisagreementEval || Interlocked.Exchange(ref started, 1) != 0)
                 return;
-            var app = Application.Current as App;
-            if (app == null || app.NativeRelevanceClassifier == null)
+            NativeRelevanceClassifier classifier = RelevanceShadowMode.Classifier;
+            if (classifier == null)
             {
                 LogWriter.LogWrite("DisagreementEvaluator - native classifier not loaded.");
                 return;
@@ -42,7 +44,7 @@ namespace Focus_Bear
                 await Task.Run(() => {
                     foreach (var x in examples)
                     {
-                        var r = app.NativeRelevanceClassifier.Predict(x[0], x[1], x[2], x[1]);
+                        var r = classifier.Predict(x[0], x[1], x[2], x[1]);
                         LogWriter.LogWrite("DisagreementEvaluator - example | URL=" + x[2] + " | Action=" + r.Action);
                     }
                 });
@@ -78,18 +80,17 @@ namespace Focus_Bear
                         "FocusBear", "Evaluation", DateTime.UtcNow.ToString("yyyyMMdd-HHmmss-fff", CultureInfo.InvariantCulture));
                     Directory.CreateDirectory(root);
                     var hashes = new Dictionary<string, string>();
-                    foreach (string name in new[] { "logistic_regression.onnx", "xgboost_1.onnx", "xgboost_2.onnx",
-                        "minilm_l6_v2.onnx", "tfidf_goal.json", "tfidf_context.json", "vocab.txt" })
-                        hashes[name] = Hash(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "RelevanceClassifier", name));
+                    foreach (RelevanceModelFile file in RelevanceModelFiles.All)
+                        hashes[file.Name] = Hash(Path.Combine(classifier.ModelDirectory, file.Name));
                     var manifest = new {
                         StartedUtc = DateTime.UtcNow, InputSha256 = Hash(input), Models = hashes,
                         Process64Bit = Environment.Is64BitProcess, DebuggerAttached = Debugger.IsAttached,
                         OS = Environment.OSVersion.ToString(), ProcessorCount = Environment.ProcessorCount,
                         Executable = Process.GetCurrentProcess().MainModule.FileName,
                         ExecutableSha256 = Hash(Process.GetCurrentProcess().MainModule.FileName),
-                        IntraOpNumThreads = app.NativeRelevanceClassifier.EffectiveOnnxThreadCount,
+                        IntraOpNumThreads = classifier.EffectiveOnnxThreadCount,
                         InterOpNumThreads = 1, ExecutionMode = "Sequential",
-                        TrackingContextExperimentEnabled = app.NativeRelevanceClassifier.TrackingContextExperimentEnabled,
+                        TrackingContextExperimentEnabled = classifier.TrackingContextExperimentEnabled,
                         Protocol = "3 sequential passes, deterministic shuffle seed 42; existing startup warmup; logging enabled. Pass 1 includes evaluation first-call costs. No cache reset between passes.",
                         Scope = "Offline classifier input replay; excludes browser capture and title-cleaning paths. No backend calls.",
                         Limitations = data.Limitations, DatasetRows = data.Rows.Count
@@ -112,11 +113,11 @@ namespace Focus_Bear
                                 var timer = Stopwatch.StartNew();
                                 try
                                 {
-                                    var r = app.NativeRelevanceClassifier.Predict(row.Goal, row.Context, row.Url, row.Title);
+                                    var r = classifier.Predict(row.Goal, row.Context, row.Url, row.Title);
                                     timer.Stop();
-                                    if (r.Tier < 0 || r.Tier > 2 || double.IsNaN(r.LatencyMs) || double.IsInfinity(r.LatencyMs))
+                                    if (r.Tier < RelevanceTier.Block || r.Tier > RelevanceTier.Allow || double.IsNaN(r.LatencyMs) || double.IsInfinity(r.LatencyMs))
                                         throw new InvalidDataException("Invalid prediction returned.");
-                                    item.PredictedTier = r.Tier; item.Action = r.Action;
+                                    item.PredictedTier = (int)r.Tier; item.Action = r.Action;
                                     item.Confidence = r.Confidence; item.Probabilities = r.Probabilities;
                                     item.PredictionMs = r.LatencyMs;
                                 }
