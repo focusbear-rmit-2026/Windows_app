@@ -66,7 +66,7 @@ namespace Focus_Bear.RelevanceClassifier
                     " | ShadowConfidence=" + result.Confidence.ToString("0.0000", CultureInfo.InvariantCulture) +
                     " | ShadowLLMFallback=" + result.LlmFallbackRequired +
                     " | BackendProbability=" + backendProbability.ToString("0.00", CultureInfo.InvariantCulture));
-            }, TaskScheduler.Default);
+            }, System.Threading.Tasks.TaskScheduler.Default);
         }
 
         private static NativePredictionResult Predict(NativeRelevanceClassifier classifier, RelevanceInput input)

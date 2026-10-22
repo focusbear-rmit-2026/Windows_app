@@ -1233,7 +1233,7 @@ namespace Focus_Bear
                         {
                             LogWriter.LogWrite("Native evaluation startup hook failed: " + ex);
                         }
-                    })), TaskScheduler.Default);
+                    })), System.Threading.Tasks.TaskScheduler.Default);
             }
 
             //Show the splash window here
