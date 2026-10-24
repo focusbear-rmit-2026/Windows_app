@@ -15,6 +15,9 @@
     <RootNamespace>FocusBear.App.Tests</RootNamespace>
     <AssemblyName>FocusBear.App.Tests</AssemblyName>
     <IsPackable>false</IsPackable>
+    <!-- Apply compatible assembly redirects to the .NET Framework test-host configuration. -->
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
     <!-- Pinned, never `latest`; see Core.Tests. -->
     <LangVersion>12.0</LangVersion>
   </PropertyGroup>
@@ -25,6 +28,10 @@
     <PackageReference Include="MSTest.TestFramework" Version="3.6.1" />
     <!-- Pinned to the version the app already carries in packages.config. -->
     <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+    <!-- Match the app's existing versions instead of older test-tool transitive dependencies. -->
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="6.0.0" />
+    <PackageReference Include="System.Collections.Immutable" Version="5.0.0" />
+    <PackageReference Include="System.Reflection.Metadata" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>

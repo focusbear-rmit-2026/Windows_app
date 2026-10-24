@@ -1,35 +1,21 @@
-﻿using Focus_Bear.AccountabilityBuddy;
-using Focus_Bear.API;
+﻿using Focus_Bear.API;
+using Focus_Bear.RelevanceClassifier;
 using Focus_Bear.BrainDump;
-using Focus_Bear.CallDetection;
 using Focus_Bear.Focus;
-using Focus_Bear.FocusMusic;
 using Focus_Bear.Habits;
-using Focus_Bear.Habits.NaturalBreaks;
 using Focus_Bear.Login;
 using Focus_Bear.Models;
 using Focus_Bear.Onboarding;
-using Focus_Bear.Pomodoro;
 using Focus_Bear.Preferences;
 using Focus_Bear.Quit;
-using Focus_Bear.Relax;
-using Focus_Bear.RelevanceClassifier;
-using Focus_Bear.Services;
-using Focus_Bear.Services.FocusButton;
 using Focus_Bear.ShutOff;
-using Focus_Bear.Survey;
-using Focus_Bear.Tour;
 using Focus_Bear.Upgrade;
 using Focus_Bear.Utils;
 using FocusBear.Utils;
 using Interop.UIAutomationClient;
-using Microsoft.Win32;
 using Newtonsoft.Json.Linq;
-using Sentry;
-using Sentry.Protocol;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Configuration;
 using System.Data;
 using System.Diagnostics;
@@ -38,25 +24,40 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Security.Policy;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
-using System.Web.UI;
 using System.Windows;
 using System.Windows.Automation;
-using System.Windows.Automation.Peers;
-using System.Windows.Automation.Provider;
-using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using System.Windows.Threading;
-using static Focus_Bear.Focus.TabMetrics;
 using WinForms = System.Windows.Forms;
+using Sentry;
+using Microsoft.Win32;
+using Focus_Bear.Relax;
+using Focus_Bear.Tour;
+using Focus_Bear.Survey;
+using Focus_Bear.Pomodoro;
+using Focus_Bear.CallDetection;
+using System.Windows.Media.Imaging;
+using System.Windows.Media;
+using System.Web.UI;
+using System.Windows.Controls;
+using Focus_Bear.Habits.NaturalBreaks;
+using Focus_Bear.Services;
+using Focus_Bear.FocusMusic;
+using Focus_Bear.AccountabilityBuddy;
+
+using System.Windows.Automation.Peers;
+using System.Windows.Automation.Provider;
+using System.Collections.ObjectModel;
+using static Focus_Bear.Focus.TabMetrics;
+using Focus_Bear.Services.FocusButton;
+using Sentry.Protocol;
+using System.Security.Policy;
 
 namespace Focus_Bear
 {
@@ -315,20 +316,28 @@ namespace Focus_Bear
                             {
                                 if (eventType == 0x800E)
                                 {
-                                    // The name is diagnostic only. A transient accessibility
-                                    // error here must not prevent reading a valid URL.
-                                    string sName = "<unavailable>";
-                                    try
+                                    string sName;
+                                    if (!DevFlags.NativeRelevance)
                                     {
-                                        sName = accWindow.accName[objChild] ?? "<unnamed>";
+                                        // Preserve the existing accessibility path when the experiment is off.
+                                        sName = accWindow.accName[objChild];
                                     }
-                                    catch (ArgumentException)
+                                    else
                                     {
-                                        // Continue to the URL read below.
-                                    }
-                                    catch (COMException)
-                                    {
-                                        // Continue to the URL read below.
+                                        // A transient diagnostic-name error must not lose a research URL sample.
+                                        sName = "<unavailable>";
+                                        try
+                                        {
+                                            sName = accWindow.accName[objChild] ?? "<unnamed>";
+                                        }
+                                        catch (ArgumentException)
+                                        {
+                                            // Continue to the URL read below.
+                                        }
+                                        catch (COMException)
+                                        {
+                                            // Continue to the URL read below.
+                                        }
                                     }
 
                                     string sURL = accWindow.accValue[objChild];
@@ -343,7 +352,10 @@ namespace Focus_Bear
                                         {
                                             Debug.WriteLine("accName = " + sName);
                                             Debug.WriteLine("accValue = " + sURL);
-                                            Debug.WriteLine("accChildId = " + Convert.ToString(objChild, CultureInfo.InvariantCulture));
+                                            if (DevFlags.NativeRelevance)
+                                                Debug.WriteLine("accChildId = " + Convert.ToString(objChild, CultureInfo.InvariantCulture));
+                                            else
+                                                Debug.WriteLine("accChild = " + accWindow.accChild[objChild].ToString());
                                             Debug.WriteLine("accState = " + accWindow.accState[objChild].ToString());
 
                                             appSettings.FirefoxLastAccWindow = accWindow;
@@ -1212,29 +1224,6 @@ namespace Focus_Bear
         public void ProceedAfterDownloadingConfigFile()
         {
             LogWriter.LogWrite("ProceedAfterDownloadingConfigFile()");
-
-            // Download, verify and load the shadow classifier off the startup path; until it's ready there is none.
-            Task shadowModelReady = RelevanceShadowMode.StartInBackground();
-            // Dataset replay is explicitly opted into and must not depend on the
-            // backend-dependent post-login workflow reaching its final step.
-            if (DevFlags.DisagreementEval &&
-                !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("FOCUSBEAR_EVALUATION_INPUT")))
-            {
-                LogWriter.LogWrite("Native evaluation startup hook queued.");
-                shadowModelReady.ContinueWith(_ => Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ApplicationIdle,
-                    new Action(async () =>
-                    {
-                        try
-                        {
-                            LogWriter.LogWrite("Native evaluation startup hook entered.");
-                            await DisagreementEvaluator.RunFiveExampleTestAsync(string.Empty, string.Empty);
-                        }
-                        catch (Exception ex)
-                        {
-                            LogWriter.LogWrite("Native evaluation startup hook failed: " + ex);
-                        }
-                    })), System.Threading.Tasks.TaskScheduler.Default);
-            }
 
             //Show the splash window here
             if (!appSettings.bStartingAfterDeactivated)
@@ -2432,6 +2421,11 @@ namespace Focus_Bear
 
             StartWorkFlow();
 
+            // Research-only shadow loading starts after the normal workflow has started.
+            // Never wait for model download, load or warm-up on the UI thread.
+            if (DevFlags.NativeRelevance)
+                _ = RelevanceShadowMode.StartInBackground();
+
             // Now that the splash is gone and the main window/workflow are up, open any focusbear:// deep
             // link that launched the app from cold (e.g. AuDHD advanced results), so it lands on top of a
             // ready UI rather than during loading.
@@ -2440,13 +2434,6 @@ namespace Focus_Bear
             // and the marker file makes this a no-op; it still covers an existing/logged-in user whose
             // first launch of a build with this check is post-login.
             CheckAudhdClipboardOnFirstLaunch();
-            if (DevFlags.DisagreementEval)
-            {
-                await DisagreementEvaluator.RunFiveExampleTestAsync(
-                    appSettings.sRunningFocusModeName,
-                    appSettings.sLangCode
-                );
-            }
         }
 
         // Teacher Mode (issue #1343): true when pressing Focus should start a class (teacher) session

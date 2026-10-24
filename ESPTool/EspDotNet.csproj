@@ -14,7 +14,6 @@
 		<LangVersion>latest</LangVersion>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <BaseOutputPath>..\bin\</BaseOutputPath>
-    <Platforms>AnyCPU;x64</Platforms>
 	</PropertyGroup>
 
 	<ItemGroup>

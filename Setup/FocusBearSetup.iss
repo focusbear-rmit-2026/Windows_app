@@ -41,7 +41,7 @@ SetupIconFile="focus-bear.ico"
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"; LicenseFile: "license-en.rtf"
 Name: "spanish"; MessagesFile: "compiler:Languages\Spanish.isl"; LicenseFile: "license-es.rtf"
- 
+
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
@@ -54,136 +54,138 @@ Root: HKCU; Subkey: "Software\Classes\focusbear\DefaultIcon"; ValueType: string;
 Root: HKCU; Subkey: "Software\Classes\focusbear\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppExeName}"" ""%1"""
 
 [Files]
-Source: "Files\Focus Bear.exe"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\Auth0.AuthenticationApi.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\Auth0.AuthenticationApi.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\Auth0.Core.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\Auth0.Core.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\config.json"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\config-es.json"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\Focus Bear.exe.config"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\Interop.UIAutomationClient.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\Microsoft.IdentityModel.JsonWebTokens.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\Microsoft.IdentityModel.JsonWebTokens.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\Microsoft.IdentityModel.Logging.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\Microsoft.IdentityModel.Logging.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\Microsoft.IdentityModel.Protocols.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\Microsoft.IdentityModel.Protocols.OpenIdConnect.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\Microsoft.IdentityModel.Protocols.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\Microsoft.IdentityModel.Tokens.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\Microsoft.IdentityModel.Tokens.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\Microsoft.Web.WebView2.Core.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\Microsoft.Web.WebView2.Core.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\Microsoft.Web.WebView2.WinForms.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\Microsoft.Web.WebView2.WinForms.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\Microsoft.Web.WebView2.Wpf.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\Microsoft.Web.WebView2.Wpf.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\Newtonsoft.Json.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\Newtonsoft.Json.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\System.IdentityModel.Tokens.Jwt.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\System.IdentityModel.Tokens.Jwt.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\Microsoft.Bcl.AsyncInterfaces.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\Microsoft.Bcl.AsyncInterfaces.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\Sentry.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\Sentry.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\System.Buffers.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\System.Buffers.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\System.Collections.Immutable.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\System.Collections.Immutable.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\System.Memory.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\System.Memory.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\System.Numerics.Vectors.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\System.Numerics.Vectors.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\System.Reflection.Metadata.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\System.Reflection.Metadata.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\System.Runtime.CompilerServices.Unsafe.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\System.Runtime.CompilerServices.Unsafe.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\System.Text.Encodings.Web.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\System.Text.Encodings.Web.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\System.Text.Json.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\System.Text.Json.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\System.Threading.Tasks.Extensions.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\System.Threading.Tasks.Extensions.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\System.ValueTuple.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\System.ValueTuple.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
+; Experimental classifier assets and ONNX runtimes are excluded from recursive copies.
+; Local shadow-mode testing uses the separately installed model cache.
+Source: "Files\Focus Bear.exe"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\Auth0.AuthenticationApi.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\Auth0.AuthenticationApi.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\Auth0.Core.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\Auth0.Core.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\config.json"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\config-es.json"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\Focus Bear.exe.config"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\Interop.UIAutomationClient.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\Microsoft.IdentityModel.JsonWebTokens.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\Microsoft.IdentityModel.JsonWebTokens.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\Microsoft.IdentityModel.Logging.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\Microsoft.IdentityModel.Logging.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\Microsoft.IdentityModel.Protocols.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\Microsoft.IdentityModel.Protocols.OpenIdConnect.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\Microsoft.IdentityModel.Protocols.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\Microsoft.IdentityModel.Tokens.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\Microsoft.IdentityModel.Tokens.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\Microsoft.Web.WebView2.Core.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\Microsoft.Web.WebView2.Core.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\Microsoft.Web.WebView2.WinForms.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\Microsoft.Web.WebView2.WinForms.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\Microsoft.Web.WebView2.Wpf.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\Microsoft.Web.WebView2.Wpf.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\Newtonsoft.Json.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\Newtonsoft.Json.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\System.IdentityModel.Tokens.Jwt.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\System.IdentityModel.Tokens.Jwt.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\Microsoft.Bcl.AsyncInterfaces.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\Microsoft.Bcl.AsyncInterfaces.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\Sentry.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\Sentry.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\System.Buffers.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\System.Buffers.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\System.Collections.Immutable.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\System.Collections.Immutable.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\System.Memory.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\System.Memory.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\System.Numerics.Vectors.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\System.Numerics.Vectors.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\System.Reflection.Metadata.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\System.Reflection.Metadata.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\System.Runtime.CompilerServices.Unsafe.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\System.Runtime.CompilerServices.Unsafe.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\System.Text.Encodings.Web.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\System.Text.Encodings.Web.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\System.Text.Json.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\System.Text.Json.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\System.Threading.Tasks.Extensions.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\System.Threading.Tasks.Extensions.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\System.ValueTuple.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\System.ValueTuple.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
 
-Source: "Files\PusherClient.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\NaCl.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\NaCl.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\WebSocket4Net.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\SuperSocket.ClientEngine.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
+Source: "Files\PusherClient.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\NaCl.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\NaCl.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\WebSocket4Net.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\SuperSocket.ClientEngine.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
 
-Source: "Files\Auth0.OidcClient.Core.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\Auth0.OidcClient.Core.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\Auth0.OidcClient.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\Auth0.OidcClient.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\Duende.IdentityModel.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\Duende.IdentityModel.OidcClient.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\Duende.IdentityModel.OidcClient.pdb"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\Duende.IdentityModel.OidcClient.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\Duende.IdentityModel.pdb"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\Duende.IdentityModel.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\Microsoft.Extensions.DependencyInjection.Abstractions.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\Microsoft.Extensions.DependencyInjection.Abstractions.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\Microsoft.Extensions.DependencyInjection.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\Microsoft.Extensions.DependencyInjection.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\Microsoft.Extensions.Logging.Abstractions.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\Microsoft.Extensions.Logging.Abstractions.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\Microsoft.Extensions.Logging.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\Microsoft.Extensions.Logging.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\Microsoft.Extensions.Options.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\Microsoft.Extensions.Options.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\Microsoft.Extensions.Primitives.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\Microsoft.Extensions.Primitives.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\Microsoft.IdentityModel.Abstractions.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\Microsoft.IdentityModel.Abstractions.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\System.Diagnostics.DiagnosticSource.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\System.Diagnostics.DiagnosticSource.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
+Source: "Files\Auth0.OidcClient.Core.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\Auth0.OidcClient.Core.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\Auth0.OidcClient.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\Auth0.OidcClient.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\Duende.IdentityModel.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\Duende.IdentityModel.OidcClient.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\Duende.IdentityModel.OidcClient.pdb"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\Duende.IdentityModel.OidcClient.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\Duende.IdentityModel.pdb"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\Duende.IdentityModel.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\Microsoft.Extensions.DependencyInjection.Abstractions.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\Microsoft.Extensions.DependencyInjection.Abstractions.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\Microsoft.Extensions.DependencyInjection.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\Microsoft.Extensions.DependencyInjection.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\Microsoft.Extensions.Logging.Abstractions.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\Microsoft.Extensions.Logging.Abstractions.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\Microsoft.Extensions.Logging.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\Microsoft.Extensions.Logging.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\Microsoft.Extensions.Options.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\Microsoft.Extensions.Options.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\Microsoft.Extensions.Primitives.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\Microsoft.Extensions.Primitives.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\Microsoft.IdentityModel.Abstractions.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\Microsoft.IdentityModel.Abstractions.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\System.Diagnostics.DiagnosticSource.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\System.Diagnostics.DiagnosticSource.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
 
-Source: "Files\NAudio.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\NAudio.Asio.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\NAudio.Asio.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\NAudio.Midi.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\NAudio.Midi.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\NAudio.Wasapi.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\NAudio.Wasapi.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\NAudio.WinForms.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\NAudio.WinForms.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\NAudio.WinMM.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\NAudio.WinMM.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\NAudio.Core.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\NAudio.Core.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
+Source: "Files\NAudio.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\NAudio.Asio.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\NAudio.Asio.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\NAudio.Midi.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\NAudio.Midi.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\NAudio.Wasapi.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\NAudio.Wasapi.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\NAudio.WinForms.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\NAudio.WinForms.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\NAudio.WinMM.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\NAudio.WinMM.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\NAudio.Core.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\NAudio.Core.xml"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
 
-Source: "Files\Stfu.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\System.Resources.Extensions.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\Emoji.Wpf.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\Typography.GlyphLayout.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\Typography.OpenFont.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\System.Security.Principal.Windows.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\System.Security.AccessControl.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
-Source: "Files\Microsoft.Win32.Registry.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
+Source: "Files\Stfu.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\System.Resources.Extensions.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\Emoji.Wpf.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\Typography.GlyphLayout.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\Typography.OpenFont.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\System.Security.Principal.Windows.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\System.Security.AccessControl.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
+Source: "Files\Microsoft.Win32.Registry.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
 ; The WPF-free logic library (Core\FocusBear.Core.csproj): the app does not start without it.
-Source: "Files\FocusBear.Core.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt; 
+Source: "Files\FocusBear.Core.dll"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt;
 
-Source: "Files\ESPnet472\*"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt recursesubdirs createallsubdirs
+Source: "Files\ESPnet472\*"; Excludes: "*onnxruntime*,*.onnx,tfidf_goal.json,tfidf_context.json,minilm_vocab.txt,vocab.txt,RelevanceClassifier\*,RelevanceModel\*,DistractionClassifierEvaluation\*"; DestDir: "{app}"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt recursesubdirs createallsubdirs
 
-Source: "Files\Graph\*"; DestDir: "{app}\graph"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt recursesubdirs createallsubdirs
-Source: "Files\runtimes\*"; DestDir: "{app}\runtimes"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt recursesubdirs createallsubdirs
+Source: "Files\Graph\*"; Excludes: "*onnxruntime*,*.onnx,tfidf_goal.json,tfidf_context.json,minilm_vocab.txt,vocab.txt,RelevanceClassifier\*,RelevanceModel\*,DistractionClassifierEvaluation\*"; DestDir: "{app}\graph"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt recursesubdirs createallsubdirs
+Source: "Files\runtimes\*"; Excludes: "*onnxruntime*,*.onnx,tfidf_goal.json,tfidf_context.json,minilm_vocab.txt,vocab.txt,RelevanceClassifier\*,RelevanceModel\*,DistractionClassifierEvaluation\*"; DestDir: "{app}\runtimes"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt recursesubdirs createallsubdirs
 ; The shared (project) note editor page the Notes screen loads in a WebView2 (BrainDump\ProjectNoteEditor.cs looks under Notes\ProjectNoteEditorWeb).
-Source: "Files\Notes\*"; DestDir: "{app}\Notes"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt recursesubdirs createallsubdirs
+Source: "Files\Notes\*"; Excludes: "*onnxruntime*,*.onnx,tfidf_goal.json,tfidf_context.json,minilm_vocab.txt,vocab.txt,RelevanceClassifier\*,RelevanceModel\*,DistractionClassifierEvaluation\*"; DestDir: "{app}\Notes"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt recursesubdirs createallsubdirs
 
-Source: "FocusBearTimeTracker\*"; DestDir: "{app}\FocusBearTimeTracker"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt recursesubdirs createallsubdirs
+Source: "FocusBearTimeTracker\*"; Excludes: "*onnxruntime*,*.onnx,tfidf_goal.json,tfidf_context.json,minilm_vocab.txt,vocab.txt,RelevanceClassifier\*,RelevanceModel\*,DistractionClassifierEvaluation\*"; DestDir: "{app}\FocusBearTimeTracker"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt recursesubdirs createallsubdirs
 
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
-Source: "logo.svg"; DestDir: "{localappdata}\focus bear"; Flags: ignoreversion restartreplace overwritereadonly noregerror replacesameversion uninsnosharedfileprompt recursesubdirs createallsubdirs
+Source: "logo.svg"; DestDir: "{localappdata}\focus bear"; Flags: ignoreversion restartreplace overwritereadonly noregerror uninsnosharedfileprompt recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{commonprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
 Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
-Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: {uninstallexe}; 
+Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: {uninstallexe};
 
 ;[Run]
 ;Filename: "{app}\{#MyAppName}"; Flags: Nowait
@@ -252,7 +254,7 @@ begin
     // The startup task would otherwise try to launch a program that is no longer there at every sign-in.
     Exec(ExpandConstant('{sys}\schtasks.exe'), '/Delete /TN "Focus Bear" /F', '', SW_HIDE, ewWaitUntilTerminated, ErrorCode);
     ShellExec('open','taskkill.exe','/f /im "focus bear.exe"','',SW_HIDE,ewNoWait,ErrorCode)
-    
+
     Result := true;
 
 end;

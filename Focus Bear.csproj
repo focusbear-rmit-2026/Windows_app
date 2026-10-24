@@ -1,6 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="packages\Microsoft.ML.OnnxRuntime.1.30.0\build\netstandard2.0\Microsoft.ML.OnnxRuntime.props" Condition="Exists('packages\Microsoft.ML.OnnxRuntime.1.30.0\build\netstandard2.0\Microsoft.ML.OnnxRuntime.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -34,9 +33,8 @@
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <!-- Use x64 for native ONNX inference, including CI builds. -->
-    <PlatformTarget>x64</PlatformTarget>
-    <Prefer32Bit>false</Prefer32Bit>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <Prefer32Bit>true</Prefer32Bit>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -46,9 +44,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <!-- Use x64 for native ONNX inference, including CI builds. -->
-    <PlatformTarget>x64</PlatformTarget>
-    <Prefer32Bit>false</Prefer32Bit>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <Prefer32Bit>true</Prefer32Bit>
     <DebugType>portable</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -91,27 +88,8 @@
   <PropertyGroup>
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x64\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <LangVersion>7.3</LangVersion>
-    <ErrorReport>prompt</ErrorReport>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x64\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>portable</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <LangVersion>7.3</LangVersion>
-    <ErrorReport>prompt</ErrorReport>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
+  <!-- Select ONNX native assets after the application architecture properties are set. -->
+  <Import Project="packages\Microsoft.ML.OnnxRuntime.1.22.1\build\netstandard2.0\Microsoft.ML.OnnxRuntime.props" Condition="Exists('packages\Microsoft.ML.OnnxRuntime.1.22.1\build\netstandard2.0\Microsoft.ML.OnnxRuntime.props')" />
   <ItemGroup>
     <Reference Include="Auth0.AuthenticationApi, Version=7.17.3.0, Culture=neutral, PublicKeyToken=afe355c419914736, processorArchitecture=MSIL">
       <HintPath>packages\Auth0.AuthenticationApi.7.17.3\lib\net452\Auth0.AuthenticationApi.dll</HintPath>
@@ -134,8 +112,8 @@
     <Reference Include="Emoji.Wpf">
       <HintPath>packages\Emoji.Wpf.0.3.4\lib\net40\Emoji.Wpf.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.ML.OnnxRuntime, Version=1.30.0.0, Culture=neutral, PublicKeyToken=f27f157f0a5b7bb6, processorArchitecture=MSIL">
-      <HintPath>packages\Microsoft.ML.OnnxRuntime.Managed.1.30.0\lib\netstandard2.0\Microsoft.ML.OnnxRuntime.dll</HintPath>
+    <Reference Include="Microsoft.ML.OnnxRuntime">
+      <HintPath>packages\Microsoft.ML.OnnxRuntime.Managed.1.22.1\lib\netstandard2.0\Microsoft.ML.OnnxRuntime.dll</HintPath>
     </Reference>
     <Reference Include="Typography.GlyphLayout">
       <HintPath>packages\Emoji.Wpf.0.3.4\lib\net40\Typography.GlyphLayout.dll</HintPath>
@@ -411,7 +389,6 @@
     <Compile Include="API\ActivityCompletedBody.cs" />
     <Compile Include="API\Authentication.cs" />
     <Compile Include="API\FocusBearAPIClient.cs" />
-    <Compile Include="DistractionClassifierEvaluation\DisagreementEvaluator.cs" />
     <Compile Include="API\FocusBearAPIClient.Notes.cs" />
     <Compile Include="API\FocusBearAPIClient.Stats.cs" />
     <Compile Include="AudhdResults\AudhdResultsWindow.xaml.cs">
@@ -1845,7 +1822,6 @@
       <Name>EspDotNet</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
@@ -1854,9 +1830,9 @@
     <Error Condition="!Exists('packages\Interop.UIAutomationClient.10.19041.0\build\Interop.UIAutomationClient.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Interop.UIAutomationClient.10.19041.0\build\Interop.UIAutomationClient.targets'))" />
     <Error Condition="!Exists('packages\Sentry.3.29.1\build\Sentry.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Sentry.3.29.1\build\Sentry.targets'))" />
     <Error Condition="!Exists('packages\Microsoft.Web.WebView2.1.0.3405.78\build\Microsoft.Web.WebView2.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Microsoft.Web.WebView2.1.0.3405.78\build\Microsoft.Web.WebView2.targets'))" />
-    <Error Condition="!Exists('packages\Microsoft.ML.OnnxRuntime.Managed.1.30.0\build\netstandard2.0\Microsoft.ML.OnnxRuntime.Managed.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Microsoft.ML.OnnxRuntime.Managed.1.30.0\build\netstandard2.0\Microsoft.ML.OnnxRuntime.Managed.targets'))" />
-    <Error Condition="!Exists('packages\Microsoft.ML.OnnxRuntime.1.30.0\build\netstandard2.0\Microsoft.ML.OnnxRuntime.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Microsoft.ML.OnnxRuntime.1.30.0\build\netstandard2.0\Microsoft.ML.OnnxRuntime.props'))" />
-    <Error Condition="!Exists('packages\Microsoft.ML.OnnxRuntime.1.30.0\build\netstandard2.0\Microsoft.ML.OnnxRuntime.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Microsoft.ML.OnnxRuntime.1.30.0\build\netstandard2.0\Microsoft.ML.OnnxRuntime.targets'))" />
+    <Error Condition="!Exists('packages\Microsoft.ML.OnnxRuntime.Managed.1.22.1\build\netstandard2.0\Microsoft.ML.OnnxRuntime.Managed.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Microsoft.ML.OnnxRuntime.Managed.1.22.1\build\netstandard2.0\Microsoft.ML.OnnxRuntime.Managed.targets'))" />
+    <Error Condition="!Exists('packages\Microsoft.ML.OnnxRuntime.1.22.1\build\netstandard2.0\Microsoft.ML.OnnxRuntime.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Microsoft.ML.OnnxRuntime.1.22.1\build\netstandard2.0\Microsoft.ML.OnnxRuntime.props'))" />
+    <Error Condition="!Exists('packages\Microsoft.ML.OnnxRuntime.1.22.1\build\netstandard2.0\Microsoft.ML.OnnxRuntime.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Microsoft.ML.OnnxRuntime.1.22.1\build\netstandard2.0\Microsoft.ML.OnnxRuntime.targets'))" />
   </Target>
   <Import Project="packages\Interop.UIAutomationClient.10.19041.0\build\Interop.UIAutomationClient.targets" Condition="Exists('packages\Interop.UIAutomationClient.10.19041.0\build\Interop.UIAutomationClient.targets')" />
   <Import Project="packages\Sentry.3.29.1\build\Sentry.targets" Condition="Exists('packages\Sentry.3.29.1\build\Sentry.targets')" />
@@ -1866,6 +1842,6 @@
     </VisualStudio>
   </ProjectExtensions>
   <Import Project="packages\Microsoft.Web.WebView2.1.0.3405.78\build\Microsoft.Web.WebView2.targets" Condition="Exists('packages\Microsoft.Web.WebView2.1.0.3405.78\build\Microsoft.Web.WebView2.targets')" />
-  <Import Project="packages\Microsoft.ML.OnnxRuntime.Managed.1.30.0\build\netstandard2.0\Microsoft.ML.OnnxRuntime.Managed.targets" Condition="Exists('packages\Microsoft.ML.OnnxRuntime.Managed.1.30.0\build\netstandard2.0\Microsoft.ML.OnnxRuntime.Managed.targets')" />
-  <Import Project="packages\Microsoft.ML.OnnxRuntime.1.30.0\build\netstandard2.0\Microsoft.ML.OnnxRuntime.targets" Condition="Exists('packages\Microsoft.ML.OnnxRuntime.1.30.0\build\netstandard2.0\Microsoft.ML.OnnxRuntime.targets')" />
+  <Import Project="packages\Microsoft.ML.OnnxRuntime.Managed.1.22.1\build\netstandard2.0\Microsoft.ML.OnnxRuntime.Managed.targets" Condition="Exists('packages\Microsoft.ML.OnnxRuntime.Managed.1.22.1\build\netstandard2.0\Microsoft.ML.OnnxRuntime.Managed.targets')" />
+  <Import Project="packages\Microsoft.ML.OnnxRuntime.1.22.1\build\netstandard2.0\Microsoft.ML.OnnxRuntime.targets" Condition="Exists('packages\Microsoft.ML.OnnxRuntime.1.22.1\build\netstandard2.0\Microsoft.ML.OnnxRuntime.targets')" />
 </Project>

@@ -1,6 +1,5 @@
 ﻿using Focus_Bear.API;
 using Focus_Bear.RelevanceClassifier;
-using FocusBear.Core.Relevance;
 using Focus_Bear.Utils;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -465,6 +464,19 @@ namespace Focus_Bear.Focus
                 appSettings.sConvincingAIForURL = ""; //reset
             }
 
+            // Capture only immutable shadow values before the asynchronous backend work.
+            string shadowIntention = null;
+            string shadowTask = null;
+            string shadowUrl = null;
+            string shadowTitle = null;
+            if (DevFlags.NativeRelevance)
+            {
+                shadowIntention = appSettings.sRunningFocusModeIntention;
+                shadowTask = appSettings.sCurrentTaskPlayingInToDoPlayer;
+                shadowUrl = sActiveURL;
+                shadowTitle = sCurrentTabTitle;
+            }
+
             await Task.Run(async () =>
             {
                 try
@@ -483,19 +495,19 @@ namespace Focus_Bear.Focus
                         }
                     }));
 
-                    // Shadow mode: started alongside the backend check and never awaited, so it can't delay or
-                    // change the blocking decision. YouTube videos are left to the stable-title queue in
-                    // ProcessBrowserURLs, because the URL changes before the window title does.
-                    Uri shadowUrl = RelevanceInput.ParseWebUrl(sActiveURL);
-                    RelevanceInput shadowInput = BrowserTitle.IsYouTubeContentPage(shadowUrl) ? null :
-                        RelevanceInput.ForBrowserTab(appSettings.sRunningFocusModeIntention,
-                            appSettings.sCurrentTaskPlayingInToDoPlayer, sActiveURL, sCurrentTabTitle);
-                    Task<NativeRelevanceClassifier.NativePredictionResult> shadowPrediction =
-                        RelevanceShadowMode.PredictInBackground(shadowInput);
+                    // Capture shadow inputs only when explicitly enabled. Input preparation and
+                    // inference run independently; the backend decision never waits for either.
+                    Task<NativeRelevanceClassifier.NativePredictionResult> shadowPrediction = null;
+                    if (DevFlags.NativeRelevance)
+                    {
+                        shadowPrediction = RelevanceShadowMode.QueueBrowserTabPrediction(
+                            shadowIntention, shadowTask, shadowUrl, shadowTitle, skipYouTubeContent: true);
+                    }
                     FocusBearAPIClient client = new FocusBearAPIClient();
                     var nResponse = await client.ChatGPTIsURLSafe(sActiveURL, sCurrentTabTitle, "", appSettings.sRunningFocusModeName, appSettings.sRunningFocusModeIntention, appSettings.sLangCode);
                     double xProbability = nResponse;   //already a double: the culture round trip could only lose it
-                    RelevanceShadowMode.LogDisagreementWhenDone(shadowPrediction, xProbability);
+                    if (shadowPrediction != null)
+                        RelevanceShadowMode.LogDisagreementWhenDone(shadowPrediction, xProbability);
 
                     if (CurrentURLBeingProcessedWithChatGPTAPI != sActiveURL) //If user have moved to another url, do not do anything
                         return;

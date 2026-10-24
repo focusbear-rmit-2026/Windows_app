@@ -49,6 +49,7 @@ namespace FocusBear.Core.Relevance
         /// </summary>
         public async Task<bool> EnsureInstalledAsync(CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             System.IO.Directory.CreateDirectory(_directory);
             foreach (RelevanceModelFile file in _files)
             {
@@ -69,8 +70,11 @@ namespace FocusBear.Core.Relevance
                     await _download(_urlFor(file), stream, cancellationToken).ConfigureAwait(false);
                 }
                 if (!Matches(partial, file)) return false;
-                if (File.Exists(destination)) File.Delete(destination);
-                File.Move(partial, destination);
+                cancellationToken.ThrowIfCancellationRequested();
+                if (File.Exists(destination))
+                    File.Replace(partial, destination, null);
+                else
+                    File.Move(partial, destination);
                 return true;
             }
             catch (Exception ex) when (!(ex is OperationCanceledException))

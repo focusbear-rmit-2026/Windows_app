@@ -187,6 +187,9 @@ namespace Focus_Bear.Utils
 
         private static void QueueNativeWebsiteShadowCheck(IntPtr hWnd, string url)
         {
+            if (!DevFlags.NativeRelevance)
+                return;
+
             try
             {
                 AppSettings settings = AppSettings.GetInstance;
@@ -199,7 +202,9 @@ namespace Focus_Bear.Utils
                 if (parsedUrl == null)
                     return;
 
-                string goal = RelevanceInput.ComposeGoal(settings.sRunningFocusModeIntention, settings.sCurrentTaskPlayingInToDoPlayer);
+                string intentionSnapshot = settings.sRunningFocusModeIntention;
+                string taskSnapshot = settings.sCurrentTaskPlayingInToDoPlayer;
+                string goal = RelevanceInput.ComposeGoal(intentionSnapshot, taskSnapshot);
                 if (goal.Length == 0 || string.Equals(goal,
                     "What do you want to achieve in this focus session?", StringComparison.OrdinalIgnoreCase))
                     return;
@@ -283,11 +288,10 @@ namespace Focus_Bear.Utils
                                  DateTime.UtcNow - LastNativeShadowTimeUtc < TimeSpan.FromSeconds(30)))
                                 return;
                         }
-                        RelevanceInput input = RelevanceInput.ForBrowserTab(settings.sRunningFocusModeIntention,
-                            settings.sCurrentTaskPlayingInToDoPlayer, rawUrl, title);
-                        if (input == null || input.Goal != goal)
+                        var result = await RelevanceShadowMode.QueueBrowserTabPrediction(
+                            intentionSnapshot, taskSnapshot, rawUrl, title).ConfigureAwait(false);
+                        if (result == null)
                             return;
-                        await RelevanceShadowMode.PredictInBackground(input).ConfigureAwait(false);
                         lock (NativeShadowLock)
                         {
                             LastNativeShadowKey = key;
@@ -296,7 +300,7 @@ namespace Focus_Bear.Utils
                     }
                     catch (Exception ex)
                     {
-                        Debug.WriteLine("[NativeRelevanceModel] WEBSITE SHADOW failed: " + ex);
+                        Debug.WriteLine("[NativeRelevanceModel] WEBSITE SHADOW failed: " + ex.GetType().Name);
                     }
                     finally
                     {
@@ -311,7 +315,7 @@ namespace Focus_Bear.Utils
             catch (Exception ex)
             {
                 // Shadow diagnostics must not change existing blocking behaviour.
-                Debug.WriteLine("[NativeRelevanceModel] WEBSITE SHADOW setup failed: " + ex);
+                Debug.WriteLine("[NativeRelevanceModel] WEBSITE SHADOW setup failed: " + ex.GetType().Name);
             }
         }
 
@@ -612,7 +616,8 @@ namespace Focus_Bear.Utils
 
             // Observe ordinary websites before allow-list/cached decisions return.
             // Queue a settled URL/title snapshot, then run native inference in the background.
-            QueueNativeWebsiteShadowCheck(hWnd, sURL);
+            if (DevFlags.NativeRelevance)
+                QueueNativeWebsiteShadowCheck(hWnd, sURL);
 
             FocusAlignmentScoreManager.FocusModeOpenCurrentUrlForAlignmentScore(sURL);
 

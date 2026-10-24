@@ -18,13 +18,14 @@
 <!-- TABLE OF CONTENTS -->
 <summary>Table of Contents</summary>
 <ol>
-  <li><a href="#built-with">Built With</a></li>  
+  <li><a href="#built-with">Built With</a></li>
   <li><a href="#getting-started">Getting Started</a></li>
   <li><a href="#prerequisites">Prerequisites</a></li>
   <li><a href="#installation">Installation</a></li>
   <li><a href="#difference-of-debug-and-release">Difference of Debug and Release</a></li>
   <li><a href="#wpf-file-structure">WPF file structure</a></li>
   <li><a href="#git-work-flow">Git work flow</a></li>
+  <li><a href="#experimental-native-relevance-classifier">Experimental native relevance classifier</a></li>
 </ol>
 
 
@@ -37,7 +38,7 @@
 
 ### Built With
 
-This IDE used for this project is Visual Studio. 
+This IDE used for this project is Visual Studio.
 * [Visual Studio][Vs-url]
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -69,7 +70,7 @@ To clone the repository in Visual Studio:
      https://github.com/Focus-Bear/windows-app-v2.git
      ```
    - Choose a **Path** where you want to clone the repository on your local machine.
-   - Click the **Clone** button.  
+   - Click the **Clone** button.
 
 2. **Choose Debug mode and Start.**
    - In Visual Studio, ensure the **Debug** configuration is selected in the dropdown menu (usually located in the toolbar).
@@ -152,8 +153,8 @@ Here's a basic workflow for using Git within this project:
     ```sh
     git add "filename"
     ```
-    Replace `"filename"` with the specific file you want to add.  
-    If you add new resource like image to the project, please remeber to add "Focus bear.csproj"  
+    Replace `"filename"` with the specific file you want to add.
+    If you add new resource like image to the project, please remeber to add "Focus bear.csproj"
 
     To add all modified files at once, use:
     ```sh
@@ -178,6 +179,26 @@ Here's a basic workflow for using Git within this project:
 
 
 
+
+## Experimental native relevance classifier
+
+The Windows app includes an optional C#/.NET ONNX classifier using the shared **v2.1 model with 6,313 features**. It is off by default. When explicitly enabled on a research machine, it runs in shadow mode alongside the backend; **the backend continues to control blocking**. No Flask server or Python runtime is needed for local inference.
+
+Build with **Any CPU** and the existing 32-bit preference. The current experimental ONNX Runtime **1.22.1** managed/native pin supports the local x86 test configuration; the production runtime/security and architecture decision remains open with maintainers.
+
+After fully quitting any running copy, a development Release build can be opted in from Developer PowerShell:
+
+```powershell
+$env:FOCUSBEAR_NATIVE_RELEVANCE = "1"
+$env:FOCUSBEAR_FEATURE_DIAGNOSTICS = "0"
+Start-Process -FilePath ".\bin\Release\Focus Bear.exe"
+```
+
+The flag is read once per process. On opt-in, missing or invalid model files are downloaded and checked against compiled sizes and SHA-256 values in the background. The cache is `%LOCALAPPDATA%\FocusBear\RelevanceModel\v2.1`. Until loading and warm-up finish successfully, no classifier is available. To force the next launch off, set `FOCUSBEAR_NATIVE_RELEVANCE=0` in its launching environment and restart the app.
+
+Release classifier diagnostics omit goals, URLs and titles. Detailed per-page records require an explicit Debug diagnostics opt-in and use bounded rolling logs. Experimental ONNX runtime/model assets are excluded from the installer; use the development output for native opt-in testing.
+
+See [Windows native classifier diagnostics](DistractionClassifierEvaluation/README.md) for the seven shared assets, exact opt-in behavior, tests, recorded Windows smoke checks and remaining parity/rollout work. Historical results for the old 5,545-feature model do not describe v2.1.
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->

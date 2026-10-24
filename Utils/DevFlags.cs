@@ -32,6 +32,23 @@ namespace Focus_Bear.Utils
         /// </summary>
         public static bool DisagreementEval => _disagreementEval.Value;
 
+        private static readonly Lazy<bool> _nativeRelevance =
+            new Lazy<bool>(() => ReadFlag("NATIVE_RELEVANCE"));
+
+        /// <summary>
+        /// Enables native ONNX shadow classification on research machines only.
+        /// Off by default. Set FOCUSBEAR_NATIVE_RELEVANCE=1 in the environment,
+        /// or NATIVE_RELEVANCE=true in the local, git-ignored .env file.
+        /// The value is read once for the lifetime of the process.
+        /// </summary>
+        public static bool NativeRelevance => _nativeRelevance.Value;
+
+        private static readonly Lazy<bool> _featureDiagnostics =
+            new Lazy<bool>(() => ReadFlag("FEATURE_DIAGNOSTICS"));
+
+        /// <summary>Allows detailed Debug shadow logs only with explicit local opt-in.</summary>
+        public static bool FeatureDiagnostics => NativeRelevance && _featureDiagnostics.Value;
+
         private static bool ReadFlag(string key)
         {
             try

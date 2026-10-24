@@ -65,6 +65,10 @@ jobs:
   build:
     needs: pick-runner
     runs-on: ${{ fromJSON(needs.pick-runner.outputs.runs_on) }}
+    # Keep experimental classification off, including on a runner with local opt-in settings.
+    env:
+      FOCUSBEAR_NATIVE_RELEVANCE: "0"
+      FOCUSBEAR_FEATURE_DIAGNOSTICS: "0"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

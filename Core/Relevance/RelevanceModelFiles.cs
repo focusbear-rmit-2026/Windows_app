@@ -31,6 +31,9 @@ namespace FocusBear.Core.Relevance
         public const string Version = "v2.1";
         public const string BaseUrl = "https://pub-a0f25f0d306d4d63bbfc52aa624ae389.r2.dev";
 
+        // Downloads are attempted only after the application's explicit native-shadow opt-in.
+        public static bool DownloadsEnabled => true;
+
         public const string Encoder = "minilm.onnx";
         public const string Vocabulary = "vocab.txt";
         public const string LogisticRegression = "lr.onnx";
